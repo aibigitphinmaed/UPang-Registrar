@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "User" (
 );
 
 -- Create the Profile table with a foreign key reference to User
-CREATE TABLE IF NOT EXISTS Profile (
+CREATE TABLE IF NOT EXISTS "Profile" (
     profile_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     first_name VARCHAR(100) NOT NULL,
@@ -20,13 +20,12 @@ CREATE TABLE IF NOT EXISTS Profile (
         ON DELETE CASCADE
 );
 
--- Optional: Add some sample data to the User table
-INSERT INTO "User" (username, email, password)
-VALUES 
-    ('User', 'user@phinmaed.com', 'password123'),
+-- Insert into User table with corrected string literals
+INSERT INTO "User" (username, email, password, role)
+VALUES
+    ('User', 'user@phinmaed.com', 'password123', 'student');
 
--- Optional: Add some sample data to the Profile table, linking to the User table
-INSERT INTO Profile (user_id, first_name, last_name, middle_name)
-VALUES 
-    (1, 'User First Name', 'User Last Name', 'User Middle Name'),
-    
+-- Insert into Profile table with corrected string literals
+INSERT INTO "Profile" (user_id, first_name, last_name, middle_name)
+VALUES
+    (1, 'User First Name', 'User Last Name', 'User Middle Name');

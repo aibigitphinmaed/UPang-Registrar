@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    //hilt
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -33,9 +38,26 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+
 }
 
 dependencies {
+
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.ui.tooling.preview.android)
+    //compose Bill of Materials
+    val composeBom = platform("androidx.compose:compose-bom:2025.01.01")
+    implementation(composeBom)
+    testImplementation(composeBom)
+    androidTestImplementation(composeBom)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -43,4 +65,29 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //material icons
+    implementation (libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
+
+
+    //compose
+    implementation("androidx.activity:activity-compose:1.10.0")
+
+
+    //Timber
+    implementation("com.jakewharton.timber:timber:5.0.1")
+
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.55")
+    kapt("com.google.dagger:hilt-android-compiler:2.55")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    //kotlinx
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

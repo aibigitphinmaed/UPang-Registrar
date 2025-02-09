@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Android-App</string>
+    <string name="empty_string">Empty String</string>
+    <string name="login_error_msg_empty_email">Empty Email</string>
+    <string name="password_empty_error_msg">Empty Password</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_button_text">Sign-In</string>
+    <string name="open_drawer">Open Drawer</string>
+    <string name="dashboard_content_description">Dashboard</string>
+    <string name="appointment_booking_content_description">Appointment</string>
+    <string name="queue_ticket_content_description">Queue</string>
+    <string name="modify_appointments_content_description">Modify Appointment</string>
+    <string name="notifications_content_description">Notifications</string>
+    <string name="profile_management_content_description">Manage Profile</string>
+    <string name="feedback_submission_content_description">Give us a feedback or suggestion!</string>
+    <string name="help_and_support_content_description">FAQs or need help?</string>
+    <string name="log_out_content_description">Sign-Out</string>
 </resources>

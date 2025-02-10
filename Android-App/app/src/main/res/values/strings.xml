@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android-App</string>
+    <string name="app_name">UPang Registrar</string>
     <string name="empty_string">Empty String</string>
     <string name="login_error_msg_empty_email">Empty Email</string>
     <string name="password_empty_error_msg">Empty Password</string>

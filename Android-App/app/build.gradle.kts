@@ -85,6 +85,19 @@ dependencies {
 
     //kotlinx
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+    //ktor client
+    implementation("io.ktor:ktor-client-core:3.0.3")
+    implementation("io.ktor:ktor-client-okhttp:3.0.3")
+    implementation("io.ktor:ktor-client-logging:3.0.3")
+    implementation("io.ktor:ktor-client-serialization:3.0.3")
+    implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
+    implementation("io.ktor:ktor-client-auth:3.0.3")
+    //datastore
+    implementation("androidx.datastore:datastore:1.1.2")
+
+
 }
 
 // Allow references to generated code

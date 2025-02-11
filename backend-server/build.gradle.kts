@@ -37,4 +37,12 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    //exposed
+    implementation("org.jetbrains.exposed:exposed-core:0.58.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.58.0")
+
+    //apache org
+    implementation("commons-codec:commons-codec:1.15")
+
 }

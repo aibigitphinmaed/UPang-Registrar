@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
+    salt VARCHAR(64) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -49,21 +50,4 @@ CREATE TABLE IF NOT EXISTS "LocationInformation" (
     FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE
 );
 
--- Insert default user
-INSERT INTO "User" (username, password, role)
-VALUES ('user', 'user', 'student');
-
--- Insert into PersonalInformation with required fields
-INSERT INTO "PersonalInformation" (
-    user_id, first_name, last_name, gender, citizenship, religion, civil_status, email, birth_date, father_name, mother_name, contact_person_number
-) VALUES (
-    1, 'User First Name', 'User Last Name', 'Male', 'Filipino', 'Catholic', 'Single', 'user@phinmaed.com', '2000-01-01', 'Father Name', 'Mother Name', '09123456789'
-);
-
--- Insert into LocationInformation with required fields
-INSERT INTO "LocationInformation" (
-    user_id, street, barangay, city_municipality, province, country, postal_code
-) VALUES (
-    1, 'Main Street', 'Barangay 1', 'City XYZ', 'Province ABC', 'Philippines', '1000'
-);
 

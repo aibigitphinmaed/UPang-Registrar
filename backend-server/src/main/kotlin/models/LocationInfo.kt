@@ -1,10 +1,10 @@
-package com.ite393group5.android_app.models
-
+package com.ite393group5.models
 import kotlinx.serialization.Serializable
+
 
 @Serializable
 data class LocationInfo(
-    val houseNumber:String?,
+    val houseNumber:String,
     val street:String,
     val zone:String,
     val barangay:String,
@@ -12,4 +12,4 @@ data class LocationInfo(
     val province:String,
     val country:String,
     val postalCode:String,
-)
+):Updatable

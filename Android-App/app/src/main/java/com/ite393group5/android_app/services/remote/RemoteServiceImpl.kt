@@ -13,6 +13,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 class RemoteServiceImpl @Inject constructor(
@@ -63,7 +64,14 @@ class RemoteServiceImpl @Inject constructor(
             serverResponse.body<PersonalInfo>()
         } catch (e: Exception) {
             Timber.tag("RemoteServiceImpl").e(e)
-            PersonalInfo("", "", "", "", "", "", "", "", "", "")
+            PersonalInfo(
+                firstName = "", lastName = "", middleName = "",extensionName = null, gender = "", citizenship = "", religion = "", civilStatus =  "", email = "", number = "",
+                birthDate = null,
+                fatherName = "",
+                motherName = "",
+                spouseName = "",
+                contactPersonNumber = ""
+            )
         }
 
     }
@@ -74,7 +82,7 @@ class RemoteServiceImpl @Inject constructor(
             serverResponse.body<LocationInfo>()
         }catch (e:Exception){
             Timber.tag("RemoteServiceImpl").e(e)
-            LocationInfo(null,"","","","","","",0)
+            LocationInfo(null,"","","","","","","")
         }
     }
 

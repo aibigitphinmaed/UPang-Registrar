@@ -1,8 +1,9 @@
-package com.ite393group5.android_app.models
+package com.ite393group5.models
 
-import com.ite393group5.android_app.utilities.DateSerializer
+import com.ite393group5.utilities.DateSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
+
 
 @Serializable
 data class PersonalInfo(
@@ -22,4 +23,4 @@ data class PersonalInfo(
     val motherName:String,
     val spouseName:String? = null,
     val contactPersonNumber:String,
-)
+):Updatable

@@ -7,8 +7,7 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
+import io.ktor.server.routing.*
 
 fun Route.studentRoutes(userServiceImpl: UserService) {
     authenticate("student-auth") {
@@ -49,6 +48,16 @@ fun Route.studentRoutes(userServiceImpl: UserService) {
         }
         get("hello-student"){
             call.respondText("Hello Student!")
+        }
+        post("student-id"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+            if (userid != null) {
+                call.respond(HttpStatusCode.OK, mapOf("id" to userid))
+            }else{
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student ID not found"))
+            }
         }
     }
 }

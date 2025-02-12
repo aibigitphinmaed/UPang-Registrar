@@ -4,6 +4,7 @@ import android.content.Context
 import com.ite393group5.android_app.models.Token
 import com.ite393group5.android_app.services.local.LocalServiceImpl
 import com.ite393group5.android_app.services.remote.RemoteServiceImpl
+import com.ite393group5.android_app.utilities.Url
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +26,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import timber.log.Timber
@@ -39,9 +41,6 @@ object NetworkModule {
     fun provideLocalServiceImpl(@ApplicationContext context: Context): LocalServiceImpl {
         return LocalServiceImpl(context)
     }
-
-
-
 
     @Provides
     @Singleton
@@ -66,7 +65,7 @@ object NetworkModule {
                 )
             }
             install(DefaultRequest) {
-                url("http://192.168.0.14:8080/")
+                url("http://${Url.URL}:${Url.PORT}/")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }
@@ -74,7 +73,7 @@ object NetworkModule {
             install(Auth){
                 bearer{
                     sendWithoutRequest {
-                            request -> request.url.host == "http://192.168.0.14:8080/"
+                            request -> request.url.host == "http://${Url.URL}/"
                     }
                     loadTokens {
                         BearerTokens(

@@ -9,6 +9,7 @@ interface RemoteService {
     suspend fun login(loginRequest: LoginRequest):Boolean
     suspend fun logout()
     suspend fun refreshToken(): Token
-    suspend fun getPersonalInformation(): PersonalInfo
-    suspend fun getLocationInformation():LocationInfo
+    suspend fun getPersonalInformation(userId:Int): PersonalInfo
+    suspend fun getLocationInformation(userId:Int): LocationInfo
+    suspend fun retrievePreferences()
 }

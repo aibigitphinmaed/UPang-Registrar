@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LocationInfo(
-    val houseNumber:String?,
+    val houseNumber:String,
     val street:String,
     val zone:String,
     val barangay:String,

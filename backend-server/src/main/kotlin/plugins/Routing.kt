@@ -32,9 +32,6 @@ fun Application.configureRouting(
             val password = user.password
             val username = user.username
             val findUser = userServiceImpl.findByUsername(username)
-
-
-
             if (findUser != null) {
 
                 val saltedHash = SaltedHash(findUser.password, findUser.salt)

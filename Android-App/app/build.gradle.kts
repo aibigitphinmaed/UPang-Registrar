@@ -51,6 +51,7 @@ dependencies {
 
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.compose.ui:ui-tooling:1.7.7")
     implementation(libs.androidx.ui.tooling.preview.android)
     //compose Bill of Materials
     val composeBom = platform("androidx.compose:compose-bom:2025.01.01")

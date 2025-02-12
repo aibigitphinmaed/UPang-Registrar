@@ -7,7 +7,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.ite393group5.android_app.dashboard.DashboardScreen
+import com.ite393group5.android_app.loadingscreen.LoadingScreen
 import com.ite393group5.android_app.login.LoginScreen
+import com.ite393group5.android_app.logout.LogoutScreen
 import com.ite393group5.android_app.utilities.AppModalDrawer
 import com.ite393group5.android_app.utilities.AppNavigationActions
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +27,14 @@ fun NavGraphBuilder.unauthenticatedGraph(
         composable(route = NavigationRoutes.Unauthenticated.Login.route) {
             LoginScreen(
                 onNavigationToAuthenticatedRoutes = {
+                   navController.navigate(route = NavigationRoutes.Unauthenticated.LoadingScreen.route)
+                }
+            )
+        }
+        //start LoadingScreen
+        composable(route = NavigationRoutes.Unauthenticated.LoadingScreen.route) {
+            LoadingScreen(
+                navigateToDashboard = {
                     navController.navigate(route = NavigationRoutes.Authenticated.NavigationRoute.route) {
                         popUpTo(route = NavigationRoutes.Unauthenticated.NavigationRoute.route) {
                             inclusive = true
@@ -52,6 +62,8 @@ fun NavGraphBuilder.authenticatedGraph(
         route = NavigationRoutes.Authenticated.NavigationRoute.route,
         startDestination = NavigationRoutes.Authenticated.Dashboard.route
     ) {
+
+
         //start Dashboard
         composable(route = NavigationRoutes.Authenticated.Dashboard.route) {
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
@@ -66,6 +78,16 @@ fun NavGraphBuilder.authenticatedGraph(
 
         }
         //end of Dashboard
+
+        //start logout
+         composable(route = NavigationRoutes.Authenticated.Logout.route) {
+             LogoutScreen(
+                 onNavigationToUnauthenticatedRoutes = {
+                     appNavigationActions.logout()
+                 }
+             )
+         }
+        //end of Logout
     }
 
 }

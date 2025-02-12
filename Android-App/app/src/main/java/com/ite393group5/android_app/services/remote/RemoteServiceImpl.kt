@@ -4,24 +4,28 @@ import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.LoginRequest
 import com.ite393group5.android_app.models.PersonalInfo
 import com.ite393group5.android_app.models.Token
+import com.ite393group5.android_app.models.UserIdResponse
 import com.ite393group5.android_app.services.local.LocalServiceImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.time.LocalDate
 import javax.inject.Inject
 
 class RemoteServiceImpl @Inject constructor(
     private val localServiceImpl: LocalServiceImpl,
     private val ktorClient: HttpClient
 ) : RemoteService {
-    override suspend fun login(loginRequest: LoginRequest): Boolean {
-        try {
+    override suspend fun login(loginRequest: LoginRequest): Boolean = withContext(Dispatchers.IO) {
+       return@withContext try {
             val serverResponse = ktorClient.post("login") {
                 contentType(ContentType.Application.Json)
                 setBody(loginRequest)
@@ -29,13 +33,14 @@ class RemoteServiceImpl @Inject constructor(
             if (serverResponse.status.value == 200) {
                 val token = serverResponse.body<Token>()
                 localServiceImpl.saveBearerToken(token)
-
-                return true
+                Timber.tag("RemoteServiceImpl").e(localServiceImpl.getBearerToken())
+                true
+            }else{
+                false
             }
-            return false
         } catch (e: Exception) {
             Timber.tag("RemoteServiceImpl").e(e)
-            return false
+            false
         }
 
     }
@@ -58,10 +63,20 @@ class RemoteServiceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPersonalInformation(): PersonalInfo {
-        val serverResponse = ktorClient.get("personalInfo")
-        return try {
-            serverResponse.body<PersonalInfo>()
+    override suspend fun getPersonalInformation(userId: Int): PersonalInfo = withContext(Dispatchers.IO){
+        val token = localServiceImpl.getBearerToken()
+        val serverResponse = ktorClient.get("student-profile"){
+            contentType(ContentType.Application.Json)
+            headers{
+                append(HttpHeaders.Authorization, "Bearer $token" )
+            }
+            setBody(mapOf("userId" to "$userId"))
+        }
+        return@withContext try {
+            val personalInfo = serverResponse.body<PersonalInfo>()
+            localServiceImpl.savePersonalInfo(personalInfo)
+            Timber.tag("RemoteServiceImpl").e(personalInfo.toString())
+            personalInfo
         } catch (e: Exception) {
             Timber.tag("RemoteServiceImpl").e(e)
             PersonalInfo(
@@ -76,16 +91,56 @@ class RemoteServiceImpl @Inject constructor(
 
     }
 
-    override suspend fun getLocationInformation(): LocationInfo {
-        val serverResponse = ktorClient.get("locationInfo")
-        return try {
-            serverResponse.body<LocationInfo>()
+    override suspend fun getLocationInformation(userId: Int): LocationInfo = withContext(Dispatchers.IO){
+        val token = localServiceImpl.getBearerToken()
+        val serverResponse = ktorClient.get("student-address"){
+            contentType(ContentType.Application.Json)
+            headers{
+                append(HttpHeaders.Authorization, "Bearer $token" )
+            }
+            setBody(mapOf("userId" to "$userId"))
+
+        }
+        return@withContext try {
+           val locationInfo = serverResponse.body<LocationInfo>()
+            localServiceImpl.saveAddressInfo(locationInfo)
+            Timber.tag("RemoteServiceImpl").e(locationInfo.toString())
+            locationInfo
         }catch (e:Exception){
             Timber.tag("RemoteServiceImpl").e(e)
-            LocationInfo(null,"","","","","","","")
+            LocationInfo("","","","","","","","")
         }
     }
 
+    override suspend fun retrievePreferences() {
+        val token = localServiceImpl.getBearerToken()
+        try{
+            val serverResponse = ktorClient.post("student-id"){
+                contentType(ContentType.Application.Json)
+                headers{
+                    append(HttpHeaders.Authorization, "Bearer $token" )
+                }
+            }
+            if(serverResponse.status.value == 200) {
+                val userId = serverResponse.body<UserIdResponse>()
+                localServiceImpl.saveUserId(userId.id)
+                val personalInfo = getPersonalInformation(userId.id)
+                val locationInfo = getLocationInformation(userId.id)
+
+                localServiceImpl.savePersonalInfo(personalInfo)
+                localServiceImpl.saveAddressInfo(locationInfo)
+                Timber.tag("RemoteServiceImpl").e(personalInfo.toString())
+                Timber.tag("RemoteServiceImpl").e(locationInfo.toString())
+
+                localServiceImpl.saveToDateStore()
+            }else{
+                Timber.tag("RemoteServiceImpl").e("Failed to retrieve userId in the server")
+            }
+        }catch (e:Exception){
+            Timber.tag("retrievePreferences").e(e)
+        }
+
+    }
 
 
 }

@@ -21,9 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ite393group5.android_app.R
 import com.ite393group5.android_app.common.TitleText
 import com.ite393group5.android_app.login.state.LoginUiEvent
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(
@@ -31,12 +33,11 @@ fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel<LoginViewModel>()
 ) {
 
-    val loginState by remember {
-        loginViewModel.loginState
-    }
+    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
 
     if (loginState.isLoggedIn) {
-        LaunchedEffect(key1 = true) {
+        LaunchedEffect(Unit) {
+            Timber.tag("LoginScreen").e("Logged in")
             onNavigationToAuthenticatedRoutes.invoke()
         }
     } else {

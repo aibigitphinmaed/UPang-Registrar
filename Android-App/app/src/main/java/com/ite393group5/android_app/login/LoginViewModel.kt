@@ -2,37 +2,60 @@ package com.ite393group5.android_app.login
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import com.ite393group5.android_app.login.LoginState
+import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.login.state.LoginUiEvent
 import com.ite393group5.android_app.login.state.emailEmptyErrorState
 import com.ite393group5.android_app.login.state.passwordEmptyErrorState
+import com.ite393group5.android_app.models.LoginRequest
+import com.ite393group5.android_app.services.local.LocalServiceImpl
+import com.ite393group5.android_app.services.remote.RemoteServiceImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
+import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel(){
+class LoginViewModel @Inject constructor(
+    private val localServiceImpl: LocalServiceImpl,
+    private val remoteServiceImpl: RemoteServiceImpl
+) : ViewModel(){
 
-    val loginState = mutableStateOf(LoginState())
+
+
+    private val _loginState = MutableStateFlow(LoginState())  // Use private mutable state
+    val loginState: StateFlow<LoginState> = _loginState  // Expose as immutable State
 
     init {
-        //viewModelScope.launch(Dispatchers.IO)
+        viewModelScope.launch(Dispatchers.IO){
+            localServiceImpl.collectFromDataStore()
+            val sessionIsOn = localServiceImpl.checkSession()
+            Timber.tag("LoginViewModel").e(sessionIsOn.toString())
+            _loginState.value = loginState.value.copy(
+                isLoggedIn = sessionIsOn
+            )
+        }
     }
+
 
     fun onUiEvent(loginUiEvent: LoginUiEvent){
         when(loginUiEvent){
             is LoginUiEvent.OnEmailChanged -> {
-                loginState.value = loginState.value.copy(
+                _loginState.value = _loginState.value.copy(
                     email = loginUiEvent.inputValue,
-                    errorState = loginState.value.errorState.copy(emailErrorState = if(loginUiEvent.inputValue.trim().isNotEmpty())
+                    errorState = _loginState.value.errorState.copy(emailErrorState = if(loginUiEvent.inputValue.trim().isNotEmpty())
                         ErrorState() else emailEmptyErrorState
                     )
                 )
             }
 
             is LoginUiEvent.OnPasswordChanged -> {
-                loginState.value = loginState.value.copy(
+                _loginState.value = _loginState.value.copy(
                     password = loginUiEvent.inputValue,
-                    errorState = loginState.value.errorState.copy(
+                    errorState = _loginState.value.errorState.copy(
                         passwordErrorState = if (loginUiEvent.inputValue.trim().isNotEmpty())
                             ErrorState()
                         else
@@ -44,22 +67,29 @@ class LoginViewModel @Inject constructor() : ViewModel(){
             is LoginUiEvent.Submit -> {
                 if(validateInputs()){
                     //submit login
-                    loginState.value = loginState.value.copy(
-                        isLoggedIn = true
-                    )
+                    viewModelScope.launch {
+                        val loginRequest = LoginRequest(
+                            username = _loginState.value.email,
+                            password = _loginState.value.password
+                        )
+                        _loginState.value = _loginState.value.copy(
+                            isLoggedIn = remoteServiceImpl.login(loginRequest)
+                        )
+                    }
+
                 }
             }
         }
     }
 
     private fun validateInputs(): Boolean {
-        val emailString = loginState.value.email.trim()
-        val passwordString = loginState.value.password
+        val emailString = _loginState.value.email.trim()
+        val passwordString = _loginState.value.password
 
         return when {
             emailString.isEmpty() -> {
-                loginState.value = loginState.value.copy(
-                    errorState = loginState.value.errorState.copy(
+                _loginState.value = _loginState.value.copy(
+                    errorState = _loginState.value.errorState.copy(
                         emailErrorState = emailEmptyErrorState
                     )
                 )
@@ -67,8 +97,8 @@ class LoginViewModel @Inject constructor() : ViewModel(){
             }
 
             passwordString.isEmpty() -> {
-                loginState.value = loginState.value.copy(
-                    errorState = loginState.value.errorState.copy(
+                _loginState.value = _loginState.value.copy(
+                    errorState = _loginState.value.errorState.copy(
                         passwordErrorState = passwordEmptyErrorState
                     )
                 )
@@ -78,7 +108,7 @@ class LoginViewModel @Inject constructor() : ViewModel(){
             //no empty errors
             else -> {
                 //set all error state to false
-                loginState.value = loginState.value.copy(
+                _loginState.value = _loginState.value.copy(
                     errorState = LoginErrorState()
                 )
                 true

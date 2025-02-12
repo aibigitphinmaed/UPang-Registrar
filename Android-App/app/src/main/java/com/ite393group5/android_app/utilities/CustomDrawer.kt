@@ -60,11 +60,11 @@ fun AppModalDrawer(
                 navigateToProfileManagement = { navigationActions.navigateToProfileManagement() },
                 navigateToFeedbackSubmission = { navigationActions.navigateToFeedbackSubmission() },
                 navigateToHelpAndSupport = { navigationActions.navigateToHelpAndSupport() },
-                navigateToLogin = {
+                navigateToLogout = {
                     coroutineScope.launch {
                         drawerState.close()
                     }
-                    navigationActions.navigateToLogin()
+                    navigationActions.navigateToLogoutScreen()
                 },
                 closeDrawer = { coroutineScope.launch { drawerState.close() } }
             )
@@ -87,7 +87,7 @@ private fun AppDrawer(
     navigateToProfileManagement: () -> Unit,
     navigateToFeedbackSubmission: () -> Unit,
     navigateToHelpAndSupport: () -> Unit,
-    navigateToLogin: () -> Unit
+    navigateToLogout: () -> Unit
 ) {
 
     Surface(color = MaterialTheme.colorScheme.background) {
@@ -181,7 +181,7 @@ private fun AppDrawer(
                 isSelected = false,
                 action = {
                     closeDrawer()
-                    navigateToLogin()
+                    navigateToLogout()
                 }
             )
         }
@@ -246,7 +246,7 @@ fun AppModalDrawerPreview() {
             navigateToProfileManagement = {},
             navigateToFeedbackSubmission = {},
             navigateToHelpAndSupport = {},
-            navigateToLogin = {}
+            navigateToLogout = {}
         )
     }
 }

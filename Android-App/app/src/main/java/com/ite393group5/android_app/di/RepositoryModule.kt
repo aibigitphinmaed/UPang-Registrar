@@ -30,10 +30,5 @@ abstract class RepositoryModule {
         localServiceImpl: LocalServiceImpl
     ): LocalService
 
-    @Binds
-    @Singleton
-    abstract fun bindRemoteService(
-        localService: LocalService,
-        ktorClient: HttpClient
-    ): RemoteService
+
 }

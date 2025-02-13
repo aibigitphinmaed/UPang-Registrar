@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
+import com.ite393group5.android_app.profilemanagement.domain.ProfileUpdateUseCase
 import com.ite393group5.android_app.profilemanagement.domain.ProfileUseCase
 import com.ite393group5.android_app.profilemanagement.state.ProfileScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,6 +64,9 @@ class ProfileScreenViewModel @Inject constructor(
             showConfirmWindow = false
         )
     }
+
+
+
 
     fun completeEditing(){
         viewModelScope.launch {

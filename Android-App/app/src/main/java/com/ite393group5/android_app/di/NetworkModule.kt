@@ -2,6 +2,7 @@ package com.ite393group5.android_app.di
 
 import com.ite393group5.android_app.models.Token
 import com.ite393group5.android_app.services.local.LocalService
+import com.ite393group5.android_app.services.remote.RemoteService
 import com.ite393group5.android_app.services.remote.RemoteServiceImpl
 import com.ite393group5.android_app.utilities.Url
 import dagger.Module
@@ -93,6 +94,11 @@ object NetworkModule {
             }
 
         }
+    }
+    @Provides
+    @Singleton
+    fun provideRemoteService(ktorClient: HttpClient, localService: LocalService): RemoteService {
+        return RemoteServiceImpl(localService,ktorClient)
     }
 
 }

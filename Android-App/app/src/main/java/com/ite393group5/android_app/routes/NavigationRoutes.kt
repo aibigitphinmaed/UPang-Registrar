@@ -14,13 +14,14 @@ sealed class NavigationRoutes{
         data object NavigationRoute: Authenticated("authenticated")
         data object Dashboard: Authenticated("Dashboard")
         data object Logout: Authenticated("Logout")
+        data object ProfileManagement: Authenticated("ProfileManagement")
 
 
+        //below here is for you guys
         data object AppointmentBooking: Authenticated("AppointmentBooking")
         data object QueueTicket: Authenticated("QueueTicket")
         data object ModifyAppointments: Authenticated("ModifyAppointments")
         data object Notifications: Authenticated("Notifications")
-        data object ProfileManagement: Authenticated("ProfileManagement")
         data object FeedbackSubmission: Authenticated("FeedbackSubmission")
         data object HelpAndSupport: Authenticated("HelpAndSupport")
 

@@ -6,10 +6,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.ite393group5.android_app.appointmentbooking.AppointmentBookingScreen
 import com.ite393group5.android_app.dashboard.DashboardScreen
 import com.ite393group5.android_app.loadingscreen.LoadingScreen
 import com.ite393group5.android_app.login.LoginScreen
 import com.ite393group5.android_app.logout.LogoutScreen
+import com.ite393group5.android_app.profilemanagement.ProfileScreen
 import com.ite393group5.android_app.utilities.AppModalDrawer
 import com.ite393group5.android_app.utilities.AppNavigationActions
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
 
 //please do not touch this part without consulting me
 fun NavGraphBuilder.unauthenticatedGraph(
-    navController: NavController
+    navController: NavController,
+    modifier: Modifier
 ) {
     navigation(
         route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
@@ -73,9 +76,12 @@ fun NavGraphBuilder.authenticatedGraph(
                         coroutineScope.launch {
                             drawerState.open()
                         }
-                    })
+                    },
+                    onNavigateToProfileScreen = {
+                        appNavigationActions.navigateToProfileManagement()
+                    }
+                )
             }
-
         }
         //end of Dashboard
 
@@ -88,6 +94,36 @@ fun NavGraphBuilder.authenticatedGraph(
              )
          }
         //end of Logout
+
+        //start of Appointment Booking
+        composable(route = NavigationRoutes.Authenticated.AppointmentBooking.route){
+            AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
+                AppointmentBookingScreen(
+                    modifier = modifier,
+                    openDrawer = {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+        }
+        //end of Appointment Booking
+
+        //start of Profile Screen
+        composable(route = NavigationRoutes.Authenticated.ProfileManagement.route) {
+            AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
+                ProfileScreen(
+                    modifier = modifier,
+                    openDrawer = {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+        }
+        //end of Profile Screen
     }
 
 }

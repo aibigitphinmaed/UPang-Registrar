@@ -19,7 +19,9 @@ class AppNavigationActions(private val navController: NavHostController) {
 
 
     fun navigateToAppointmentBooking() {
-        TODO("Not yet implemented")
+        navController.navigate(
+            route = NavigationRoutes.Authenticated.AppointmentBooking.route
+        )
     }
 
     fun navigateToQueueTicket() {
@@ -35,7 +37,7 @@ class AppNavigationActions(private val navController: NavHostController) {
     }
 
     fun navigateToProfileManagement() {
-        TODO("Not yet implemented")
+       navController.navigate(route = NavigationRoutes.Authenticated.ProfileManagement.route)
     }
 
     fun navigateToFeedbackSubmission() {

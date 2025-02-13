@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 
 fun Route.studentRoutes(userServiceImpl: UserService) {
     authenticate("student-auth") {
+
         get("student-profile") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
@@ -25,6 +26,7 @@ fun Route.studentRoutes(userServiceImpl: UserService) {
 
             if (studentProfile != null) {
                 call.respond(HttpStatusCode.OK, studentProfile)
+
             }else{
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student profile not found"))
             }

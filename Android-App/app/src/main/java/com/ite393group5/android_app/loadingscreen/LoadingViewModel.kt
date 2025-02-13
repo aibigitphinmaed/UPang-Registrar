@@ -7,6 +7,8 @@ import com.ite393group5.android_app.services.local.LocalServiceImpl
 import com.ite393group5.android_app.services.remote.RemoteServiceImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -17,8 +19,8 @@ class LoadingViewModel @Inject constructor(
     private val remoteServiceImpl: RemoteServiceImpl
 ):ViewModel() {
 
-    val loadingState = mutableStateOf(LoadingState())
-
+    private val _loadingState = MutableStateFlow(LoadingState())
+    val flowLoadingState: StateFlow<LoadingState> = _loadingState
     init{
         viewModelScope.launch(Dispatchers.IO) {
             if(localServiceImpl.checkSession()){
@@ -27,7 +29,7 @@ class LoadingViewModel @Inject constructor(
                 Timber.tag("LoadingViewModel").e(localServiceImpl.getPersonalInfo().toString())
                 Timber.tag("LoadingViewModel").e(localServiceImpl.getAddressInfo().toString())
                 Timber.tag("LoadingViewModel").e(localServiceImpl.getUserId().toString())
-                loadingState.value = loadingState.value.copy(
+                _loadingState.value = _loadingState.value.copy(
                     waitingUserId = false,
                     waitingForProfileData = false,
                     waitingForAddressData = false
@@ -41,14 +43,14 @@ class LoadingViewModel @Inject constructor(
                     remoteServiceImpl.retrievePreferences()
                     if(localServiceImpl.checkLocalDataStoreIfNotNull()){
                         Timber.tag("LoadingViewModel").e("All data retrieved")
-                        loadingState.value = loadingState.value.copy(
+                        _loadingState.value = _loadingState.value.copy(
                             waitingUserId = false,
                             waitingForProfileData = false,
                             waitingForAddressData = false
                         )
                     }else{
                         Timber.tag("LoadingViewModel").e("Not all data retrieved")
-                        loadingState.value = loadingState.value.copy(
+                        _loadingState.value = _loadingState.value.copy(
                             waitingUserId = true,
                             waitingForProfileData = true,
                             waitingForAddressData = true)

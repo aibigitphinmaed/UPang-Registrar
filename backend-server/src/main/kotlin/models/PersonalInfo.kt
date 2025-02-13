@@ -24,3 +24,4 @@ data class PersonalInfo(
     val spouseName:String? = null,
     val contactPersonNumber:String,
 ):Updatable
+

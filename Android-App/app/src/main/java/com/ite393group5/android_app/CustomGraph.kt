@@ -40,7 +40,7 @@ fun CustomGraph(
         modifier = modifier
     ){
 
-        unauthenticatedGraph(navController)
+        unauthenticatedGraph(navController, modifier)
         authenticatedGraph(drawerState, modifier, coroutineScope, navActions, currentRoute)
 
     }

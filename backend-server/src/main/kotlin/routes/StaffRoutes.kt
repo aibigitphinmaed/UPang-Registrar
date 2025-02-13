@@ -9,6 +9,7 @@ import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -26,6 +27,9 @@ fun Route.staffRoutes(
     authenticate("staff-auth") {
         get("hello-staff"){
             call.respondText("Hello Staff!")
+        }
+        post("save-personal-info"){
+            val personalInfo = call.receive<PersonalInfo>()
         }
     }
 

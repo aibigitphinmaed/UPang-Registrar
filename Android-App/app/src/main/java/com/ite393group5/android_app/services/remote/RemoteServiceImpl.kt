@@ -5,6 +5,7 @@ import com.ite393group5.android_app.models.LoginRequest
 import com.ite393group5.android_app.models.PersonalInfo
 import com.ite393group5.android_app.models.Token
 import com.ite393group5.android_app.models.UserIdResponse
+import com.ite393group5.android_app.services.local.LocalService
 import com.ite393group5.android_app.services.local.LocalServiceImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -14,6 +15,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,7 +23,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class RemoteServiceImpl @Inject constructor(
-    private val localServiceImpl: LocalServiceImpl,
+    private val localServiceImpl: LocalService,
     private val ktorClient: HttpClient
 ) : RemoteService {
     override suspend fun login(loginRequest: LoginRequest): Boolean = withContext(Dispatchers.IO) {
@@ -141,6 +143,26 @@ class RemoteServiceImpl @Inject constructor(
         }
 
     }
+
+    override suspend fun updatePersonalInformation(personalInfo: PersonalInfo, locationInfo: LocationInfo): HttpStatusCode = withContext(Dispatchers.IO){
+        val token = localServiceImpl.getBearerToken()
+        val serverResponse = ktorClient.post("personal-information"){
+            contentType(ContentType.Application.Json)
+            headers{
+                append(HttpHeaders.Authorization, "Bearer $token" )
+            }
+            setBody(personalInfo)
+            setBody(locationInfo)
+        }
+
+        return@withContext try {
+            serverResponse.status
+        }catch (e:Exception){
+            Timber.tag("RemoteServiceImpl").e(e)
+            HttpStatusCode.BadRequest
+        }
+    }
+
 
 
 }

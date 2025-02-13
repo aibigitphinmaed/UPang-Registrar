@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,9 +24,8 @@ fun LoadingScreen(
     navigateToDashboard: () -> Unit,
 ) {
     val loadingViewModel: LoadingViewModel = hiltViewModel<LoadingViewModel>()
-    val loadingState by remember {
-        loadingViewModel.loadingState
-    }
+    val loadingState by loadingViewModel.flowLoadingState.collectAsState()
+
     if (loadingState.waitingForAddressData || loadingState.waitingForProfileData) {
         Surface (modifier = Modifier
             .fillMaxSize()

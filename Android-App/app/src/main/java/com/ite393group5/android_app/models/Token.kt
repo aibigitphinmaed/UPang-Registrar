@@ -6,10 +6,10 @@ import java.time.LocalDate
 
 @Serializable
 data class Token(
-    val bearerToken: String,
-    val refreshToken: String,
+    val bearerToken: String? = null,
+    val refreshToken: String? = null,
     @Serializable(with = DateSerializer::class)
-    val expirationTimeDate: LocalDate?
+    val expirationTimeDate: LocalDate? = null
 )
 
 

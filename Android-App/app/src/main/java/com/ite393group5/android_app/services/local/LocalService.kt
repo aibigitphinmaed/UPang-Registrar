@@ -3,9 +3,15 @@ package com.ite393group5.android_app.services.local
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
 import com.ite393group5.android_app.models.Token
+import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDate
 
 interface LocalService {
+    val flowPersonalInfo:StateFlow<PersonalInfo>
+    val flowAddressInfo:StateFlow<LocationInfo>
+    val flowToken: StateFlow<Token>
+    val flowUserId: StateFlow<Int>
+
     suspend fun saveToDateStore()
     suspend fun saveBearerToken(token: Token)
     suspend fun saveRefreshToken(token: Token)

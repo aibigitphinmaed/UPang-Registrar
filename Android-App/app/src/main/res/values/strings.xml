@@ -15,4 +15,7 @@
     <string name="feedback_submission_content_description">Give us a feedback or suggestion!</string>
     <string name="help_and_support_content_description">FAQs or need help?</string>
     <string name="log_out_content_description">Sign-Out</string>
+    <string name="check_documents">Check Document List</string>
+    <string name="notification">Notifications</string>
+    <string name="document">Documents</string>
 </resources>

@@ -4,12 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LocationInfo(
-    val houseNumber:String,
-    val street:String,
-    val zone:String,
-    val barangay:String,
-    val cityMunicipality:String,
-    val province:String,
-    val country:String,
-    val postalCode:String,
+    val houseNumber:String? = null,
+    val street:String? = null,
+    val zone:String? = null,
+    val barangay:String? = null,
+    val cityMunicipality:String? = null,
+    val province:String? = null,
+    val country:String? = null,
+    val postalCode:String? = null,
 )

@@ -1,9 +1,8 @@
 package com.ite393group5.android_app.services.local
 
 import android.content.Context
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.ite393group5.android_app.models.AppPreferences
 import com.ite393group5.android_app.models.LocationInfo
@@ -13,114 +12,81 @@ import com.ite393group5.android_app.utilities.AppPreferencesSerializer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
+private val corruptionHandler = ReplaceFileCorruptionHandler(
+    produceNewData = { AppPreferences(
+        userId = null,
+        token = null,
+        personalInfo = null,
+        locationInfo = null
+    )}
+)
+private val Context.appPreferencesDataStore by dataStore( "app_preferences.json", AppPreferencesSerializer, corruptionHandler)
+
 class LocalServiceImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : LocalService{
-    private val corruptionHandler = ReplaceFileCorruptionHandler(
-        produceNewData = { AppPreferences(
-            userId = null,
-            token = null,
-            personalInfo = null,
-            locationInfo = null
-        )}
-    )
 
-    private val Context.dataStore by dataStore(context.packageName + "_preferences.json", AppPreferencesSerializer, corruptionHandler)
-    private val mutableUserId = mutableIntStateOf(-1)
-    private val mutableToken = mutableStateOf(Token("","", LocalDate.now()))
-    private val mutablePersonalInfo = mutableStateOf(PersonalInfo(
-        firstName = "",
-        lastName = "",
-        middleName = "",
-        extensionName = "",
-        gender = "",
-        citizenship = "",
-        religion = "",
-        civilStatus = "",
-        email = "",
-        number = "",
-        birthDate = null,
-        fatherName = "",
-        motherName = "",
-        spouseName = "",
-        contactPersonNumber = ""
-    ))
+    private val dataStore = context.appPreferencesDataStore
 
-    private val mutableAddressInfo = mutableStateOf(
-        LocationInfo(
-            houseNumber = "",
-            street = "",
-            zone = "",
-            barangay = "",
-            cityMunicipality = "",
-            province = "",
-            country = "",
-            postalCode = ""
-        )
-    )
+    init{
+        CoroutineScope(Dispatchers.IO).launch {
+            collectFromDataStore()
+        }
+    }
+
+
+    private val _mutableUserId = MutableStateFlow(-1)
+    override val flowUserId:StateFlow<Int> = _mutableUserId
+
+    private val _mutableToken = MutableStateFlow(Token())
+    override val flowToken: StateFlow<Token> = _mutableToken
+
+    private val _mutablePersonalInfo = MutableStateFlow(PersonalInfo())
+   override val flowPersonalInfo: StateFlow<PersonalInfo> = _mutablePersonalInfo
+
+    private val _mutableAddressInfo = MutableStateFlow(LocationInfo())
+     override val flowAddressInfo:StateFlow<LocationInfo> = _mutableAddressInfo
+
 
 
     suspend fun collectFromDataStore():AppPreferences? = withContext(Dispatchers.IO){
-        return@withContext try{
-            val apprefs =  context.dataStore.data.firstOrNull()
-            Timber.tag("LocalServiceImpl").e(apprefs.toString())
+        return@withContext try {
+            val appPrefs = dataStore.data.firstOrNull()
+            Timber.tag("LocalServiceImpl").e(appPrefs.toString())
 
-
-            if (apprefs != null) {
-                mutableToken.value = mutableToken.value.copy(
-                    bearerToken = apprefs.token?.bearerToken ?: "",
-                    refreshToken = apprefs.token?.refreshToken ?: "",
-                    expirationTimeDate = apprefs.token?.expirationTimeDate ?: LocalDate.now()
+            appPrefs?.let {
+                _mutableToken.value = _mutableToken.value.copy(
+                    bearerToken = it.token?.bearerToken ?: "",
+                    refreshToken = it.token?.refreshToken ?: "",
+                    expirationTimeDate = it.token?.expirationTimeDate ?: LocalDate.now()
                 )
-                mutableUserId.intValue = apprefs.userId ?: -1
-
-                mutableAddressInfo.value = mutableAddressInfo.value.copy(
-                    houseNumber = apprefs.locationInfo?.houseNumber ?: "",
-                    street = apprefs.locationInfo?.street ?: "",
-                    zone = apprefs.locationInfo?.zone ?: "",
-                    barangay = apprefs.locationInfo?.barangay ?: "",
-                    cityMunicipality = apprefs.locationInfo?.cityMunicipality ?: "",
-                    province = apprefs.locationInfo?.province ?: "",
-                    country = apprefs.locationInfo?.country ?: "",
-                    postalCode = apprefs.locationInfo?.postalCode ?: ""
-                )
-                mutablePersonalInfo.value = mutablePersonalInfo.value.copy(
-                    firstName = apprefs.personalInfo?.firstName ?: "",
-                    lastName = apprefs.personalInfo?.lastName ?: "",
-                    middleName = apprefs.personalInfo?.middleName ?: "",
-                    gender = apprefs.personalInfo?.gender ?: "",
-                    extensionName = apprefs.personalInfo?.extensionName ?: "",
-                    citizenship = apprefs.personalInfo?.citizenship ?: "",
-                    religion = apprefs.personalInfo?.religion ?: "",
-                    civilStatus = apprefs.personalInfo?.civilStatus ?: "",
-                    email = apprefs.personalInfo?.email ?: "",
-                    birthDate = apprefs.personalInfo?.birthDate ?: LocalDate.now(),
-                    number = apprefs.personalInfo?.number ?: "",
-                    contactPersonNumber = apprefs.personalInfo?.contactPersonNumber ?: ""
-                )
+                _mutableUserId.value = it.userId ?: -1
             }
-           apprefs
-        }catch (e:Exception){
+            appPrefs
+        } catch (e: Exception) {
             Timber.tag("LocalServiceImpl").e(e)
             null
         }
     }
 
+
     override suspend fun saveToDateStore(): Unit = withContext(Dispatchers.IO){
         try {
-            context.dataStore.updateData {
+            dataStore.updateData {
                 it.copy(
-                    userId = mutableUserId.intValue,
-                    token = mutableToken.value,
-                    personalInfo = mutablePersonalInfo.value,
-                    locationInfo = mutableAddressInfo.value
+                    userId = flowUserId.value,
+                    token = flowToken.value,
+                    personalInfo = flowPersonalInfo.value,
+                    locationInfo = flowAddressInfo.value
                 )
             }
             Timber.tag("DataStoreImpl").e("Saved to Datastore")
@@ -133,7 +99,7 @@ class LocalServiceImpl @Inject constructor(
 
     override suspend fun saveBearerToken(token: Token) {
 
-        mutableToken.value = mutableToken.value.copy(
+        _mutableToken.value = _mutableToken.value.copy(
             bearerToken = token.bearerToken,
             refreshToken = token.refreshToken,
             expirationTimeDate = token.expirationTimeDate
@@ -143,7 +109,7 @@ class LocalServiceImpl @Inject constructor(
 
 
     override suspend fun saveRefreshToken(token: Token) {
-        mutableToken.value = mutableToken.value.copy(
+        _mutableToken.value = _mutableToken.value.copy(
             bearerToken = token.bearerToken,
             refreshToken = token.refreshToken,
             expirationTimeDate = token.expirationTimeDate
@@ -151,23 +117,23 @@ class LocalServiceImpl @Inject constructor(
     }
 
     override suspend fun getBearerToken(): String {
-        return mutableToken.value.bearerToken
+        return flowToken.value.bearerToken!!
     }
 
     override suspend fun getRefreshToken(): String {
-        return mutableToken.value.refreshToken
+        return flowToken.value.refreshToken!!
     }
 
     override suspend fun checkLocalDataStoreIfNotNull(): Boolean = withContext(Dispatchers.IO){
-        val userId = context.dataStore.data.firstOrNull()?.userId
-        val token = context.dataStore.data.firstOrNull()?.token
-        val personalInfo = context.dataStore.data.firstOrNull()?.personalInfo
-        val locationInfo = context.dataStore.data.firstOrNull()?.locationInfo
+        val userId = dataStore.data.firstOrNull()?.userId
+        val token = dataStore.data.firstOrNull()?.token
+        val personalInfo = dataStore.data.firstOrNull()?.personalInfo
+        val locationInfo = dataStore.data.firstOrNull()?.locationInfo
         return@withContext token != null && personalInfo != null && locationInfo != null && userId != null
     }
 
     override suspend fun clearEverythingOnLocal() {
-        context.dataStore.updateData {
+        dataStore.updateData {
             AppPreferences(
                 userId = null,
                 token = null,
@@ -175,52 +141,27 @@ class LocalServiceImpl @Inject constructor(
                 locationInfo = null
             )
         }
-        mutableUserId.intValue = -1
-
-        mutableAddressInfo.value = mutableAddressInfo.value.copy(
-            houseNumber =  "",
-            street =  "",
-            zone =  "",
-            barangay =  "",
-            cityMunicipality =  "",
-            province =  "",
-            country = "",
-            postalCode =  ""
-        )
-        mutablePersonalInfo.value = mutablePersonalInfo.value.copy(
-            firstName =  "",
-            lastName =  "",
-            middleName =  "",
-            gender =  "",
-            extensionName =  "",
-            citizenship =  "",
-            religion =  "",
-            civilStatus = "",
-            email =  "",
-            birthDate = null,
-            number =  "",
-            contactPersonNumber = ""
-        )
+        collectFromDataStore()
     }
 
     override suspend fun getTokenExpiration(): LocalDate? {
-        return mutableToken.value.expirationTimeDate
+        return flowToken.value.expirationTimeDate
     }
 
     override suspend fun checkSession(): Boolean {
-        return (mutableToken.value.expirationTimeDate?.isAfter(LocalDate.now()) ?: false) && mutableUserId.intValue >= 0
+        return (flowToken.value.expirationTimeDate?.isAfter(LocalDate.now()) ?: false) && flowUserId.value >= 0
     }
 
     override suspend fun saveUserId(userId: Int) {
-        mutableUserId.intValue = userId
+        _mutableUserId.value = userId
     }
 
     override suspend fun getUserid(): Int? {
-        return if(mutableUserId.intValue < 0) null else mutableUserId.intValue
+        return if(flowUserId.value < 0) null else flowUserId.value
     }
 
     override suspend fun savePersonalInfo(personalInfo: PersonalInfo) {
-        mutablePersonalInfo.value = mutablePersonalInfo.value.copy(
+        _mutablePersonalInfo.value = _mutablePersonalInfo.value.copy(
             firstName = personalInfo.firstName,
             lastName = personalInfo.lastName,
             middleName = personalInfo.middleName,
@@ -239,7 +180,7 @@ class LocalServiceImpl @Inject constructor(
     }
 
     override suspend fun saveAddressInfo(locationInfo: LocationInfo) {
-        mutableAddressInfo.value = mutableAddressInfo.value.copy(
+        _mutableAddressInfo.value = _mutableAddressInfo.value.copy(
             houseNumber = locationInfo.houseNumber,
             street = locationInfo.street,
             zone = locationInfo.zone,
@@ -252,15 +193,15 @@ class LocalServiceImpl @Inject constructor(
     }
 
     override suspend fun getPersonalInfo(): PersonalInfo {
-        return mutablePersonalInfo.value
+        return flowPersonalInfo.value
     }
 
     override suspend fun getAddressInfo(): LocationInfo {
-        return mutableAddressInfo.value
+        return flowAddressInfo.value
     }
 
     override suspend fun getUserId(): Int? {
-        return if(mutableUserId.intValue < 0) null else mutableUserId.intValue
+        return if(flowUserId.value < 0) null else flowUserId.value
     }
 
 

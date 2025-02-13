@@ -1,14 +1,12 @@
 package com.ite393group5.android_app.di
 
-import android.content.Context
 import com.ite393group5.android_app.models.Token
-import com.ite393group5.android_app.services.local.LocalServiceImpl
+import com.ite393group5.android_app.services.local.LocalService
 import com.ite393group5.android_app.services.remote.RemoteServiceImpl
 import com.ite393group5.android_app.utilities.Url
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -26,7 +24,6 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import timber.log.Timber
@@ -38,14 +35,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideLocalServiceImpl(@ApplicationContext context: Context): LocalServiceImpl {
-        return LocalServiceImpl(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideKtorClient(
-        localServiceImpl: LocalServiceImpl
+        localServiceImpl: LocalService
     ): HttpClient {
         return HttpClient(OkHttp){
             install(Logging){
@@ -89,10 +80,12 @@ object NetworkModule {
                         }.body<Token>()
 
                         localServiceImpl.saveRefreshToken(token)
-                        BearerTokens(
-                            accessToken = token.bearerToken,
-                            refreshToken = token.refreshToken
-                        )
+                        token.bearerToken?.let {
+                            BearerTokens(
+                                accessToken = it,
+                                refreshToken = token.refreshToken
+                            )
+                        }
                     }
 
                 }
@@ -100,15 +93,6 @@ object NetworkModule {
             }
 
         }
-    }
-
-    @Provides
-    @Singleton
-    fun provideRemoteServiceImpl(
-        localServiceImpl: LocalServiceImpl,
-        ktorClient: HttpClient
-    ): RemoteServiceImpl {
-        return RemoteServiceImpl(localServiceImpl,ktorClient)
     }
 
 }

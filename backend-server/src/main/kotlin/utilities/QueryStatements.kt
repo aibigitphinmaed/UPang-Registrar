@@ -1,5 +1,7 @@
 package com.ite393group5.utilities
 
+
+
 @Suppress("SqlNoDataSourceInspection", "SqlResolve")
 object QueryStatements {
     const val INSERT_USER = """INSERT INTO "User" (username, password, role, salt,created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())"""
@@ -54,6 +56,8 @@ const val FIND_BY_USERNAME = """
     FROM "LocationInformation"
     WHERE user_id = ?;
 """
+
+
 
 }
 

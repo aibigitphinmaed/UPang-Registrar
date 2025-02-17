@@ -1,6 +1,7 @@
 package com.ite393group5.services
 
 import com.ite393group5.dao.UserDAOImpl
+import com.ite393group5.dto.StudentProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.Updatable
@@ -9,7 +10,7 @@ import java.sql.Connection
 
 class UserServiceImpl(private val dbConnection: Connection) : UserService {
 
-    val userDAO=UserDAOImpl(dbConnection)
+    val userDAO = UserDAOImpl(dbConnection)
     override suspend fun findByUsername(username: String): User? {
         return userDAO.findByUsername(username)
     }
@@ -24,20 +25,21 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
         locationInfo: LocationInfo,
         personalInfo: PersonalInfo
     ): User {
-       return userDAO.createUser(user,locationInfo,personalInfo)
+        return userDAO.createUser(user, locationInfo, personalInfo)
     }
+
     //Update function for LocationInfo and PersonalInfo
     //Some can be added
-    override suspend fun <T : Updatable> update(data: T,user:User): Boolean {
+    override suspend fun <T : Updatable> update(data: T, user: User): Boolean {
         val foundUser = userDAO.findUser(user)
         return if (foundUser != null) {
-            when(data){
+            when (data) {
                 is LocationInfo -> {
-                    userDAO.updateLocation(foundUser, data)
+                    userDAO.updateLocationInfo(foundUser, data)
                 }
 
                 is PersonalInfo -> {
-                    userDAO.updatePersonalInfo(foundUser,data)
+                    userDAO.updatePersonalInfo(foundUser, data)
                 }
 
                 else -> throw IllegalArgumentException("Unsupported data type")
@@ -48,7 +50,6 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
         }
     }
 
-    //this is blacklisting tokens for additional security layer lang naman wahahahaha, not to be implemented yet
 
     override suspend fun logout(user: User, token: String): Boolean {
         revokedTokens.add(token)
@@ -62,7 +63,43 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
     override suspend fun retrieveAddressById(userid: Int): LocationInfo? {
         return userDAO.retrieveAddressInformation(userid)
     }
+
+    override suspend fun <T : Updatable> updateProfile(
+        data: T,
+        username: String
+    ): Boolean {
+        val foundUser = userDAO.findByUsername(username)
+        return if (foundUser != null) {
+            when (data) {
+                is StudentProfile -> {
+                    userDAO.updatePersonalInfo(foundUser, data.studentPersonalInfo)
+                    userDAO.updateLocationInfo(foundUser, data.studentAddressInfo)
+                }
+                else -> throw IllegalArgumentException("Unsupported data type")
+            }
+        } else {
+            //here no user is found and update is cancelled
+            throw IllegalArgumentException("No user with username $username")
+            false
+        }
+
+    }
+
+    override suspend fun registerStudent(
+        user: User,
+        studentProfile: StudentProfile
+    ): User {
+        val createdUser = userDAO.createUser(user =user, locationInfo = studentProfile.studentAddressInfo, personalInfo = studentProfile.studentPersonalInfo)
+        return createdUser
+
+    }
+
+    override suspend fun getStudents(): List<User> {
+        val listOfStudents = userDAO.getAllStudents()
+        return listOfStudents
+    }
 }
 
 //TODO here revoked token table and load it everytime server starts
+//should not load it here.
 val revokedTokens = mutableSetOf<String>()

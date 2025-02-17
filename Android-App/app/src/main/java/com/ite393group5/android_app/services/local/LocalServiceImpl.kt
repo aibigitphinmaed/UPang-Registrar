@@ -39,7 +39,15 @@ class LocalServiceImpl @Inject constructor(
 
     init{
         CoroutineScope(Dispatchers.IO).launch {
-            collectFromDataStore()
+            val appPrefs = collectFromDataStore()
+            appPrefs?.let {
+                _mutableUserId.emit(it.userId ?: -1)
+                _mutableToken.emit(it.token ?: Token())
+                _mutablePersonalInfo.emit(it.personalInfo ?: PersonalInfo())
+                _mutableAddressInfo.emit(it.locationInfo ?: LocationInfo())
+            }
+            Timber.tag("LocalServiceImpl").e("Emitting PersonalInfo: ${_mutablePersonalInfo.value}")
+            Timber.tag("LocalServiceImpl").e("Emitting LocationInfo: ${_mutableAddressInfo.value}")
         }
     }
 
@@ -199,10 +207,7 @@ class LocalServiceImpl @Inject constructor(
     override suspend fun getAddressInfo(): LocationInfo {
         return flowAddressInfo.value
     }
-
     override suspend fun getUserId(): Int? {
         return if(flowUserId.value < 0) null else flowUserId.value
     }
-
-
 }

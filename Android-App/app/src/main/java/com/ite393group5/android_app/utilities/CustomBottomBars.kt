@@ -90,10 +90,7 @@ fun ProfileBottomBar(modifier: Modifier, profileScreenViewModel: ProfileScreenVi
 }
 
 @Composable
-fun ProfileConfirmBottomBar(
-    modifier: Modifier,
-    profileScreenViewModel: ProfileScreenViewModel
-){
+fun ProfileConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
     BottomAppBar(
         actions = {
             Row(
@@ -103,7 +100,7 @@ fun ProfileConfirmBottomBar(
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    IconButton(onClick = { profileScreenViewModel.completeEditing() }) {
+                    IconButton(onClick = { confirmEdit.invoke() }) {
                         Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.notification))
                     }
                     Text("Confirm Edit")
@@ -111,7 +108,7 @@ fun ProfileConfirmBottomBar(
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    IconButton(onClick = { profileScreenViewModel.cancelEditMode() }) {
+                    IconButton(onClick = { cancelEdit.invoke() }) {
                         Icon(Icons.Filled.Cancel, contentDescription = stringResource(R.string.notification))
                     }
                     Text("Cancel Edit")

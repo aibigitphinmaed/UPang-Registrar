@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,14 +19,13 @@ import androidx.compose.ui.unit.dp
 fun MediumTitleText(
     modifier: Modifier = Modifier,
     text: String,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     Text(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.colorScheme.primary,
-        textAlign = textAlign
+        textAlign = textAlign,
     )
 }
 
@@ -84,7 +84,11 @@ fun InfoRow(label: String, value: String?) {
 @Composable
 fun PreviewTextComposableViews(){
     Column {
-        MediumTitleText(text = "Hello Medium Text")
+        MediumTitleText(
+            text = "Hello Medium Text",
+            modifier = Modifier,
+            textAlign = TextAlign.Center,
+        )
         TitleText(text = "Hello Title Text")
         ErrorTextInputField(text = "Hello Error Text")
         InfoRow(

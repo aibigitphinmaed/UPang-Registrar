@@ -1,15 +1,19 @@
 package com.ite393group5.routes
 
+import com.ite393group5.dto.StudentProfile
+import com.ite393group5.services.StudentServiceImpl
 import com.ite393group5.services.UserService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
+import io.ktor.server.engine.logError
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 
-fun Route.studentRoutes(userServiceImpl: UserService) {
+fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentServiceImpl) {
     authenticate("student-auth") {
 
         get("student-profile") {
@@ -59,6 +63,45 @@ fun Route.studentRoutes(userServiceImpl: UserService) {
                 call.respond(HttpStatusCode.OK, mapOf("id" to userid))
             }else{
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student ID not found"))
+            }
+        }
+
+        post("update-student-profile"){
+            val principal = call.principal<JWTPrincipal>()
+            if (principal == null) {
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized access"))
+                return@post
+            }
+
+            val username = principal.payload.getClaim("username").asString()
+
+            val user = userServiceImpl.findByUsername(username)
+
+            if (user == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "User not found"))
+                return@post
+            }
+
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            val studentProfile = try {
+                call.receive<StudentProfile>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request body"))
+                return@post
+            }
+            if(userid != null) {
+                println(studentProfile)
+                val b = userServiceImpl.updateProfile(username = username, data = studentProfile)
+                if(b){
+                    call.respond(HttpStatusCode.OK)
+                }
+                else{
+
+                    call.respond(HttpStatusCode.InternalServerError)
+                }
+            }else{
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student profile not found"))
             }
         }
     }

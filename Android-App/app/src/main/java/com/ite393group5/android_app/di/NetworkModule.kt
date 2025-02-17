@@ -21,9 +21,11 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -60,6 +62,9 @@ object NetworkModule {
                 url("http://${Url.URL}:${Url.PORT}/")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                headers{
+                    append(HttpHeaders.UserAgent, "Students")
+                }
             }
 
             install(Auth){

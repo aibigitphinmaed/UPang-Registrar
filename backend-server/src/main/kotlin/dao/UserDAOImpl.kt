@@ -12,6 +12,7 @@ import com.ite393group5.utilities.QueryStatements.FIND_USER_BY_CREDENTIALS
 import com.ite393group5.utilities.QueryStatements.INSERT_LOCATION
 import com.ite393group5.utilities.QueryStatements.INSERT_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.INSERT_USER
+import com.ite393group5.utilities.QueryStatements.RETRIEVE_ALL_STUDENTS
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_LOCATION_INFO
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.UPDATE_LOCATION
@@ -26,7 +27,7 @@ import java.sql.Statement
 
 class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
 
-    override suspend fun createUser(user: User, locationInfo: LocationInfo, personalInfo: PersonalInfo): User = withContext(Dispatchers.IO) {
+    override suspend fun createUser(user: User, locationInfo: LocationInfo?, personalInfo: PersonalInfo?): User = withContext(Dispatchers.IO) {
         dbConnection.autoCommit = false // Start transaction
         try {
             // Insert into User table
@@ -45,7 +46,7 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
             // Insert into LocationInfo table
             val locationStatement = dbConnection.prepareStatement(INSERT_LOCATION)
             locationStatement.setInt(1, userId)
-            locationStatement.setString(2, locationInfo.houseNumber)
+            locationStatement.setString(2, locationInfo!!.houseNumber)
             locationStatement.setString(3, locationInfo.street)
             locationStatement.setString(4, locationInfo.zone)
             locationStatement.setString(5, locationInfo.barangay)
@@ -58,7 +59,7 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
             // Insert into PersonalInfo table
             val personalStatement = dbConnection.prepareStatement(INSERT_PERSONAL_INFO)
             personalStatement.setInt(1, userId)
-            personalStatement.setString(2, personalInfo.firstName)
+            personalStatement.setString(2, personalInfo!!.firstName)
             personalStatement.setString(3, personalInfo.lastName)
             personalStatement.setString(4, personalInfo.middleName)
             personalStatement.setString(5, personalInfo.extensionName)
@@ -149,9 +150,11 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
         return@withContext statement.executeUpdate() > 0 // Returns true if at least one row was updated
     }
 
-    override suspend fun updateLocation(user: User, locationInfo: LocationInfo): Boolean = withContext(Dispatchers.IO) {
+
+
+    override suspend fun updateLocationInfo(user: User, locationInfo: LocationInfo?): Boolean = withContext(Dispatchers.IO) {
         val statement = dbConnection.prepareStatement(UPDATE_LOCATION)
-        statement.setString(1, locationInfo.houseNumber)
+        statement.setString(1, locationInfo!!.houseNumber)
         statement.setString(2, locationInfo.street)
         statement.setString(3, locationInfo.zone)
         statement.setString(4, locationInfo.barangay)
@@ -163,9 +166,9 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
         return@withContext statement.executeUpdate() > 0
     }
 
-    override suspend fun updatePersonalInfo(user: User, personalInfo: PersonalInfo): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun updatePersonalInfo(user: User, personalInfo: PersonalInfo?): Boolean = withContext(Dispatchers.IO) {
         val statement = dbConnection.prepareStatement(UPDATE_PERSONAL_INFO)
-        statement.setString(1, personalInfo.firstName)
+        statement.setString(1, personalInfo!!.firstName)
         statement.setString(2, personalInfo.lastName)
         statement.setString(3, personalInfo.middleName)
         statement.setString(4, personalInfo.extensionName)
@@ -246,5 +249,25 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
         } else {
             null
         }
+    }
+
+    override suspend fun getAllStudents(): List<User> = withContext(Dispatchers.IO) {
+        val statement = dbConnection.prepareStatement(RETRIEVE_ALL_STUDENTS)
+        val resultSet = statement.executeQuery()
+        val students = mutableListOf<User>()
+        while (resultSet.next()) {
+            val user = User(
+                id = resultSet.getInt("user_id"),
+                username = resultSet.getString("username"),
+                password = resultSet.getString("password"),
+                role = resultSet.getString("role"),
+                salt = ""
+            )
+            students.add(user)
+        }
+
+        resultSet.close()
+
+        return@withContext students
     }
 }

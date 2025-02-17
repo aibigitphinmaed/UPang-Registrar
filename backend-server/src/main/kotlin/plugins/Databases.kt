@@ -7,17 +7,23 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 
-fun Application.configureDatabases() : UserService{
-    val dbConnection = connectToPostgres(embedded = true)
-    return UserServiceImpl(dbConnection)
+fun Application.configureDatabases(): Connection {
+    return connectToPostgres()
 }
 
+fun Application.connectToPostgres(): Connection {
+    return try {
+        Class.forName("org.postgresql.Driver")
+        val url = environment.config.propertyOrNull("database.url")?.getString()
+            ?: "jdbc:postgresql://localhost:5432/postgresdb"
+        val user = environment.config.propertyOrNull("database.user")?.getString() ?: "postgres"
+        val password = environment.config.propertyOrNull("database.password")?.getString() ?: "postgres"
 
-fun Application.connectToPostgres(embedded:Boolean) : Connection{
-    Class.forName("org.postgresql.Driver")
-    return if(embedded){
-        DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgresdb","postgres","postgres")
-    }else{
-        DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgresdb","postgres","postgres")
+        DriverManager.getConnection(url, user, password).also {
+            log.info("✅ Successfully connected to the PostgreSQL database.")
+        }
+    } catch (e: Exception) {
+        log.error("❌ Database connection failed: ${e.message}", e)
+        throw e
     }
 }

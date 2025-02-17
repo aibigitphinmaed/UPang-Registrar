@@ -1,149 +1,111 @@
 package com.ite393group5.android_app.profilemanagement
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import android.view.Gravity
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ite393group5.android_app.profilemanagement.state.ProfileScreenState
 import com.ite393group5.android_app.utilities.CustomAppTopbar
 import com.ite393group5.android_app.utilities.ProfileBottomBar
 import com.ite393group5.android_app.utilities.ProfileConfirmBottomBar
-
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     openDrawer: () -> Unit,
-    profileScreenViewModel: ProfileScreenViewModel = hiltViewModel<ProfileScreenViewModel>()
+    profileScreenViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
     val profileScreenState by profileScreenViewModel.flowProfileState.collectAsState()
+    val context = LocalContext.current
 
-    if(!profileScreenState.editMode){
-        ViewModeProfile(modifier,openDrawer,profileScreenViewModel)
+    LaunchedEffect(Unit) {
+        profileScreenViewModel.toastMessage.collectLatest { message ->
+            val toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.show()
+        }
     }
-    if(profileScreenState.editMode){
-        EditModeProfile(modifier,openDrawer,profileScreenViewModel)
-    }
-    if(profileScreenState.showConfirmWindow){
-        ConfirmModeProfile(modifier,openDrawer,profileScreenViewModel)
-    }
-
-}
 
 
-@Composable
-fun EditModeProfile(
-    modifier: Modifier,
-    openDrawer: () -> Unit,
-    profileScreenViewModel: ProfileScreenViewModel,
-) {
     Scaffold(
         topBar = {
             CustomAppTopbar(
-                title = "Edit Profile",
-                openDrawer = openDrawer,
-                modifier = modifier
+                title = "Profile", openDrawer = openDrawer,
+                modifier = Modifier
             )
         },
+        bottomBar = {
+            when {
+                profileScreenState.editMode -> ProfileConfirmBottomBar(
+                    confirmEdit = { profileScreenViewModel.showConfirmWindow() },
+                    cancelEdit = { profileScreenViewModel.cancelEditMode() }
+                )
 
+                profileScreenState.showConfirmWindow -> ProfileConfirmBottomBar({ profileScreenViewModel.completeEditing() }, { profileScreenViewModel.cancelConfirmation() })
+
+                else -> ProfileBottomBar(modifier, profileScreenViewModel)
+            }
+        }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-            ProfileEditContent(paddingValues,profileScreenViewModel)
+            when {
+                profileScreenState.editMode -> EditModeProfile(profileScreenViewModel)
+                profileScreenState.showConfirmWindow -> {
+                    ViewModeProfile(profileScreenViewModel)
+                    Toast.makeText(
+                        context,
+                        "Click Confirm Again to Complete Profile Update",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> ViewModeProfile(profileScreenViewModel)
+            }
         }
     }
-}
-
-
-
-@Composable
-fun ViewModeProfile(
-    modifier: Modifier,
-    openDrawer: () -> Unit,
-    profileScreenViewModel: ProfileScreenViewModel,
-) {
-
-
-
-
-
-    Scaffold(
-        topBar = {
-            CustomAppTopbar(
-                title = "Profile Management",
-                openDrawer = openDrawer,
-                modifier = modifier
-            )
-        },
-        bottomBar = {
-            ProfileBottomBar(
-                modifier = Modifier,
-                profileScreenViewModel = profileScreenViewModel
-            )
-        }
-    ) {
-            paddingValues ->
-
-        ProfileContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            profileScreenViewModel
-        )
-
-
-    }
-
-
 }
 
 @Composable
-fun ConfirmModeProfile(
-    modifier: Modifier,
-    openDrawer: () -> Unit,
-    profileScreenViewModel: ProfileScreenViewModel,
-) {
+fun ViewModeProfile(profileScreenViewModel: ProfileScreenViewModel) {
+    val profileState by profileScreenViewModel.flowProfileState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            CustomAppTopbar(
-                title = "Profile Management",
-                openDrawer = openDrawer,
-                modifier = modifier
-            )
-        },
-        bottomBar = {
-            ProfileConfirmBottomBar(
-                modifier = modifier,
+    profileState.personalInfo?.let { personalInfo ->
+        profileState.locationInfo?.let { locationInfo ->
+            ProfileContent(personalInfo, locationInfo)
+        }
+    } ?: Text(
+        "Loading Profile...", modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    )
+}
+
+@Composable
+fun EditModeProfile(profileScreenViewModel: ProfileScreenViewModel) {
+    val profileState by profileScreenViewModel.flowProfileState.collectAsState()
+
+    profileState.personalInfo?.let { personalInfo ->
+        profileState.locationInfo?.let { locationInfo ->
+            ProfileEditContent(
+                personalInfo, locationInfo,
                 profileScreenViewModel = profileScreenViewModel
             )
         }
-    ) {
-            paddingValues ->
-
-        ProfileContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            profileScreenViewModel
-        )
-
-
-    }
-
-
+    } ?: Text(
+        "Loading Profile...", modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    )
 }
+

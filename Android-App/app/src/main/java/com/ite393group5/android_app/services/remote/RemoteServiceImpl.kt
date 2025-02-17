@@ -3,10 +3,10 @@ package com.ite393group5.android_app.services.remote
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.LoginRequest
 import com.ite393group5.android_app.models.PersonalInfo
+import com.ite393group5.android_app.models.StudentProfile
 import com.ite393group5.android_app.models.Token
 import com.ite393group5.android_app.models.UserIdResponse
 import com.ite393group5.android_app.services.local.LocalService
-import com.ite393group5.android_app.services.local.LocalServiceImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -146,23 +146,25 @@ class RemoteServiceImpl @Inject constructor(
 
     override suspend fun updatePersonalInformation(personalInfo: PersonalInfo, locationInfo: LocationInfo): HttpStatusCode = withContext(Dispatchers.IO){
         val token = localServiceImpl.getBearerToken()
-        val serverResponse = ktorClient.post("personal-information"){
+        val studentProfile = StudentProfile(personalInfo, locationInfo)
+        Timber.tag("RemoteServiceImpl").e("Updating student profile : ${studentProfile.toString()}")
+        val serverResponse = ktorClient.post("update-student-profile"){
             contentType(ContentType.Application.Json)
             headers{
                 append(HttpHeaders.Authorization, "Bearer $token" )
             }
-            setBody(personalInfo)
-            setBody(locationInfo)
+            setBody(studentProfile)
         }
-
         return@withContext try {
             serverResponse.status
         }catch (e:Exception){
-            Timber.tag("RemoteServiceImpl").e(e)
-            HttpStatusCode.BadRequest
+            Timber.tag("RemoteServiceImpl").e(e, "Error updating student profile")
+            HttpStatusCode.InternalServerError
         }
+
     }
 
 
 
 }
+

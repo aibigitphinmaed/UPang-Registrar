@@ -19,7 +19,10 @@ object UseCaseModule {
         return ProfileUseCase(localService)
     }
     @Provides
-    fun provideProfileUpdateUseCase(remoteService: RemoteService): ProfileUpdateUseCase {
-        return ProfileUpdateUseCase(remoteService)
+    fun provideProfileUpdateUseCase(remoteService: RemoteService,localService: LocalService): ProfileUpdateUseCase {
+        return ProfileUpdateUseCase(
+            remoteService,
+            localService
+        )
     }
 }

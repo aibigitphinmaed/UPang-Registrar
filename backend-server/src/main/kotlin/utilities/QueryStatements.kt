@@ -56,7 +56,11 @@ const val FIND_BY_USERNAME = """
     FROM "LocationInformation"
     WHERE user_id = ?;
 """
-
+    const val RETRIEVE_ALL_STUDENTS = """
+    SELECT user_id, username, password, role, '' AS salt 
+    FROM "User" 
+    WHERE role = 'student'
+"""
 
 
 }

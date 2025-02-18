@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StudentProfile(
-    val studentPersonalInfo: PersonalInfo? = null,
-    val studentAddressInfo: LocationInfo? = null,
+    val userPersonalInfo: PersonalInfo? = null,
+    val userAddressInfo: LocationInfo? = null,
 )

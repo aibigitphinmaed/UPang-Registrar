@@ -52,6 +52,9 @@ dependencies {
     //CORS
     implementation("io.ktor:ktor-server-cors:3.0.3")
 
+    //websocket
+    implementation("io.ktor:ktor-server-websockets:3.0.3")
+
 
 
 }

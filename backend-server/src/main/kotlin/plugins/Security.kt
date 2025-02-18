@@ -15,7 +15,7 @@ import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 
 fun Application.configureSecurity(studentTokenConfig: TokenConfig, staffTokenConfig: TokenConfig) {
-    // Please read the jwt property from the config file if you are using EngineMain
+
 
     authentication {
         jwt("student-auth") {
@@ -30,7 +30,7 @@ fun Application.configureSecurity(studentTokenConfig: TokenConfig, staffTokenCon
             validate { credential ->
                 val tokenAudiences = credential.payload.audience
 
-                if ("mobile-client" in tokenAudiences) {
+                if ("mobile-client" in tokenAudiences || credential.payload.getClaim("username").asString() != null) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null

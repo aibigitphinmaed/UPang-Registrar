@@ -1,21 +1,11 @@
 package com.ite393group5
 
 import com.ite393group5.models.TokenConfig
-import com.ite393group5.plugins.configureDatabases
-import com.ite393group5.plugins.configureMonitoring
-import com.ite393group5.plugins.configureRouting
-import com.ite393group5.plugins.configureSecurity
-import com.ite393group5.plugins.configureSerialization
-import com.ite393group5.plugins.configureSession
+import com.ite393group5.plugins.*
 import com.ite393group5.services.StudentServiceImpl
 import com.ite393group5.services.UserServiceImpl
 import com.ite393group5.utilities.JwtTokenService
-import freemarker.cache.ClassTemplateLoader
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.server.application.*
-import io.ktor.server.freemarker.FreeMarker
-import io.ktor.server.plugins.cors.routing.CORS
 import java.time.Duration
 
 fun main(args: Array<String>) {
@@ -26,7 +16,7 @@ fun Application.module() {
 
 
 
-    configureSession()
+
 
     val tokenService = JwtTokenService()
     val studentTokenConfig = TokenConfig(
@@ -54,7 +44,10 @@ fun Application.module() {
 
     val userService = UserServiceImpl(database)
     val studentService = StudentServiceImpl(database)
+    configureSockets(userService)
     configureRouting(userService,studentService, tokenService, studentTokenConfig,staffTokenConfig)
+
+
 
 }
 

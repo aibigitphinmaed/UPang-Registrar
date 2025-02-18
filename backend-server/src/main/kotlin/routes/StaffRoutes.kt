@@ -3,19 +3,19 @@ package com.ite393group5.routes
 import com.ite393group5.dto.UserProfile
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.models.User
-import com.ite393group5.models.UserSession
+import com.ite393group5.plugins.currentQueueList
+import com.ite393group5.plugins.previousQueueList
+import com.ite393group5.plugins.queueResponseFlow
 import com.ite393group5.services.UserService
 import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
 import io.ktor.http.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.freemarker.*
-import io.ktor.server.http.content.staticResources
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.sessions
 
 
 fun Route.staffRoutes(
@@ -25,6 +25,10 @@ fun Route.staffRoutes(
     staffTokenConfig: TokenConfig
 ) {
     authenticate("staff-auth") {
+
+        post("/test-staff-call"){
+            call.respond(HttpStatusCode.OK,"staff called an api")
+        }
 
         staticResources("/static",
             "static"
@@ -68,6 +72,72 @@ fun Route.staffRoutes(
             }
         }
 
+
+
+        post("/reset-queue"){
+            queueResponseFlow.emit("reset-queue")
+            currentQueueList.clear()
+            call.respond(HttpStatusCode.OK, "Queue reset successfully.")
+        }
+
+        post("/next-student"){
+
+            if (currentQueueList.isNotEmpty()) {
+                val student = currentQueueList.removeAt(0)
+
+                val studentId = student.id
+                if (studentId == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                    return@post
+                }
+
+                val studentProfile = userServiceImpl.retrieveProfileById(studentId)
+                if (studentProfile == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "user profile not found"))
+                    return@post
+                }
+
+                val fullName = "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+
+
+
+                queueResponseFlow.emit("Next Student: ${fullName}")
+
+                previousQueueList.add(student)
+                call.respond(HttpStatusCode.OK, student)
+
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No students in the queue.")
+            }
+        }
+
+        post("/previous-student"){
+            if (previousQueueList.isNotEmpty()) {
+                val student = previousQueueList.removeAt(previousQueueList.size - 1)
+                currentQueueList.add(0, student)
+
+
+                // Retrieve the full name of the student for better clarity in responses
+                val studentProfile = userServiceImpl.retrieveProfileById(student.id ?: 0)
+
+                if (studentProfile != null) {
+
+                    val fullName = "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+
+                    println("Moved previous student back to the front: $fullName")
+
+                    queueResponseFlow.emit("Previous Student: $fullName")
+
+                    call.respond(HttpStatusCode.OK, student)
+
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student profile not found"))
+                }
+
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No previous student to serve.")
+            }
+        }
     }
 
 

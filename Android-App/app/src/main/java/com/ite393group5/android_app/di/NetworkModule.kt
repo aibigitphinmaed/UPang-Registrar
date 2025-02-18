@@ -19,6 +19,8 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -29,7 +31,10 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -66,7 +71,6 @@ object NetworkModule {
                     append(HttpHeaders.UserAgent, "Students")
                 }
             }
-
             install(Auth){
                 bearer{
                     sendWithoutRequest {
@@ -97,7 +101,12 @@ object NetworkModule {
                 }
 
             }
-
+            install(WebSockets)
+            engine {
+                preconfigured = OkHttpClient.Builder()
+                    .pingInterval(20, TimeUnit.SECONDS)
+                    .build()
+            }
         }
     }
     @Provides

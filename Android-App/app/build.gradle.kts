@@ -95,6 +95,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
     implementation("io.ktor:ktor-client-auth:3.0.3")
+    implementation("io.ktor:ktor-client-websockets:3.0.3")
     //datastore
     implementation("androidx.datastore:datastore:1.1.2")
 

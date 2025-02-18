@@ -3,7 +3,6 @@ package com.ite393group5.plugins
 import com.ite393group5.models.LoginRequest
 import com.ite393group5.models.Token
 import com.ite393group5.models.TokenConfig
-import com.ite393group5.models.UserSession
 import com.ite393group5.routes.staffRoutes
 import com.ite393group5.routes.studentRoutes
 import com.ite393group5.services.StudentServiceImpl
@@ -13,14 +12,13 @@ import com.ite393group5.utilities.SaltedHash
 import com.ite393group5.utilities.shaService
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.freemarker.FreeMarkerContent
-import io.ktor.server.http.content.files
-import io.ktor.server.http.content.staticFiles
-import io.ktor.server.http.content.staticResources
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.sessions
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 
 fun Application.configureRouting(
@@ -71,6 +69,46 @@ fun Application.configureRouting(
 
         studentRoutes(userServiceImpl,studentService)
 
+        webSocket("/student-queue-channel")  {
+
+            send("Connected to queue server")
+            queueResponseFlow.emit("connected-queue")
+
+            mutex.withLock {
+                activeSessions.add(this)
+                println("Active sessions size: ${activeSessions.size}")
+            }
+
+            queueFlow.collect { message ->
+                send(message)
+            }
+
+            val job = launch {
+                queueFlow.collect { message ->
+                    println("Broadcasting: $message")
+                    mutex.withLock {
+                        activeSessions.forEach { session ->
+                            session.send(message)
+                        }
+                    }
+                }
+            }
+
+            try {
+                println("Joining job...")
+                job.join()  // If this is blocking indefinitely, check your flow emissions
+                println("no errors")
+            } catch (e: Exception) {
+                println("Error: ${e.message}")
+            } finally {
+                println("Cleaning up...")
+                mutex.withLock {
+                    activeSessions.remove(this)
+                }
+                job.cancel()  // Cancel job explicitly before trying to join
+                println("Job canceled")
+            }
+        }
 
     }
 }

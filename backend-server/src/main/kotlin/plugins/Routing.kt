@@ -32,46 +32,15 @@ fun Application.configureRouting(
 ) {
 
     routing {
-        get("/logout") {
-            call.sessions.clear("staff-session")
-            if(call.sessions.get("staff-session") == null) {
-                call.respondRedirect("/")
-            }
-        }
-
-        get("/") {
-            val maySession = call.sessions.get("staff-session")
-            if(maySession != null){
-                call.respondRedirect("/dashboard")
-            }else{
-                call.respondRedirect("/login")
-            }
-        }
-
-        get("/login"){
-            val maySession = call.sessions.get("staff-session")
-            if(maySession != null){
-                call.respondRedirect("/dashboard")
-            }else{
-                call.respond(FreeMarkerContent("login.ftl", null))
-            }
-
-        }
 
         post("/login") {
-            val userAgent = call.request.headers["User-Agent"] ?: "unknown"
             val user = call.receive<LoginRequest>()
-
-
             val password = user.password
             val username = user.username
-
             val findUser = userServiceImpl.findByUsername(username)
-
             if (findUser != null) {
                 val saltedHash = SaltedHash(findUser.password, findUser.salt)
                 if (shaService.verify(password, saltedHash)) {
-
                     val generatedToken = when (findUser.role) {
                         "student" -> Token(
                             bearerToken = tokenService.generateStudentToken(studentTokenConfig, findUser.username),
@@ -83,32 +52,15 @@ fun Application.configureRouting(
                             bearerToken = tokenService.generateStaffToken(staffTokenConfig, findUser.username),
                             refreshToken = "refresh_Token",
                             expirationTimeDate = LocalDate.now().plusDays(1)
-                        )
-                        else -> {
+                        )else -> {
                             call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Unknown role"))
                             return@post
                         }
                     }
-
-                    if (userAgent.contains("Students", ignoreCase = true)) {
-                        call.respond(HttpStatusCode.OK, generatedToken)
-                    } else {
-                        println("Setting session for staff: ${findUser.username}")
-                        call.sessions.set("staff-session" ,
-                            UserSession(
-                                username = findUser.username,
-                                userId = findUser.id,
-                                role = findUser.role
-                            )
-                        )
-                        println("Redirecting to /dashboard")
-                        call.respondRedirect("/dashboard")
-                    }
+                    call.respond(HttpStatusCode.OK, generatedToken)
                 } else {
-                    call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid credentials"))
+                    call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "User not found"))
                 }
-            } else {
-                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "User not found"))
             }
         }
 

@@ -44,19 +44,33 @@ fun Application.configureSecurity(studentTokenConfig: TokenConfig, staffTokenCon
             }
         }
 
-        session<UserSession>("staff-session") {
-            validate {
-                session ->
-                if(session.role.equals("staff", ignoreCase = true)) {
-                    session
+        jwt("staff-auth") {
+            realm = staffTokenConfig.realm
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(staffTokenConfig.secret))
+                    .withAnyOfAudience(*staffTokenConfig.audience.toTypedArray())
+                    .withIssuer(staffTokenConfig.issuer)
+                    .build()
+            )
+            validate { credential ->
+                val tokenAudiences = credential.payload.audience
+
+                if ("web-client" in tokenAudiences) {
+                    JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
             }
-            challenge {
-                call.respondRedirect("/")
+
+            challenge { defaultScheme, realm ->
+                call.respond(
+                    HttpStatusCode.Unauthorized,
+                    mapOf("error" to "Invalid or missing authentication token for student access.")
+                )
             }
         }
+
     }
 
 

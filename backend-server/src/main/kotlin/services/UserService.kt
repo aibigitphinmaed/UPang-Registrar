@@ -1,6 +1,6 @@
 package com.ite393group5.services
 
-import com.ite393group5.dto.StudentProfile
+import com.ite393group5.dto.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.Updatable
@@ -17,7 +17,7 @@ interface UserService {
     suspend fun retrieveAddressById(userid:Int):LocationInfo?
     suspend fun <T: Updatable> updateProfile(data:T,username: String):Boolean
 
-    suspend fun registerStudent(user:User, studentProfile: StudentProfile):User
+    suspend fun registerStudent(user:User, userProfile: UserProfile):User
 
 
     suspend fun getStudents():List<User>

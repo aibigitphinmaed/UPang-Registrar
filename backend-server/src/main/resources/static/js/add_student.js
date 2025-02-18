@@ -13,7 +13,7 @@ async function handleAddStudent(event) {
     }
 
     const studentData = {
-        studentPersonalInfo: {
+        userPersonalInfo: {
             firstName: formData.get('firstName'),
             middleName: formData.get('middleName'),
             lastName: formData.get('lastName'),
@@ -30,7 +30,7 @@ async function handleAddStudent(event) {
             spouseName: formData.get('spouseName'),
             contactPersonNumber: formData.get('contactPersonNumber')
         },
-        studentAddressInfo: {
+        userAddressInfo: {
             houseNumber: formData.get('houseNumber'),
             street: formData.get('street'),
             zone: formData.get('zone'),

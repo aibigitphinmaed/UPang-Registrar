@@ -6,7 +6,7 @@ import com.ite393group5.models.Updatable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StudentProfile(
-    val studentPersonalInfo: PersonalInfo? = null,
-    val studentAddressInfo: LocationInfo? = null,
+data class UserProfile(
+    val userPersonalInfo: PersonalInfo? = null,
+    val userAddressInfo: LocationInfo? = null,
 ) : Updatable

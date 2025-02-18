@@ -1,13 +1,12 @@
 package com.ite393group5.routes
 
-import com.ite393group5.dto.StudentProfile
+import com.ite393group5.dto.UserProfile
 import com.ite393group5.services.StudentServiceImpl
 import com.ite393group5.services.UserService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
-import io.ktor.server.engine.logError
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -84,15 +83,15 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
 
             val userid = userServiceImpl.findByUsername(username)?.id
 
-            val studentProfile = try {
-                call.receive<StudentProfile>()
+            val userProfile = try {
+                call.receive<UserProfile>()
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request body"))
                 return@post
             }
             if(userid != null) {
-                println(studentProfile)
-                val b = userServiceImpl.updateProfile(username = username, data = studentProfile)
+                println(userProfile)
+                val b = userServiceImpl.updateProfile(username = username, data = userProfile)
                 if(b){
                     call.respond(HttpStatusCode.OK)
                 }

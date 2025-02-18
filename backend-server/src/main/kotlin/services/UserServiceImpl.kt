@@ -1,7 +1,7 @@
 package com.ite393group5.services
 
 import com.ite393group5.dao.UserDAOImpl
-import com.ite393group5.dto.StudentProfile
+import com.ite393group5.dto.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.Updatable
@@ -71,9 +71,9 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
         val foundUser = userDAO.findByUsername(username)
         return if (foundUser != null) {
             when (data) {
-                is StudentProfile -> {
-                    userDAO.updatePersonalInfo(foundUser, data.studentPersonalInfo)
-                    userDAO.updateLocationInfo(foundUser, data.studentAddressInfo)
+                is UserProfile -> {
+                    userDAO.updatePersonalInfo(foundUser, data.userPersonalInfo)
+                    userDAO.updateLocationInfo(foundUser, data.userAddressInfo)
                 }
                 else -> throw IllegalArgumentException("Unsupported data type")
             }
@@ -87,9 +87,9 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
 
     override suspend fun registerStudent(
         user: User,
-        studentProfile: StudentProfile
+        userProfile: UserProfile
     ): User {
-        val createdUser = userDAO.createUser(user =user, locationInfo = studentProfile.studentAddressInfo, personalInfo = studentProfile.studentPersonalInfo)
+        val createdUser = userDAO.createUser(user =user, locationInfo = userProfile.userAddressInfo, personalInfo = userProfile.userPersonalInfo)
         return createdUser
 
     }

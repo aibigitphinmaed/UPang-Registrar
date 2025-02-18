@@ -11,4 +11,9 @@ To access postgresdb(postgres database) via docker
 ```
 docker exec -it postgres-container psql -U postgres -d postgresdb
 ```
-
+To remove existing Container if ever you encounter
+error: The container name "/postgres-container" is already in use by container
+```
+docker stop upangregistrar-container
+docker rm upangregistrar-container
+```

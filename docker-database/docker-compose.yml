@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: postgres-container
+    container_name: upangregistrar-container
     ports:
       - "5432:5432"
     volumes:

@@ -64,5 +64,21 @@ const val FIND_BY_USERNAME = """
 
     const val UPDATE_USER = """UPDATE "User" SET username = ?, password = ?, salt = ? WHERE user_id = ?"""
 
+    const val INSERT_IMAGE_RECORD = """
+    INSERT INTO "Image_Records" (file_name, file_type, user_id) 
+    VALUES (?, ?, ?) RETURNING id
+"""
+    const val UPDATE_USER_PROFILE_IMAGE = """
+    UPDATE "User"
+    SET image_id = ?
+    WHERE user_id = ?
+"""
+
+    const val RETRIEVE_IMAGE_RECORD_WITH_ID = """SELECT file_name, file_type, user_id FROM "Image_Records" WHERE id = ?"""
+
+
+    const val RETRIEVE_USER_PROFILE_IMAGE_ID = """SELECT image_id FROM "User" WHERE username = ?"""
+
+
 }
 

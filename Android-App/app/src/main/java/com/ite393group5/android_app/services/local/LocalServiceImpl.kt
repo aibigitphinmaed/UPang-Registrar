@@ -26,7 +26,8 @@ private val corruptionHandler = ReplaceFileCorruptionHandler(
         userId = null,
         token = null,
         personalInfo = null,
-        locationInfo = null
+        locationInfo = null,
+        profileImageLocation = null
     )}
 )
 private val Context.appPreferencesDataStore by dataStore( "app_preferences.json", AppPreferencesSerializer, corruptionHandler)

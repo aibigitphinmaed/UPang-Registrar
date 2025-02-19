@@ -1,5 +1,6 @@
 package com.ite393group5.dao
 
+import com.ite393group5.dto.ImageRecord
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.User
@@ -9,17 +10,21 @@ import com.ite393group5.utilities.QueryStatements.DELETE_USER
 import com.ite393group5.utilities.QueryStatements.FIND_BY_USERNAME
 import com.ite393group5.utilities.QueryStatements.FIND_USER
 import com.ite393group5.utilities.QueryStatements.FIND_USER_BY_CREDENTIALS
+import com.ite393group5.utilities.QueryStatements.INSERT_IMAGE_RECORD
 import com.ite393group5.utilities.QueryStatements.INSERT_LOCATION
 import com.ite393group5.utilities.QueryStatements.INSERT_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.INSERT_USER
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_ALL_STUDENTS
+import com.ite393group5.utilities.QueryStatements.RETRIEVE_IMAGE_RECORD_WITH_ID
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_LOCATION_INFO
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_PERSONAL_INFO
+import com.ite393group5.utilities.QueryStatements.RETRIEVE_USER_PROFILE_IMAGE_ID
 import com.ite393group5.utilities.QueryStatements.UPDATE_LOCATION
 import com.ite393group5.utilities.QueryStatements.UPDATE_PASSWORD
 import com.ite393group5.utilities.QueryStatements.UPDATE_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.UPDATE_USER
 import com.ite393group5.utilities.QueryStatements.UPDATE_USERNAME
+import com.ite393group5.utilities.QueryStatements.UPDATE_USER_PROFILE_IMAGE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
@@ -289,4 +294,63 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
        }
 
     }
+
+
+
+
+    override suspend fun recordImage(user: User, fileName: String): Boolean = withContext(Dispatchers.IO) {
+        val fileType = fileName.substringAfterLast(".", "unknown")
+        dbConnection.prepareStatement(INSERT_IMAGE_RECORD).use { statement ->
+            statement.setString(1, fileName)
+            statement.setString(2, fileType)
+            statement.setInt(3, user.id!!)
+
+            val resultSet = statement.executeQuery()
+            resultSet.next()
+            val imageId = resultSet.getInt("id")
+            if (imageId > 0) {
+                println(imageId)
+                dbConnection.prepareStatement(UPDATE_USER_PROFILE_IMAGE).use { statement ->
+                    statement.setInt(1, imageId)
+                    statement.setInt(2, user.id)
+                    val rowsUpdated = statement.executeUpdate()
+                    return@withContext rowsUpdated > 0
+                }
+            }
+
+            return@withContext false
+        }
+
+        return@withContext false
+    }
+
+    override suspend fun getImageRecord(imageId: Int): ImageRecord? = withContext(Dispatchers.IO) {
+
+        dbConnection.prepareStatement(RETRIEVE_IMAGE_RECORD_WITH_ID).use { statement ->
+            statement.setInt(1, imageId)
+            val resultSet = statement.executeQuery()
+
+            return@withContext if (resultSet.next()) {
+                ImageRecord(
+                    id = imageId,
+                    fileName = resultSet.getString("file_name"),
+                    fileType = resultSet.getString("file_type"),
+                    userId = resultSet.getInt("user_id"),
+                )
+            } else null
+        }
+    }
+
+    override suspend fun getCurrentUserProfileId(username: String): Int? = withContext(Dispatchers.IO) {
+        dbConnection.prepareStatement(RETRIEVE_USER_PROFILE_IMAGE_ID).use {
+            statement ->
+            statement.setString(1,username)
+            val resultSet = statement.executeQuery()
+            if(resultSet.next()){
+                return@withContext resultSet.getInt("image_id")
+            }
+        }
+        return@withContext null
+    }
 }
+

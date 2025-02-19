@@ -1,5 +1,6 @@
 package com.ite393group5.android_app.profilemanagement
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -7,9 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
@@ -20,6 +25,9 @@ fun ProfileEditContent(
     locationInfo: LocationInfo,
     profileScreenViewModel: ProfileScreenViewModel
 ) {
+    val profileBitmapFlow = profileScreenViewModel.profileBitmapFlow
+    val profileBitmap = profileBitmapFlow.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -27,12 +35,27 @@ fun ProfileEditContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Profile Picture",
-            modifier = Modifier.size(100.dp),
-            tint = Color.Gray
-        )
+        if (profileBitmap.value != null) {
+            profileBitmap.value?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(MaterialTheme.shapes.extraLarge),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(MaterialTheme.shapes.large),
+                tint = Color.Gray
+            )
+        }
         Spacer(Modifier.height(16.dp))
 
         // Personal Info Fields

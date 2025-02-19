@@ -1,6 +1,7 @@
 package com.ite393group5.services
 
 import com.ite393group5.dao.UserDAOImpl
+import com.ite393group5.dto.ImageRecord
 import com.ite393group5.dto.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
@@ -100,6 +101,23 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
     override suspend fun getStudents(): List<User> {
         val listOfStudents = userDAO.getAllStudents()
         return listOfStudents
+    }
+
+    override suspend fun updateProfileImageRecords(fileName: String, username: String): Boolean {
+        val user = userDAO.findByUsername(username)
+        if(user == null){
+            return false
+        }
+        val recordedImageOnDB = userDAO.recordImage(user,fileName)
+        return recordedImageOnDB
+    }
+
+    override suspend fun getImageRecordById(imageId: Int): ImageRecord? {
+        return userDAO.getImageRecord(imageId)
+    }
+
+    override suspend fun getCurrentUserProfileImageId(username: String): Int? {
+        return userDAO.getCurrentUserProfileId(username)
     }
 }
 

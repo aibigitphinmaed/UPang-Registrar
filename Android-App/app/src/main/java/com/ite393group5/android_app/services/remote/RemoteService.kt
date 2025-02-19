@@ -1,5 +1,6 @@
 package com.ite393group5.android_app.services.remote
 
+import android.graphics.Bitmap
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.LoginRequest
 import com.ite393group5.android_app.models.PersonalInfo
@@ -15,4 +16,5 @@ interface RemoteService {
     suspend fun retrievePreferences()
     suspend fun updatePersonalInformation(personalInfo: PersonalInfo,locationInfo: LocationInfo) :  HttpStatusCode
     suspend fun changePassword(currentPassword: String, newPassword: String) : HttpStatusCode
+    suspend fun getProfileImage(): Bitmap?
 }

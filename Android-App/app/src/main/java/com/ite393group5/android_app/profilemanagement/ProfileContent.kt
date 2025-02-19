@@ -1,5 +1,7 @@
 package com.ite393group5.android_app.profilemanagement
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,33 +20,57 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ite393group5.android_app.common.InfoRow
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
+import kotlinx.coroutines.flow.StateFlow
 
 
 @Composable
 fun ProfileContent(
     personalInfo: PersonalInfo,
     locationInfo: LocationInfo,
-    ) {
+    profileBitmapFlow: StateFlow<Bitmap?>
+) {
+    val profileBitmap = profileBitmapFlow.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Profile Picture",
-            modifier = Modifier.size(100.dp).clip(MaterialTheme.shapes.large),
-            tint = Color.Gray
-        )
+
+        if (profileBitmap.value != null) {
+            profileBitmap.value?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(MaterialTheme.shapes.extraLarge),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(MaterialTheme.shapes.large),
+                tint = Color.Gray
+            )
+        }
+
+
         Spacer(Modifier.height(16.dp))
         Text("${personalInfo.firstName ?: "N/A"} ${personalInfo.middleName ?: ""} ${personalInfo.lastName ?: ""}", fontSize = 20.sp, style = MaterialTheme.typography.headlineSmall)
         HorizontalDivider(Modifier.padding(vertical = 16.dp))

@@ -24,6 +24,6 @@ interface UserService {
     suspend fun getStudents():List<User>
     suspend fun updateProfileImageRecords(fileName:String, username:String): Boolean
     suspend fun getImageRecordById(imageId: Int): ImageRecord?
-
+    suspend fun getCurrentUserProfileImageId(username:String):Int?
 
 }

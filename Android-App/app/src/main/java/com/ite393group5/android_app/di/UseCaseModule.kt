@@ -16,8 +16,8 @@ object UseCaseModule {
 
 
     @Provides
-    fun provideProfileUseCase(localService: LocalService): ProfileUseCase {
-        return ProfileUseCase(localService)
+    fun provideProfileUseCase(localService: LocalService, remoteService: RemoteService): ProfileUseCase {
+        return ProfileUseCase(localService, remoteService)
     }
     @Provides
     fun provideProfileUpdateUseCase(remoteService: RemoteService,localService: LocalService): ProfileUpdateUseCase {

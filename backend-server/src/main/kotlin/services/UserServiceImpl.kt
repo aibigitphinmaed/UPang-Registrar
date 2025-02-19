@@ -115,6 +115,10 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
     override suspend fun getImageRecordById(imageId: Int): ImageRecord? {
         return userDAO.getImageRecord(imageId)
     }
+
+    override suspend fun getCurrentUserProfileImageId(username: String): Int? {
+        return userDAO.getCurrentUserProfileId(username)
+    }
 }
 
 //TODO here revoked token table and load it everytime server starts

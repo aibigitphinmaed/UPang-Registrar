@@ -18,6 +18,7 @@ import com.ite393group5.utilities.QueryStatements.RETRIEVE_ALL_STUDENTS
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_IMAGE_RECORD_WITH_ID
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_LOCATION_INFO
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_PERSONAL_INFO
+import com.ite393group5.utilities.QueryStatements.RETRIEVE_USER_PROFILE_IMAGE_ID
 import com.ite393group5.utilities.QueryStatements.UPDATE_LOCATION
 import com.ite393group5.utilities.QueryStatements.UPDATE_PASSWORD
 import com.ite393group5.utilities.QueryStatements.UPDATE_PERSONAL_INFO
@@ -338,6 +339,18 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
                 )
             } else null
         }
+    }
+
+    override suspend fun getCurrentUserProfileId(username: String): Int? = withContext(Dispatchers.IO) {
+        dbConnection.prepareStatement(RETRIEVE_USER_PROFILE_IMAGE_ID).use {
+            statement ->
+            statement.setString(1,username)
+            val resultSet = statement.executeQuery()
+            if(resultSet.next()){
+                return@withContext resultSet.getInt("image_id")
+            }
+        }
+        return@withContext null
     }
 }
 

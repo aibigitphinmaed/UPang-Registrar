@@ -75,5 +75,10 @@ const val FIND_BY_USERNAME = """
 """
 
     const val RETRIEVE_IMAGE_RECORD_WITH_ID = """SELECT file_name, file_type, user_id FROM "Image_Records" WHERE id = ?"""
+
+
+    const val RETRIEVE_USER_PROFILE_IMAGE_ID = """SELECT image_id FROM "User" WHERE username = ?"""
+
+
 }
 

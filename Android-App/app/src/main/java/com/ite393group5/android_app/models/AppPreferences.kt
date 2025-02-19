@@ -8,6 +8,7 @@ data class AppPreferences(
     val token: Token? = null,
     val personalInfo: PersonalInfo? = null,
     val locationInfo: LocationInfo? = null,
+    val profileImageLocation: String? = null
 )
 
 

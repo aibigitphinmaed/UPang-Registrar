@@ -1,5 +1,6 @@
 package com.ite393group5.android_app.profilemanagement
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.models.LocationInfo
@@ -26,6 +27,10 @@ class ProfileScreenViewModel @Inject constructor(
     private val profileUpdateUseCase: ProfileUpdateUseCase,
     private val profileChangePasswordUseCase: ProfileChangePasswordUseCase
 ) : ViewModel() {
+
+
+    private val _profileBitmapFlow = MutableStateFlow<Bitmap?>(null)
+    val profileBitmapFlow: StateFlow<Bitmap?> = _profileBitmapFlow
     private val _mutableStateProfile = MutableStateFlow(ProfileScreenState())
     val flowProfileState: StateFlow<ProfileScreenState> = _mutableStateProfile
     private var originalPersonalInfo: PersonalInfo? = null
@@ -37,10 +42,11 @@ class ProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 profileUseCase.getPersonalInfo(),
-                profileUseCase.getLocationInfo()
+                profileUseCase.getLocationInfo(),
             ) { personalInfo, locationInfo ->
                 Timber.tag("ProfileScreenViewModel").e("Collected PersonalInfo: $personalInfo")
                 Timber.tag("ProfileScreenViewModel").e("Collected LocationInfo: $locationInfo")
+                _profileBitmapFlow.value = profileUseCase.getProfileImage()
                 originalPersonalInfo = personalInfo
                 originalLocationInfo = locationInfo
                 ProfileScreenState(

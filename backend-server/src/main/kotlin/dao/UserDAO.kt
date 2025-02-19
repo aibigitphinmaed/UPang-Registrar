@@ -25,5 +25,6 @@ interface UserDAO {
     suspend fun updateUser(userid:Int?, data:User): Boolean
     suspend fun recordImage(user:User, fileName:String): Boolean
     suspend fun getImageRecord(imageId: Int): ImageRecord?
+    suspend fun getCurrentUserProfileId(string: String): Int?
 
 }

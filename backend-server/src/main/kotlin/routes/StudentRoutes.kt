@@ -10,13 +10,21 @@ import com.ite393group5.services.UserService
 import com.ite393group5.utilities.SHA256HashingService
 import com.ite393group5.utilities.SaltedHash
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.copyAndClose
+import java.io.File
+import java.util.UUID
 
 fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentServiceImpl) {
     authenticate("student-auth") {
@@ -128,13 +136,14 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
             if (username.isNotBlank() and passwordRequest.newPassword.isNotBlank() and passwordRequest.currentPassword.isNotBlank()) {
                 val jwtUser = userServiceImpl.findByUsername(username)
 
-                if(jwtUser != null) {
+                if (jwtUser != null) {
                     val saltedHash = SaltedHash(jwtUser.password, jwtUser.salt)
 
-                    val correctPassword = SHA256HashingService().verify(passwordRequest.currentPassword,saltedHash)
+                    val correctPassword = SHA256HashingService().verify(passwordRequest.currentPassword, saltedHash)
                     if (correctPassword) {
 
-                        val generateNewSaltedHash = SHA256HashingService().generateSaltedHash(passwordRequest.newPassword)
+                        val generateNewSaltedHash =
+                            SHA256HashingService().generateSaltedHash(passwordRequest.newPassword)
                         val updatedUser = User(
                             id = jwtUser.id,
                             username = jwtUser.username,
@@ -144,23 +153,90 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                         )
                         println(updatedUser)
                         val isUpdated = userServiceImpl.updateProfile(updatedUser, username)
-                        if(isUpdated) {
+                        if (isUpdated) {
 
                             call.respond(HttpStatusCode.OK)
-                        }else{
+                        } else {
                             call.respond(HttpStatusCode.InternalServerError)
                         }
-                    }else{
+                    } else {
                         println(correctPassword)
                         call.respond(HttpStatusCode.Unauthorized)
                     }
-                }else{
+                } else {
                     call.respond(HttpStatusCode.NotFound)
                 }
-            }else{
+            } else {
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
         //endregion
+
+        //region student profile image
+        post("/student-image-upload") {
+            val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 10)
+
+            val username = call.principal<JWTPrincipal>()!!.payload.getClaim("username").asString()
+
+            val user = userServiceImpl.findByUsername(username)
+
+            if (user == null) {
+                call.respond(HttpStatusCode.NotFound)
+                return@post
+            }
+
+            var fileDescription = ""
+            var fileName = ""
+
+
+            //region uploading process
+            multipart.forEachPart { part ->
+
+                when (part) {
+                    is PartData.FormItem -> {
+                        fileDescription = part.value
+                    }
+
+                    is PartData.FileItem -> {
+                        val extension = File(part.originalFileName!!).extension.lowercase()
+                        if (extension !in listOf("jpg", "jpeg", "png", "webp")) {
+                            call.respond(HttpStatusCode.BadRequest, "Invalid file type")
+                            return@forEachPart
+                        }
+
+                        val userDir = File("uploads/profile_pictures/${user.id}")
+                        if (!userDir.exists()) {
+                            userDir.mkdirs()
+                            println(userDir.toString())
+                        }
+
+                        val uuidFileName = "${UUID.randomUUID()}.$extension"
+                        val file = File(userDir, uuidFileName)
+
+                        part.provider().copyAndClose(file.writeChannel())
+
+                        fileName = uuidFileName
+                        println(fileName)
+                    }
+
+                    else -> {}
+                }
+                part.dispose()
+            }
+
+            if(fileName != null){
+               val savedProfileImage = userServiceImpl.updateProfileImageRecords(fileName, username)
+
+                call.respond(HttpStatusCode.OK)
+            }else{
+                call.respond(HttpStatusCode.BadRequest)
+            }
+
+
+            //endregion
+        }
+        //endregion
     }
 }
+
+

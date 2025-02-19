@@ -9,6 +9,7 @@ import com.ite393group5.utilities.QueryStatements.DELETE_USER
 import com.ite393group5.utilities.QueryStatements.FIND_BY_USERNAME
 import com.ite393group5.utilities.QueryStatements.FIND_USER
 import com.ite393group5.utilities.QueryStatements.FIND_USER_BY_CREDENTIALS
+import com.ite393group5.utilities.QueryStatements.INSERT_IMAGE_RECORD
 import com.ite393group5.utilities.QueryStatements.INSERT_LOCATION
 import com.ite393group5.utilities.QueryStatements.INSERT_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.INSERT_USER
@@ -20,6 +21,7 @@ import com.ite393group5.utilities.QueryStatements.UPDATE_PASSWORD
 import com.ite393group5.utilities.QueryStatements.UPDATE_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.UPDATE_USER
 import com.ite393group5.utilities.QueryStatements.UPDATE_USERNAME
+import com.ite393group5.utilities.QueryStatements.UPDATE_USER_PROFILE_IMAGE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
@@ -289,4 +291,32 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
        }
 
     }
+
+
+
+
+    override suspend fun recordImage(user: User, fileName: String): Boolean = withContext(Dispatchers.IO) {
+        val fileType = fileName.substringAfterLast(".", "unknown")
+        dbConnection.prepareStatement(INSERT_IMAGE_RECORD).use { statement ->
+            statement.setString(1, fileName)
+            statement.setString(2, fileType)
+            statement.setInt(3, user.id!!)
+            val imageId = statement.executeUpdate()
+
+
+            if (imageId > 0) {
+                dbConnection.prepareStatement(UPDATE_USER_PROFILE_IMAGE).use { statement ->
+                    statement.setInt(1, imageId)
+                    statement.setInt(2, user.id)
+                    val rowsUpdated = statement.executeUpdate()
+                    return@withContext rowsUpdated > 0
+                }
+            }
+
+            return@withContext false
+        }
+
+        return@withContext false
+    }
 }
+

@@ -101,6 +101,15 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
         val listOfStudents = userDAO.getAllStudents()
         return listOfStudents
     }
+
+    override suspend fun updateProfileImageRecords(fileName: String, username: String): Boolean {
+        val user = userDAO.findByUsername(username)
+        if(user == null){
+            return false
+        }
+        val recordedImageOnDB = userDAO.recordImage(user,fileName)
+        return recordedImageOnDB
+    }
 }
 
 //TODO here revoked token table and load it everytime server starts

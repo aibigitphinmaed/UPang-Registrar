@@ -9,4 +9,5 @@ data class User(
     val password: String,
     val role: String,
     val salt: String,
+    val imageId: Int? = null,
 ): Updatable

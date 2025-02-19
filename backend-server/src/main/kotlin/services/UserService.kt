@@ -21,4 +21,5 @@ interface UserService {
 
 
     suspend fun getStudents():List<User>
+    suspend fun updateProfileImageRecords(fileName:String, username:String): Boolean
 }

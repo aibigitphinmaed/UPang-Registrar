@@ -1,5 +1,6 @@
 package com.ite393group5.dao
 
+import com.ite393group5.dto.ImageRecord
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.User
@@ -23,5 +24,6 @@ interface UserDAO {
 
     suspend fun updateUser(userid:Int?, data:User): Boolean
     suspend fun recordImage(user:User, fileName:String): Boolean
+    suspend fun getImageRecord(imageId: Int): ImageRecord?
 
 }

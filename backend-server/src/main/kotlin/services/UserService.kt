@@ -1,5 +1,6 @@
 package com.ite393group5.services
 
+import com.ite393group5.dto.ImageRecord
 import com.ite393group5.dto.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
@@ -22,4 +23,7 @@ interface UserService {
 
     suspend fun getStudents():List<User>
     suspend fun updateProfileImageRecords(fileName:String, username:String): Boolean
+    suspend fun getImageRecordById(imageId: Int): ImageRecord?
+
+
 }

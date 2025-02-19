@@ -1,5 +1,6 @@
 package com.ite393group5.dao
 
+import com.ite393group5.dto.ImageRecord
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.User
@@ -14,6 +15,7 @@ import com.ite393group5.utilities.QueryStatements.INSERT_LOCATION
 import com.ite393group5.utilities.QueryStatements.INSERT_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.INSERT_USER
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_ALL_STUDENTS
+import com.ite393group5.utilities.QueryStatements.RETRIEVE_IMAGE_RECORD_WITH_ID
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_LOCATION_INFO
 import com.ite393group5.utilities.QueryStatements.RETRIEVE_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.UPDATE_LOCATION
@@ -301,10 +303,12 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
             statement.setString(1, fileName)
             statement.setString(2, fileType)
             statement.setInt(3, user.id!!)
-            val imageId = statement.executeUpdate()
 
-
+            val resultSet = statement.executeQuery()
+            resultSet.next()
+            val imageId = resultSet.getInt("id")
             if (imageId > 0) {
+                println(imageId)
                 dbConnection.prepareStatement(UPDATE_USER_PROFILE_IMAGE).use { statement ->
                     statement.setInt(1, imageId)
                     statement.setInt(2, user.id)
@@ -317,6 +321,23 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
         }
 
         return@withContext false
+    }
+
+    override suspend fun getImageRecord(imageId: Int): ImageRecord? = withContext(Dispatchers.IO) {
+
+        dbConnection.prepareStatement(RETRIEVE_IMAGE_RECORD_WITH_ID).use { statement ->
+            statement.setInt(1, imageId)
+            val resultSet = statement.executeQuery()
+
+            return@withContext if (resultSet.next()) {
+                ImageRecord(
+                    id = imageId,
+                    fileName = resultSet.getString("file_name"),
+                    fileType = resultSet.getString("file_type"),
+                    userId = resultSet.getInt("user_id"),
+                )
+            } else null
+        }
     }
 }
 

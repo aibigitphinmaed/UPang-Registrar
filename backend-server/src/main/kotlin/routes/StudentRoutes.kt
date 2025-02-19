@@ -19,6 +19,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import io.ktor.util.cio.writeChannel
@@ -173,6 +174,7 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
         //endregion
 
         //region student profile image
+
         post("/student-image-upload") {
             val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 10)
 
@@ -226,14 +228,43 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
 
             if(fileName != null){
                val savedProfileImage = userServiceImpl.updateProfileImageRecords(fileName, username)
-
-                call.respond(HttpStatusCode.OK)
+                if(savedProfileImage){
+                    call.respond(HttpStatusCode.OK)
+                }
+                call.respond(HttpStatusCode.BadRequest)
             }else{
                 call.respond(HttpStatusCode.BadRequest)
             }
 
 
             //endregion
+        }
+
+        get("/student-profile-image") {
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+
+            val user = userServiceImpl.findByUsername(username)
+
+            if (user?.imageId == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No profile image found"))
+                return@get
+            }
+
+            val imageRecord = userServiceImpl.getImageRecordById(user.imageId)
+
+            if (imageRecord == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Image record not found"))
+                return@get
+            }
+
+            val file = File("uploads/profile_pictures/${user.id}/${imageRecord.fileName}")
+
+            if (!file.exists()) {
+                call.respond(HttpStatusCode.NotFound)
+            } else {
+                call.respondFile(file)
+            }
         }
         //endregion
     }

@@ -8,5 +8,7 @@ data class ProfileScreenState(
     val locationInfo: LocationInfo? = null,
     val editMode:Boolean = false,
     val showConfirmWindow:Boolean = false,
-    val confirmEditMode:Boolean = false
+    val confirmEditMode:Boolean = false,
+    val changePasswordMode:Boolean = false,
+    val confirmChangePasswordMode:Boolean = false
 )

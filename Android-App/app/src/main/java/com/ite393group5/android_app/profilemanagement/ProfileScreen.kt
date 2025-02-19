@@ -51,6 +51,19 @@ fun ProfileScreen(
 
                 profileScreenState.showConfirmWindow -> ProfileConfirmBottomBar({ profileScreenViewModel.completeEditing() }, { profileScreenViewModel.cancelConfirmation() })
 
+
+                profileScreenState.changePasswordMode && !profileScreenState.confirmChangePasswordMode -> ProfileConfirmBottomBar(
+                    confirmEdit = { profileScreenViewModel.confirmChangePassword()
+                    },
+                    cancelEdit = { profileScreenViewModel.cancelChangePassword() }
+                )
+
+                profileScreenState.changePasswordMode && profileScreenState.confirmChangePasswordMode -> ProfileConfirmBottomBar(
+                    confirmEdit = { profileScreenViewModel.completeChangePassword() },
+                    cancelEdit = { profileScreenViewModel.cancelConfirmChangePassword() }
+                )
+
+
                 else -> ProfileBottomBar(modifier, profileScreenViewModel)
             }
         }
@@ -62,6 +75,7 @@ fun ProfileScreen(
         ) {
             when {
                 profileScreenState.editMode -> EditModeProfile(profileScreenViewModel)
+
                 profileScreenState.showConfirmWindow -> {
                     ViewModeProfile(profileScreenViewModel)
                     Toast.makeText(
@@ -70,11 +84,17 @@ fun ProfileScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+
+                profileScreenState.changePasswordMode -> ProfileChangePassword(profileScreenViewModel)
+
+
                 else -> ViewModeProfile(profileScreenViewModel)
             }
         }
     }
 }
+
+
 
 @Composable
 fun ViewModeProfile(profileScreenViewModel: ProfileScreenViewModel) {

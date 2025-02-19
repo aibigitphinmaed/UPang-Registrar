@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
+import com.ite393group5.android_app.profilemanagement.domain.ProfileChangePasswordUseCase
 import com.ite393group5.android_app.profilemanagement.domain.ProfileUpdateUseCase
 import com.ite393group5.android_app.profilemanagement.domain.ProfileUseCase
 import com.ite393group5.android_app.profilemanagement.state.ProfileScreenState
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileScreenViewModel @Inject constructor(
     private val profileUseCase: ProfileUseCase,
-    private val profileUpdateUseCase: ProfileUpdateUseCase
+    private val profileUpdateUseCase: ProfileUpdateUseCase,
+    private val profileChangePasswordUseCase: ProfileChangePasswordUseCase
 ) : ViewModel() {
     private val _mutableStateProfile = MutableStateFlow(ProfileScreenState())
     val flowProfileState: StateFlow<ProfileScreenState> = _mutableStateProfile
@@ -52,7 +54,7 @@ class ProfileScreenViewModel @Inject constructor(
         }
     }
 
-
+//region profile updating
     fun showConfirmWindow() {
         _mutableStateProfile.value = _mutableStateProfile.value.copy(
             editMode = false,
@@ -203,6 +205,107 @@ class ProfileScreenViewModel @Inject constructor(
             )
         }
 
+    //endregion
 
+//region change password
+    private var newPassword = ""
+    private var confirmNewPassword = ""
+    private var currentPassword =""
+
+    fun updateVarPassword(currentPassword: String,newPassword: String, confirmNewPassword: String) {
+        this.currentPassword = currentPassword
+        this.newPassword = newPassword
+        this.confirmNewPassword = confirmNewPassword
+
+    }
+
+    fun confirmChangePassword() {
+
+        if(this.confirmNewPassword == this.newPassword){
+            viewModelScope.launch {
+                _toastMessage.emit("Confirm Again to finalize new password")
+            }
+            _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                confirmChangePasswordMode = true
+            )
+        }else{
+            viewModelScope.launch {
+                _toastMessage.emit("Passwords do not match")
+                _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                    confirmChangePasswordMode = false
+                )
+            }
+        }
+
+
+    }
+
+    fun cancelChangePassword() {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            changePasswordMode = false,
+            confirmChangePasswordMode = false
+        )
+    }
+
+
+    //proceed with the changing of password remotely
+    fun completeChangePassword() {
+
+        viewModelScope.launch {
+            try{
+                val statusCode = profileChangePasswordUseCase.executeChangePassword(currentPassword, newPassword)
+                if(statusCode == HttpStatusCode.OK){
+                    _toastMessage.emit("Password Updated")
+                    _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                        changePasswordMode = false,
+                        confirmChangePasswordMode = false
+                    )
+
+                }
+                if(statusCode == HttpStatusCode.Unauthorized){
+                    _toastMessage.emit("Failed to update password. Wrong current password.")
+                    _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                        changePasswordMode = true,
+                        confirmChangePasswordMode = false
+                    )
+                }
+
+                if(statusCode == HttpStatusCode.BadRequest){
+                    _toastMessage.emit("Failed to update password. Please try again later.")
+                    _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                        changePasswordMode = true,
+                        confirmChangePasswordMode = false
+                    )
+                }
+                if(statusCode == HttpStatusCode.InternalServerError){
+                    _toastMessage.emit("Failed to update password. Please try again later. Server May be down at the moment")
+                    _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                        changePasswordMode = true,
+                        confirmChangePasswordMode = false
+                    )
+                }
+            }catch (e:Exception){
+                _toastMessage.emit("Failed to update password. Please try again later.")
+                Timber.tag("ProfileScreenViewModel").e("Error updating password: $e")
+            }
+        }
+
+    }
+
+    //cancel confirmation but stay in change password edit mode
+    fun cancelConfirmChangePassword() {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            changePasswordMode = true,
+            confirmChangePasswordMode = false
+        )
+    }
+
+    fun changePasswordMode() {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            changePasswordMode = true
+        )
+    }
+
+//endregion
 }
 

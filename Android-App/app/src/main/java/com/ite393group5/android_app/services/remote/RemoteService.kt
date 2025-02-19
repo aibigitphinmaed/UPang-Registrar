@@ -14,5 +14,5 @@ interface RemoteService {
     suspend fun getLocationInformation(userId:Int): LocationInfo
     suspend fun retrievePreferences()
     suspend fun updatePersonalInformation(personalInfo: PersonalInfo,locationInfo: LocationInfo) :  HttpStatusCode
-
+    suspend fun changePassword(currentPassword: String, newPassword: String) : HttpStatusCode
 }

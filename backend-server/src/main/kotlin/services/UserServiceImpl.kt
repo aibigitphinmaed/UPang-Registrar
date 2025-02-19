@@ -75,6 +75,9 @@ class UserServiceImpl(private val dbConnection: Connection) : UserService {
                     userDAO.updatePersonalInfo(foundUser, data.userPersonalInfo)
                     userDAO.updateLocationInfo(foundUser, data.userAddressInfo)
                 }
+                is User -> {
+                    userDAO.updateUser(foundUser.id, data)
+                }
                 else -> throw IllegalArgumentException("Unsupported data type")
             }
         } else {

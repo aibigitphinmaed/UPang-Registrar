@@ -79,7 +79,7 @@ fun ProfileBottomBar(modifier: Modifier, profileScreenViewModel: ProfileScreenVi
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    IconButton(onClick = { /* do something */ }) {
+                    IconButton(onClick = { profileScreenViewModel.changePasswordMode() }) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = stringResource(R.string.notification))
                     }
                     Text("Change Password")

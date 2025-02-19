@@ -18,6 +18,7 @@ import com.ite393group5.utilities.QueryStatements.RETRIEVE_PERSONAL_INFO
 import com.ite393group5.utilities.QueryStatements.UPDATE_LOCATION
 import com.ite393group5.utilities.QueryStatements.UPDATE_PASSWORD
 import com.ite393group5.utilities.QueryStatements.UPDATE_PERSONAL_INFO
+import com.ite393group5.utilities.QueryStatements.UPDATE_USER
 import com.ite393group5.utilities.QueryStatements.UPDATE_USERNAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -269,5 +270,23 @@ class UserDAOImpl(private val dbConnection: Connection) : UserDAO {
         resultSet.close()
 
         return@withContext students
+    }
+
+   override suspend fun updateUser(userid: Int?, data: User): Boolean = withContext(Dispatchers.IO) {
+
+       if(userid != null) {
+           dbConnection.prepareStatement(UPDATE_USER).use { statement ->
+               statement.setString(1, data.username)
+               statement.setString(2, data.password)
+               statement.setString(3, data.salt)
+               statement.setInt(4, userid)
+
+               val rowsUpdated = statement.executeUpdate()
+               return@withContext rowsUpdated > 0
+           }
+       }else{
+           return@withContext false
+       }
+
     }
 }

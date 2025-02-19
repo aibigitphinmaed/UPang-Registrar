@@ -166,5 +166,21 @@ class RemoteServiceImpl @Inject constructor(
 
 
 
+    override suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): HttpStatusCode {
+        val token = localServiceImpl.getBearerToken()
+        val serverResponse = ktorClient.post("student-change-password") {
+            contentType(ContentType.Application.Json)
+            headers{
+                append(HttpHeaders.Authorization, "Bearer $token" )
+            }
+            setBody(mapOf("currentPassword" to currentPassword, "newPassword" to newPassword))
+        }
+        return serverResponse.status
+    }
+
+
 }
 

@@ -109,10 +109,13 @@ object NetworkModule {
             }
         }
     }
+
     @Provides
     @Singleton
     fun provideRemoteService(ktorClient: HttpClient, localService: LocalService): RemoteService {
         return RemoteServiceImpl(localService,ktorClient)
     }
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.ite393group5.android_app.di
 
+import com.ite393group5.android_app.profilemanagement.domain.ProfileChangePasswordUseCase
 import com.ite393group5.android_app.profilemanagement.domain.ProfileUpdateUseCase
 import com.ite393group5.android_app.profilemanagement.domain.ProfileUseCase
 import com.ite393group5.android_app.services.local.LocalService
@@ -25,4 +26,11 @@ object UseCaseModule {
             localService
         )
     }
+    @Provides
+    fun provideProfileChangePasswordUseCase(remoteService: RemoteService): ProfileChangePasswordUseCase {
+        return ProfileChangePasswordUseCase(
+            remoteService
+        )
+    }
+
 }

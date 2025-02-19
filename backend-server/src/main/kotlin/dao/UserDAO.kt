@@ -21,5 +21,7 @@ interface UserDAO {
     suspend fun getAllStudents(): List<User>
 
 
+    suspend fun updateUser(userid:Int?, data:User): Boolean
+
 
 }

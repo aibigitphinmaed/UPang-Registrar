@@ -62,6 +62,7 @@ const val FIND_BY_USERNAME = """
     WHERE role = 'student'
 """
 
+    const val UPDATE_USER = """UPDATE "User" SET username = ?, password = ?, salt = ? WHERE user_id = ?"""
 
 }
 

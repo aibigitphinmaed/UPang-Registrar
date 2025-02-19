@@ -51,6 +51,7 @@ dependencies {
 
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.compose.ui:ui-tooling:1.7.7")
     implementation(libs.androidx.ui.tooling.preview.android)
     //compose Bill of Materials
     val composeBom = platform("androidx.compose:compose-bom:2025.01.01")
@@ -85,6 +86,20 @@ dependencies {
 
     //kotlinx
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+    //ktor client
+    implementation("io.ktor:ktor-client-core:3.0.3")
+    implementation("io.ktor:ktor-client-okhttp:3.0.3")
+    implementation("io.ktor:ktor-client-logging:3.0.3")
+    implementation("io.ktor:ktor-client-serialization:3.0.3")
+    implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
+    implementation("io.ktor:ktor-client-auth:3.0.3")
+    implementation("io.ktor:ktor-client-websockets:3.0.3")
+    //datastore
+    implementation("androidx.datastore:datastore:1.1.2")
+
+
 }
 
 // Allow references to generated code

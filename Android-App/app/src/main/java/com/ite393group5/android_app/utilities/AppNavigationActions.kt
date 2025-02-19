@@ -19,7 +19,9 @@ class AppNavigationActions(private val navController: NavHostController) {
 
 
     fun navigateToAppointmentBooking() {
-        TODO("Not yet implemented")
+        navController.navigate(
+            route = NavigationRoutes.Authenticated.AppointmentBooking.route
+        )
     }
 
     fun navigateToQueueTicket() {
@@ -35,7 +37,7 @@ class AppNavigationActions(private val navController: NavHostController) {
     }
 
     fun navigateToProfileManagement() {
-        TODO("Not yet implemented")
+       navController.navigate(route = NavigationRoutes.Authenticated.ProfileManagement.route)
     }
 
     fun navigateToFeedbackSubmission() {
@@ -48,7 +50,36 @@ class AppNavigationActions(private val navController: NavHostController) {
 
     //same as log-out
     fun navigateToLogin() {
-        TODO("Not yet implemented")
+//        navController.graph.clear()
+//        navController.navigate(
+//            route = NavigationRoutes.Unauthenticated.NavigationRoute.route
+//        )
+        navController.navigate(
+            route = NavigationRoutes.Unauthenticated.Login.route
+        ){
+            popUpTo(navController.graph.startDestinationId){
+                inclusive = true
+            }
+        }
+        removeLoadingScreen()
+    }
+
+    fun removeLoadingScreen(){
+        navController.popBackStack()
+    }
+
+    fun navigateToLogoutScreen(){
+        navController.navigate(
+            route = NavigationRoutes.Authenticated.Logout.route
+        )
+    }
+
+    fun logout() {
+        navController.navigate(route = NavigationRoutes.Unauthenticated.NavigationRoute.route) {
+            popUpTo(route = NavigationRoutes.Authenticated.NavigationRoute.route) {
+                inclusive = true
+            }
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 package com.ite393group5.android_app.profilemanagement
 
-import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.models.LocationInfo
@@ -29,8 +28,8 @@ class ProfileScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _profileBitmapFlow = MutableStateFlow<Bitmap?>(null)
-    val profileBitmapFlow: StateFlow<Bitmap?> = _profileBitmapFlow
+    private val _profileBitmapFlow = MutableStateFlow<String?>(null)
+    val profileBitmapFlow: StateFlow<String?> = _profileBitmapFlow
     private val _mutableStateProfile = MutableStateFlow(ProfileScreenState())
     val flowProfileState: StateFlow<ProfileScreenState> = _mutableStateProfile
     private var originalPersonalInfo: PersonalInfo? = null
@@ -43,19 +42,23 @@ class ProfileScreenViewModel @Inject constructor(
             combine(
                 profileUseCase.getPersonalInfo(),
                 profileUseCase.getLocationInfo(),
-            ) { personalInfo, locationInfo ->
+                profileUseCase.getProfileImage()
+            ) { personalInfo, locationInfo, profileImageLocation ->
                 Timber.tag("ProfileScreenViewModel").e("Collected PersonalInfo: $personalInfo")
                 Timber.tag("ProfileScreenViewModel").e("Collected LocationInfo: $locationInfo")
-                _profileBitmapFlow.value = profileUseCase.getProfileImage()
                 originalPersonalInfo = personalInfo
                 originalLocationInfo = locationInfo
                 ProfileScreenState(
                     personalInfo = personalInfo,
-                    locationInfo = locationInfo
+                    locationInfo = locationInfo,
+                    profileImageLocation = profileImageLocation
                 )
             }.collect { state ->
                 Timber.tag("ProfileScreenViewModel").e("Updating State: $state")
                 _mutableStateProfile.value = state
+                if (state.profileImageLocation != null) {
+                    originalProfileImageLocation = state.profileImageLocation
+                }
             }
         }
     }
@@ -78,7 +81,8 @@ class ProfileScreenViewModel @Inject constructor(
         _mutableStateProfile.value = _mutableStateProfile.value.copy(
             editMode = false,
             personalInfo = originalPersonalInfo ?: PersonalInfo(),
-            locationInfo = originalLocationInfo ?: LocationInfo()
+            locationInfo = originalLocationInfo ?: LocationInfo(),
+            profileImageLocation = originalProfileImageLocation
         )
 
     }
@@ -89,9 +93,11 @@ class ProfileScreenViewModel @Inject constructor(
             try {
                 val personalInfo = _mutableStateProfile.value.personalInfo
                 val locationInfo = _mutableStateProfile.value.locationInfo
-
+                val profileImagePath = _mutableStateProfile.value.profileImageLocation ?: ""
                 if (personalInfo != null && locationInfo != null) {
-                    val response = profileUpdateUseCase.executeProfileUpdate(personalInfo, locationInfo)
+
+                    val response = profileUpdateUseCase.executeProfileUpdate(personalInfo, locationInfo,profileImagePath)
+
                     if (response == HttpStatusCode.OK) {
                         _mutableStateProfile.value = _mutableStateProfile.value.copy(
                             editMode = false,
@@ -311,6 +317,16 @@ class ProfileScreenViewModel @Inject constructor(
             changePasswordMode = true
         )
     }
+
+private var originalProfileImageLocation: String? = ""
+    fun updateProfileImageLocation(profileImagePath: String) {
+        Timber.tag("ProfileScreenViewModel").e("Updating profile image location: $profileImagePath")
+        originalProfileImageLocation = _mutableStateProfile.value.profileImageLocation
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            profileImageLocation = profileImagePath
+        )
+    }
+
 
 //endregion
 }

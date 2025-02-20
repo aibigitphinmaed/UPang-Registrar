@@ -10,5 +10,6 @@ data class ProfileScreenState(
     val showConfirmWindow:Boolean = false,
     val confirmEditMode:Boolean = false,
     val changePasswordMode:Boolean = false,
-    val confirmChangePasswordMode:Boolean = false
+    val confirmChangePasswordMode:Boolean = false,
+    val profileImageLocation:String? = null
 )

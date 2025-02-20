@@ -1,6 +1,7 @@
 package com.ite393group5.android_app.profilemanagement
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,33 +32,46 @@ import androidx.compose.ui.unit.sp
 import com.ite393group5.android_app.common.InfoRow
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
-import kotlinx.coroutines.flow.StateFlow
+import com.ite393group5.android_app.profilemanagement.state.ProfileScreenState
+import timber.log.Timber
+import java.io.File
 
 
 @Composable
 fun ProfileContent(
     personalInfo: PersonalInfo,
     locationInfo: LocationInfo,
-    profileBitmapFlow: StateFlow<Bitmap?>
-) {
-    val profileBitmap = profileBitmapFlow.collectAsState()
+    profileState: ProfileScreenState,
+    ) {
+
+
+    Timber.tag("ProfileContent").e(profileState.profileImageLocation)
+    val file = profileState.profileImageLocation?.let { File(it) }
+    if (file != null) {
+        if (!file.exists()) {
+            Timber.tag("ProfileContent").e("File does not exist at path: ${profileState.profileImageLocation}")
+        }
+    }else{
+        Timber.tag("ProfileContent").e("File is null at path: ${profileState.profileImageLocation}")
+    }
+    val profileBitmap: Bitmap? = BitmapFactory.decodeFile(file?.absolutePath ?: "")
+
+
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        if (profileBitmap.value != null) {
-            profileBitmap.value?.let {
-                Image(
-                    bitmap = it.asImageBitmap(),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(180.dp)
-                        .clip(MaterialTheme.shapes.extraLarge),
-                    contentScale = ContentScale.Crop
-                )
-            }
+        if (profileBitmap != null) {
+            Image(
+                bitmap = profileBitmap.asImageBitmap(),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(180.dp)
+                    .clip(MaterialTheme.shapes.extraLarge),
+                contentScale = ContentScale.Crop
+            )
         } else {
             Icon(
                 imageVector = Icons.Default.AccountCircle,

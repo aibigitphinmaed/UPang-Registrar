@@ -18,4 +18,5 @@
     <string name="check_documents">Check Document List</string>
     <string name="notification">Notifications</string>
     <string name="document">Documents</string>
+    <string name="home_content_description">Home</string>
 </resources>

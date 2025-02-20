@@ -11,6 +11,8 @@ import com.ite393group5.android_app.models.UserIdResponse
 import com.ite393group5.android_app.services.local.LocalService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -19,6 +21,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.readBytes
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentLength
@@ -144,6 +147,9 @@ class RemoteServiceImpl @Inject constructor(
 
                 localServiceImpl.savePersonalInfo(personalInfo)
                 localServiceImpl.saveAddressInfo(locationInfo)
+
+                val bitmap:Bitmap? = getProfileImage()
+
                 Timber.tag("RemoteServiceImpl").e(personalInfo.toString())
                 Timber.tag("RemoteServiceImpl").e(locationInfo.toString())
 
@@ -157,7 +163,7 @@ class RemoteServiceImpl @Inject constructor(
 
     }
 
-    override suspend fun updatePersonalInformation(personalInfo: PersonalInfo, locationInfo: LocationInfo): HttpStatusCode = withContext(Dispatchers.IO){
+    override suspend fun updatePersonalInformation(personalInfo: PersonalInfo, locationInfo: LocationInfo, profileImagePath:String): HttpStatusCode = withContext(Dispatchers.IO){
         val token = localServiceImpl.getBearerToken()
         val studentProfile = StudentProfile(personalInfo, locationInfo)
         Timber.tag("RemoteServiceImpl").e("Updating student profile : ${studentProfile.toString()}")
@@ -169,7 +175,31 @@ class RemoteServiceImpl @Inject constructor(
             setBody(studentProfile)
         }
         return@withContext try {
-            serverResponse.status
+            if(serverResponse.status == HttpStatusCode.OK){
+                val imageFile = File(profileImagePath)
+                val profileImageResponse = ktorClient.post("student-image-upload"){
+                    contentType(ContentType.Application.Json)
+                    headers{
+                        append(HttpHeaders.Authorization, "Bearer $token" )
+                    }
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                append("fileDescription", "User Profile Image")
+                                append("image", imageFile.readBytes(), Headers.build {
+                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"${imageFile.name}\"")
+                                    append(HttpHeaders.ContentType, ContentType.Image.Any.toString())
+                                })
+                            }
+                        )
+                    )
+                }
+                Timber.tag("Image-upload-endpoitn").e(profileImageResponse.status.toString())
+                profileImageResponse.status
+            }else{
+                HttpStatusCode.ExpectationFailed
+            }
+
         }catch (e:Exception){
             Timber.tag("RemoteServiceImpl").e(e, "Error updating student profile")
             HttpStatusCode.InternalServerError
@@ -214,13 +244,13 @@ class RemoteServiceImpl @Inject constructor(
                 Timber.tag("RemoteServiceImpl").e("File has been saved to ${file.absolutePath}")
             }
 
-            return BitmapFactory.decodeFile(file.absolutePath).also {file.delete()}
+            localServiceImpl.updateProfileImageLocation(file.absolutePath)
+            return BitmapFactory.decodeFile(file.absolutePath)
         } catch (e: Exception) {
             Timber.tag("RemoteServiceImpl").e(e)
             null
         }
     }
-
 
 }
 

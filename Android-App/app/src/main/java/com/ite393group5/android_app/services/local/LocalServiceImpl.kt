@@ -2,7 +2,6 @@ package com.ite393group5.android_app.services.local
 
 import android.content.Context
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.ite393group5.android_app.models.AppPreferences
 import com.ite393group5.android_app.models.LocationInfo
@@ -46,9 +45,12 @@ class LocalServiceImpl @Inject constructor(
                 _mutableToken.emit(it.token ?: Token())
                 _mutablePersonalInfo.emit(it.personalInfo ?: PersonalInfo())
                 _mutableAddressInfo.emit(it.locationInfo ?: LocationInfo())
+                _mutableImageProfile.emit(it.profileImageLocation ?: "")
             }
             Timber.tag("LocalServiceImpl").e("Emitting PersonalInfo: ${_mutablePersonalInfo.value}")
             Timber.tag("LocalServiceImpl").e("Emitting LocationInfo: ${_mutableAddressInfo.value}")
+            Timber.tag("LocalServiceImpl").e("Emitting Profile Image location: ${_mutableImageProfile.value}")
+
         }
     }
 
@@ -65,6 +67,8 @@ class LocalServiceImpl @Inject constructor(
     private val _mutableAddressInfo = MutableStateFlow(LocationInfo())
      override val flowAddressInfo:StateFlow<LocationInfo> = _mutableAddressInfo
 
+    private val _mutableImageProfile = MutableStateFlow("")
+    override val flowImageProfile: StateFlow<String> = _mutableImageProfile
 
 
     suspend fun collectFromDataStore():AppPreferences? = withContext(Dispatchers.IO){
@@ -79,6 +83,19 @@ class LocalServiceImpl @Inject constructor(
                     expirationTimeDate = it.token?.expirationTimeDate ?: LocalDate.now()
                 )
                 _mutableUserId.value = it.userId ?: -1
+
+                _mutablePersonalInfo.value = _mutablePersonalInfo.value.copy(
+                    firstName = it.personalInfo?.firstName ?: "",
+                    lastName = it.personalInfo?.lastName ?: "",
+                    middleName = it.personalInfo?.middleName ?: "")
+
+                _mutableImageProfile.value = it.profileImageLocation ?: ""
+
+                _mutableAddressInfo.value = _mutableAddressInfo.value.copy(
+                    houseNumber = it.locationInfo?.houseNumber ?: "",
+                    street = it.locationInfo?.street ?: "",
+                    zone = it.locationInfo?.zone ?: "",
+                )
             }
             appPrefs
         } catch (e: Exception) {
@@ -95,10 +112,11 @@ class LocalServiceImpl @Inject constructor(
                     userId = flowUserId.value,
                     token = flowToken.value,
                     personalInfo = flowPersonalInfo.value,
-                    locationInfo = flowAddressInfo.value
+                    locationInfo = flowAddressInfo.value,
+                    profileImageLocation =  flowImageProfile.value
                 )
             }
-            Timber.tag("DataStoreImpl").e("Saved to Datastore")
+            Timber.tag("DataStoreImpl").e("Saved to Datastore: ${dataStore.data.firstOrNull().toString()}" )
         }catch (e:Exception){
             Timber.tag("DataStoreImpl").e(e)
         }
@@ -147,7 +165,8 @@ class LocalServiceImpl @Inject constructor(
                 userId = null,
                 token = null,
                 personalInfo = null,
-                locationInfo = null
+                locationInfo = null,
+                profileImageLocation = null
             )
         }
         collectFromDataStore()
@@ -210,5 +229,20 @@ class LocalServiceImpl @Inject constructor(
     }
     override suspend fun getUserId(): Int? {
         return if(flowUserId.value < 0) null else flowUserId.value
+    }
+
+    override suspend fun updateProfileImageLocation(path: String?) {
+
+        if (path != null) {
+            _mutableImageProfile.value = path
+           _mutableImageProfile.emit(path)
+        }
+        saveToDateStore()
+    }
+
+    override suspend fun saveProfileImageLocation(profileImageLocation: String) {
+        _mutableImageProfile.value = profileImageLocation
+        _mutableImageProfile.emit(profileImageLocation)
+        saveToDateStore()
     }
 }

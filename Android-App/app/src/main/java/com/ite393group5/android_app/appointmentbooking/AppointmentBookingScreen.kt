@@ -27,7 +27,7 @@ fun AppointmentBookingScreen(
 
     Scaffold(
         topBar = {
-            CustomAppTopbar("Appointment Booking", openDrawer, modifier = modifier)
+            CustomAppTopbar("Appointment", openDrawer, modifier = modifier)
         },
         bottomBar = {},
         floatingActionButton = {},
@@ -44,12 +44,26 @@ fun AppointmentBookingScreen(
             contentColor = Color.White,
         ) {
 
-
         }
 
 
     }
 
+
+}
+
+@Composable
+fun ViewListOfAppointmentsScreen(){
+
+}
+
+@Composable
+fun CreateAnAppointmentScreen(){
+
+}
+
+@Composable
+fun ViewSelectedAppointment(){
 
 }
 

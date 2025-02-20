@@ -79,7 +79,6 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(listOf(
-                        "Appointments Today" to "32",
                         "Now Serving" to "#23",
                         "Avg. Wait Time" to "15 min"
                     )) { (title, value) ->
@@ -96,13 +95,6 @@ fun DashboardScreen(
                     onCancelQueue = { /* Handle Cancel Queue */ }
                 )
 
-//                // Upcoming Appointments
-//                Text("Upcoming Appointments", style = MaterialTheme.typography.titleMedium)
-//                LazyColumn {
-//                    items(5) { index ->
-//                        AppointmentItem("Feb 15, 2025 - 10:30 AM", "Pending")
-//                    }
-//                }
 
                 // Announcements Section
                 Text("Registrar Announcements", style = MaterialTheme.typography.titleMedium)

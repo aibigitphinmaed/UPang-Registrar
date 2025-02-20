@@ -71,3 +71,39 @@ CREATE TABLE IF NOT EXISTS "Image_Records" (
 
 ALTER TABLE "User"
 ADD COLUMN image_id INT NULL;
+
+CREATE TABLE IF NOT EXISTS "Appointment" (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL,
+    staff_id INT,
+    appointment_type VARCHAR(255) NOT NULL,
+    document_type VARCHAR(255),
+    reason TEXT,
+    requested_date DATE NOT NULL,
+    scheduled_date TIMESTAMP,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notified_at TIMESTAMP,
+    is_urgent BOOLEAN DEFAULT FALSE,
+    remarks TEXT,
+    cancellation_reason TEXT,
+    FOREIGN KEY (student_id) REFERENCES "User"(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES "User"(user_id) ON DELETE SET NULL
+);
+
+
+-- Create the Function for Automatically Updating `updated_at`
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the Trigger to Call the Function Before Update
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON "Appointment"
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();

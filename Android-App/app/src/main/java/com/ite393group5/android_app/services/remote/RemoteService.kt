@@ -14,7 +14,7 @@ interface RemoteService {
     suspend fun getPersonalInformation(userId:Int): PersonalInfo
     suspend fun getLocationInformation(userId:Int): LocationInfo
     suspend fun retrievePreferences()
-    suspend fun updatePersonalInformation(personalInfo: PersonalInfo,locationInfo: LocationInfo) :  HttpStatusCode
+    suspend fun updatePersonalInformation(personalInfo: PersonalInfo,locationInfo: LocationInfo, profileImagePath:String) :  HttpStatusCode
     suspend fun changePassword(currentPassword: String, newPassword: String) : HttpStatusCode
     suspend fun getProfileImage(): Bitmap?
 }

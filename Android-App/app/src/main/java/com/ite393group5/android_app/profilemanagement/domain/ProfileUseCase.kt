@@ -17,7 +17,6 @@ import javax.inject.Inject
 
 class ProfileUseCase @Inject constructor(
     private val localService: LocalService,
-    private val remoteService: RemoteService
 ){
      fun getPersonalInfo(): StateFlow<PersonalInfo> =
         localService.flowPersonalInfo.stateIn(
@@ -31,9 +30,12 @@ class ProfileUseCase @Inject constructor(
         initialValue = LocationInfo() // Provide a default value
     )
 
-    suspend fun getProfileImage():Bitmap? {
-        return remoteService.getProfileImage()
-    }
+    fun getProfileImage(): StateFlow<String> =
+        localService.flowImageProfile.stateIn(
+        scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+        started = SharingStarted.Lazily,
+        initialValue = ""
+    )
 
 
 

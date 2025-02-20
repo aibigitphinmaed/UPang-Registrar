@@ -102,7 +102,7 @@ fun ViewModeProfile(profileScreenViewModel: ProfileScreenViewModel) {
 
     profileState.personalInfo?.let { personalInfo ->
         profileState.locationInfo?.let { locationInfo ->
-            ProfileContent(personalInfo, locationInfo, profileScreenViewModel.profileBitmapFlow)
+            ProfileContent(personalInfo, locationInfo, profileState)
         }
     } ?: Text(
         "Loading Profile...", modifier = Modifier

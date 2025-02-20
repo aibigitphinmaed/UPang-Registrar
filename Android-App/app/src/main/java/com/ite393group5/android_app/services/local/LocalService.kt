@@ -11,6 +11,7 @@ interface LocalService {
     val flowAddressInfo:StateFlow<LocationInfo>
     val flowToken: StateFlow<Token>
     val flowUserId: StateFlow<Int>
+    val flowImageProfile: StateFlow<String>
 
     suspend fun saveToDateStore()
     suspend fun saveBearerToken(token: Token)
@@ -28,5 +29,8 @@ interface LocalService {
     suspend fun getPersonalInfo(): PersonalInfo
 suspend fun  getAddressInfo():LocationInfo
 suspend fun getUserId():Int?
+
+    suspend fun updateProfileImageLocation(path:String?)
+    suspend fun saveProfileImageLocation(profileImageLocation: String)
 
 }

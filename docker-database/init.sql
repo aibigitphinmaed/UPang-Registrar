@@ -82,16 +82,15 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
     requested_date DATE NOT NULL,
     scheduled_date TIMESTAMP,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notified_at TIMESTAMP,
     is_urgent BOOLEAN DEFAULT FALSE,
     remarks TEXT,
     cancellation_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES "User"(user_id) ON DELETE CASCADE,
     FOREIGN KEY (staff_id) REFERENCES "User"(user_id) ON DELETE SET NULL
 );
-
 
 -- Create the Function for Automatically Updating `updated_at`
 CREATE OR REPLACE FUNCTION update_modified_column()

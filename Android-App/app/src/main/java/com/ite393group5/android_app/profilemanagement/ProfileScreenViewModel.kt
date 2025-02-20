@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -63,7 +64,7 @@ class ProfileScreenViewModel @Inject constructor(
         }
     }
 
-//region profile updating
+//region profile updating state
     fun showConfirmWindow() {
         _mutableStateProfile.value = _mutableStateProfile.value.copy(
             editMode = false,
@@ -113,7 +114,9 @@ class ProfileScreenViewModel @Inject constructor(
             }
         }
     }
+    //endregion
 
+//region Personal Info updates
         fun updateFirstName(it: String) {
             _mutableStateProfile.value = _mutableStateProfile.value.copy(
                 personalInfo = _mutableStateProfile.value.personalInfo?.copy(
@@ -121,6 +124,13 @@ class ProfileScreenViewModel @Inject constructor(
                 )
             )
         }
+    fun updateMiddleName(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                middleName = it
+            )
+        )
+    }
 
         fun updateLastName(it: String) {
             _mutableStateProfile.value = _mutableStateProfile.value.copy(
@@ -129,7 +139,32 @@ class ProfileScreenViewModel @Inject constructor(
                 )
             )
         }
+    fun updateExtensionName(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                extensionName = it
+            )
+        )
+    }
 
+    fun updatePhoneNumber(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                number = it
+            )
+        )
+    }
+    fun updateGender(newGender: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                gender = newGender
+            )
+        )
+    }
+
+    //endregion
+
+//region Location Info updates
         fun updateStreet(it: String) {
             _mutableStateProfile.value = _mutableStateProfile.value.copy(
                 locationInfo = _mutableStateProfile.value.locationInfo?.copy(
@@ -154,21 +189,9 @@ class ProfileScreenViewModel @Inject constructor(
             )
         }
 
-        fun updateMiddleName(it: String) {
-            _mutableStateProfile.value = _mutableStateProfile.value.copy(
-                personalInfo = _mutableStateProfile.value.personalInfo?.copy(
-                    middleName = it
-                )
-            )
-        }
 
-        fun updatePhoneNumber(it: String) {
-            _mutableStateProfile.value = _mutableStateProfile.value.copy(
-                personalInfo = _mutableStateProfile.value.personalInfo?.copy(
-                    number = it
-                )
-            )
-        }
+
+
 
         fun updateHouseNumber(it: String) {
             _mutableStateProfile.value = _mutableStateProfile.value.copy(
@@ -209,14 +232,6 @@ class ProfileScreenViewModel @Inject constructor(
                 )
             )
         }
-
-        fun cancelConfirmation() {
-            _mutableStateProfile.value = _mutableStateProfile.value.copy(
-                editMode = true,
-                showConfirmWindow = false
-            )
-        }
-
     //endregion
 
 //region change password
@@ -251,7 +266,12 @@ class ProfileScreenViewModel @Inject constructor(
 
 
     }
-
+    fun cancelConfirmation() {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            editMode = true,
+            showConfirmWindow = false
+        )
+    }
     fun cancelChangePassword() {
         _mutableStateProfile.value = _mutableStateProfile.value.copy(
             changePasswordMode = false,
@@ -318,12 +338,82 @@ class ProfileScreenViewModel @Inject constructor(
         )
     }
 
+
 private var originalProfileImageLocation: String? = ""
     fun updateProfileImageLocation(profileImagePath: String) {
         Timber.tag("ProfileScreenViewModel").e("Updating profile image location: $profileImagePath")
         originalProfileImageLocation = _mutableStateProfile.value.profileImageLocation
         _mutableStateProfile.value = _mutableStateProfile.value.copy(
             profileImageLocation = profileImagePath
+        )
+    }
+
+
+
+
+    fun updateCitizenship(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                citizenship = it
+            )
+        )
+    }
+
+    fun updateReligion(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                religion = it
+            )
+        )
+    }
+
+    fun updateCivilStatus(newStatus: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                civilStatus = newStatus
+            )
+        )
+    }
+
+    fun updateBirthDate(localDate: LocalDate?){
+        if(localDate != null){
+            _mutableStateProfile.value = _mutableStateProfile.value.copy(
+                personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                    birthDate = localDate
+                )
+            )
+        }
+    }
+
+    fun updateFatherName(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                fatherName = it
+            )
+        )
+    }
+
+    fun updateMotherName(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                motherName = it
+            )
+        )
+    }
+
+    fun updateSpouseName(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                spouseName = it
+            )
+        )
+    }
+
+    fun updateContactPersonNumber(it: String) {
+        _mutableStateProfile.value = _mutableStateProfile.value.copy(
+            personalInfo = _mutableStateProfile.value.personalInfo?.copy(
+                contactPersonNumber = it
+            )
         )
     }
 

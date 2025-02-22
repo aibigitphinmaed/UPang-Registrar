@@ -282,6 +282,29 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
             }
         }
         //endregion
+
+        //region appointment-feature-student
+        //region student-appointment-request
+        post("/student-appointment-request"){
+
+        }
+        //endregion
+        //region student-get-appointments
+        get("student-get-appointments"){
+
+        }
+        //endregion
+        //region student-modify-appoint-request
+        post("student-modify-appointments"){
+
+        }
+        //endregion
+        //region student-cancel-appointment
+        post("student-cancel-appointments"){
+
+        }
+        //endregion
+        //endregion
     }
 }
 

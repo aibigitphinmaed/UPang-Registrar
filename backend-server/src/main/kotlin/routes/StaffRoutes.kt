@@ -26,11 +26,12 @@ fun Route.staffRoutes(
 ) {
     authenticate("staff-auth") {
 
-        post("/test-staff-call"){
-            call.respond(HttpStatusCode.OK,"staff called an api")
+        post("/test-staff-call") {
+            call.respond(HttpStatusCode.OK, "staff called an api")
         }
 
-        staticResources("/static",
+        staticResources(
+            "/static",
             "static"
         )
 
@@ -49,7 +50,8 @@ fun Route.staffRoutes(
                 val studentRequest = call.receive<UserProfile>()
                 val studentPersonalInfo = studentRequest.userPersonalInfo
 
-                val plainPassword = studentPersonalInfo?.firstName+studentPersonalInfo?.middleName+studentPersonalInfo?.lastName
+                val plainPassword =
+                    studentPersonalInfo?.firstName + studentPersonalInfo?.middleName + studentPersonalInfo?.lastName
 
                 // Hash the password before storing it
                 val studentSaltedHash = SHA256HashingService().generateSaltedHash(plainPassword)
@@ -62,7 +64,7 @@ fun Route.staffRoutes(
                 )
 
 
-                val createdStudent = userServiceImpl.registerStudent(userToCreate,studentRequest)
+                val createdStudent = userServiceImpl.registerStudent(userToCreate, studentRequest)
 
                 call.respond(HttpStatusCode.Created, "Student ${createdStudent.username} created successfully")
 
@@ -73,14 +75,14 @@ fun Route.staffRoutes(
         }
 
 
-
-        post("/reset-queue"){
+        //region Queue-feature
+        post("/reset-queue") {
             queueResponseFlow.emit("reset-queue")
             currentQueueList.clear()
             call.respond(HttpStatusCode.OK, "Queue reset successfully.")
         }
 
-        post("/next-student"){
+        post("/next-student") {
 
             if (currentQueueList.isNotEmpty()) {
                 val student = currentQueueList.removeAt(0)
@@ -97,7 +99,8 @@ fun Route.staffRoutes(
                     return@post
                 }
 
-                val fullName = "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+                val fullName =
+                    "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
 
 
 
@@ -111,7 +114,7 @@ fun Route.staffRoutes(
             }
         }
 
-        post("/previous-student"){
+        post("/previous-student") {
             if (previousQueueList.isNotEmpty()) {
                 val student = previousQueueList.removeAt(previousQueueList.size - 1)
                 currentQueueList.add(0, student)
@@ -122,7 +125,8 @@ fun Route.staffRoutes(
 
                 if (studentProfile != null) {
 
-                    val fullName = "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+                    val fullName =
+                        "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
 
                     println("Moved previous student back to the front: $fullName")
 
@@ -138,6 +142,27 @@ fun Route.staffRoutes(
                 call.respond(HttpStatusCode.NotFound, "No previous student to serve.")
             }
         }
+        //endregion
+
+        //region appointment-feature
+
+        //region create-student-appointment
+        post("create-student-appointment"){
+
+        }
+        //endregion
+        //region modify-student-appointment
+        post("modify-student-appointment"){
+
+        }
+        // endregion
+        //region get-all-appointments
+        get("get-all-appointments"){
+
+        }
+        //endregion
+
+        //endregion
     }
 
 

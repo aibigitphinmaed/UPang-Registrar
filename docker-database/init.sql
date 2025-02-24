@@ -1,5 +1,5 @@
 -- Create the User table first
-CREATE TABLE IF NOT EXISTS "User" (
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "User" (
 );
 
 -- Create the PersonalInformation table
-CREATE TABLE IF NOT EXISTS "PersonalInformation" (
+CREATE TABLE IF NOT EXISTS "personal_information" (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     first_name VARCHAR(100) NOT NULL,
@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS "PersonalInformation" (
     contact_person_number VARCHAR(15) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
 -- Create the LocationInformation table
-CREATE TABLE IF NOT EXISTS "LocationInformation" (
+CREATE TABLE IF NOT EXISTS "location_information" (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     house_number VARCHAR(10),
@@ -47,32 +47,32 @@ CREATE TABLE IF NOT EXISTS "LocationInformation" (
     postal_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "Notification" (
+CREATE TABLE IF NOT EXISTS "notification" (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "Image_Records" (
+CREATE TABLE IF NOT EXISTS "image_records" (
 	id SERIAL PRIMARY KEY,
 	file_name VARCHAR(255) NOT NULL,
 	file_type VARCHAR(20) NOT NULL,
 	user_id INT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
-ALTER TABLE "User"
+ALTER TABLE "user"
 ADD COLUMN image_id INT NULL;
 
-CREATE TABLE IF NOT EXISTS "Appointment" (
+CREATE TABLE IF NOT EXISTS "appointment" (
     id SERIAL PRIMARY KEY,
     student_id INT NOT NULL,
     staff_id INT,
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
     cancellation_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES "User"(id) ON DELETE CASCADE,
-    FOREIGN KEY (staff_id) REFERENCES "User"(id) ON DELETE SET NULL
+    FOREIGN KEY (student_id) REFERENCES "user"(id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES "user"(id) ON DELETE SET NULL
 );
 
 -- Create the Function for Automatically Updating `updated_at`
@@ -103,6 +103,6 @@ $$ LANGUAGE plpgsql;
 
 -- Create the Trigger to Call the Function Before Update
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON "Appointment"
+BEFORE UPDATE ON "appointment"
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();

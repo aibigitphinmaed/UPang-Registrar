@@ -13,6 +13,7 @@ class UserServiceImpl() : UserService {
     val userDAO = UserDAOImpl()
     override suspend fun findByUsername(username: String): User? {
         val userId = userDAO.getUserIdByUsername(username)
+        println("found: $userId")
         if (userId != null){
             return userDAO.getUserByUserId(userId)
         }
@@ -46,7 +47,15 @@ class UserServiceImpl() : UserService {
                     )
                     userDAO.updateUser(user.id,userProfile)
                 }
-
+                is UserProfile -> {
+                    userDAO.updateUser(user.id,data)
+                }
+                is User -> {
+                    val userProfile = UserProfile(
+                        userAccount = data
+                    )
+                    userDAO.updateUser(user.id,userProfile)
+                }
                 else -> throw IllegalArgumentException("Unsupported data type")
             }
         } else {
@@ -69,20 +78,31 @@ class UserServiceImpl() : UserService {
 
     override suspend fun updateProfileImage(fileName: String, username: String): Boolean {
         val userid = userDAO.getUserIdByUsername(username)
-        if (userid != null){
+        if (userid == null){
             return false
         }
         val user = userDAO.getUserByUserId(userid)
         if(user == null){
             return false
         }
-
+        println("updateProfileImage: $fileName")
         val recordedImageOnDB = userDAO.recordImage(fileName,userid)
-        return recordedImageOnDB
+
+
+        val oldUser = userDAO.getUserByUserId(user.id)
+        val newUser = oldUser?.copy(
+            imageId = recordedImageOnDB
+        )
+        val userProfile = UserProfile(
+            userAccount = newUser
+        )
+        return userDAO.updateUser(newUser?.id, userProfile)
     }
 
     override suspend fun getImageRecordById(imageId: Int): ImageRecord? {
-        return userDAO.getImageRecord(imageId)
+        val ima = userDAO.getImageRecord(imageId)
+        println("getImageRecordById: $ima")
+        return ima
     }
 
     override suspend fun getCurrentUserProfileImageId(userId:Int): Int? {

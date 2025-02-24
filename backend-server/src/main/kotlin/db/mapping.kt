@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 
-object UserTable : IntIdTable("User") {
+object UserTable : IntIdTable("user") {
    val username = varchar("username", 100).uniqueIndex()
     val password = varchar("password", 255)
     val role = varchar("role", 50)
@@ -16,12 +16,10 @@ object UserTable : IntIdTable("User") {
     val imageId = integer("image_id").nullable()
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
-
-
 }
 
-object PersonalInformationTable : IntIdTable("PersonalInformation") {
-    val userIdRef = reference("user_id", UserTable.id, onDelete =  ReferenceOption.CASCADE)
+object PersonalInformationTable : IntIdTable("personal_information") {
+    val userIdRef = reference("user_id", UserTable, onDelete =  ReferenceOption.CASCADE)
     val firstName = varchar("first_name", 100)
     val lastName = varchar("last_name", 100)
     val middleName = varchar("middle_name", 100).nullable()
@@ -41,8 +39,8 @@ object PersonalInformationTable : IntIdTable("PersonalInformation") {
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 }
 
-object LocationInformationTable: IntIdTable("LocationInformation") {
-    val userIdRef = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
+object LocationInformationTable: IntIdTable("location_information") {
+    val userIdRef = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
     val houseNumber = varchar("house_number", 10).nullable()
     val street = varchar("street", 255)
     val zone = varchar("zone", 50).nullable()
@@ -55,17 +53,17 @@ object LocationInformationTable: IntIdTable("LocationInformation") {
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 }
 
-object ImageRecordsTable : IntIdTable("Image_Records") {
+object ImageRecordsTable : IntIdTable("image_records") {
     val fileName = varchar("file_name", 255)
     val fileType = varchar("file_type", 20)
-    val userRefId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
+    val userRefId = reference("user_id", UserTable, ReferenceOption.CASCADE)
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
 }
 
 
-object AppointmentTable : IntIdTable("Appointment") {
-    val studentId = reference("student_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
-    val staffId = reference("staff_id", UserTable.id, onDelete = ReferenceOption.SET_NULL).nullable()
+object AppointmentTable : IntIdTable("appointment") {
+    val studentId = reference("student_id", UserTable, onDelete = ReferenceOption.CASCADE)
+    val staffId = reference("staff_id", UserTable, onDelete = ReferenceOption.SET_NULL).nullable()
     val appointmentType = varchar("appointment_type", 255)
     val documentType = varchar("document_type", 255).nullable()
     val reason = text("reason").nullable()

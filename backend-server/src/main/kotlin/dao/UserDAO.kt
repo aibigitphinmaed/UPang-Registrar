@@ -15,7 +15,7 @@ interface UserDAO {
     fun getUserIdByUsername(username: String): Int?
     fun getUserByUserId(userId:Int?): User?
     fun getAllUsers():List<User>
-    fun recordImage(fileName:String, userId:Int?):Boolean
+    fun recordImage(fileName:String, userId:Int?):Int
     fun getImageRecord(imageId: Int): ImageRecord?
     fun getCurrentUserProfileImageId(userId:Int): Int?
 }

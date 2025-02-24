@@ -1,36 +1,26 @@
 package com.ite393group5.routes
 
-import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.dto.PasswordRequest
+import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
-import com.ite393group5.plugins.queueResponseFlow
 import com.ite393group5.services.StudentServiceImpl
 import com.ite393group5.services.UserService
 import com.ite393group5.utilities.SHA256HashingService
 import com.ite393group5.utilities.SaltedHash
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.header
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondFile
-import io.ktor.server.response.respondText
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import java.io.File
-import java.util.UUID
+import java.util.*
 
-fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentServiceImpl) {
+fun Route.studentRoutes(userServiceImpl: UserService) {
     authenticate("student-auth") {
 
         //region student queue
@@ -61,10 +51,10 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                 return@get
             }
 
-            val studentProfile = userServiceImpl.retrieveProfileById(userid)
+            val studentPersonalInfo = userServiceImpl.getUserProfile(userid)?.userPersonalInfo
 
-            if (studentProfile != null) {
-                call.respond(HttpStatusCode.OK, studentProfile)
+            if (studentPersonalInfo != null) {
+                call.respond(HttpStatusCode.OK, studentPersonalInfo)
 
             } else {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Student profile not found"))
@@ -79,7 +69,7 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                 return@get
             }
 
-            val studentAddress = userServiceImpl.retrieveAddressById(userid)
+            val studentAddress = userServiceImpl.getUserProfile(userid)?.userAddressInfo
 
             if (studentAddress != null) {
                 call.respond(HttpStatusCode.OK, studentAddress)
@@ -118,7 +108,7 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "User not found"))
                 return@post
             } else {
-                val isUpdated = userServiceImpl.updateProfile(requestProfile, username)
+                val isUpdated = userServiceImpl.updateProfile(requestProfile, user)
                 if (isUpdated) {
                     call.respond(HttpStatusCode.OK)
                 } else {
@@ -156,9 +146,8 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                             salt = generateNewSaltedHash.salt,
                         )
                         println(updatedUser)
-                        val isUpdated = userServiceImpl.updateProfile(updatedUser, username)
+                        val isUpdated = userServiceImpl.updateProfile(updatedUser, updatedUser)
                         if (isUpdated) {
-
                             call.respond(HttpStatusCode.OK)
                         } else {
                             call.respond(HttpStatusCode.InternalServerError)
@@ -224,13 +213,16 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
                         println(fileName)
                     }
 
-                    else -> {}
+                    else -> {
+
+                    }
                 }
                 part.dispose()
             }
 
             if(fileName != null){
-               val savedProfileImage = userServiceImpl.updateProfileImageRecords(fileName, username)
+                println("profile image of user $username has been uploaded. file name is $fileName")
+               val savedProfileImage = userServiceImpl.updateProfileImage(fileName, username)
                 if(savedProfileImage){
                     call.respond(HttpStatusCode.OK)
                 }
@@ -238,8 +230,6 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
             }else{
                 call.respond(HttpStatusCode.BadRequest)
             }
-
-
             //endregion
         }
 
@@ -248,13 +238,18 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
             val username = principal.payload.getClaim("username").asString()
 
             val user = userServiceImpl.findByUsername(username)
-
-            val imageId = userServiceImpl.getCurrentUserProfileImageId(username)
-
+            if(user == null){
+                call.respond(HttpStatusCode.NotFound)
+            }
+            val userid = user?.id ?: -1
+            println("looking for profile image of user id $userid")
+            val imageId = userServiceImpl.getCurrentUserProfileImageId(userid)
+            println("imageId is $imageId")
             if (imageId == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "No profile image found"))
                 return@get
             }
+            println("profile image id of user is $imageId")
 
             val imageRecord = userServiceImpl.getImageRecordById(imageId)
 

@@ -1,6 +1,8 @@
 package com.ite393group5.routes
 
 import com.ite393group5.dto.user.UserProfile
+import com.ite393group5.models.LocationInfo
+import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
@@ -63,9 +65,7 @@ fun Route.staffRoutes(
                     role = "student"
                 )
 
-
-                val createdStudent = userServiceImpl.registerStudent(userToCreate, studentRequest)
-
+                val createdStudent = userServiceImpl.register(user = userToCreate,personalInfo =studentRequest.userPersonalInfo ?: PersonalInfo(), locationInfo=studentRequest.userAddressInfo ?: LocationInfo())
                 call.respond(HttpStatusCode.Created, "Student ${createdStudent.username} created successfully")
 
             } catch (e: Exception) {
@@ -94,14 +94,14 @@ fun Route.staffRoutes(
                     return@post
                 }
 
-                val studentProfile = userServiceImpl.retrieveProfileById(studentId)
-                if (studentProfile == null) {
+                val studentPersonalInfo = userServiceImpl.getUserProfile(studentId)?.userPersonalInfo
+                if (studentPersonalInfo == null) {
                     call.respond(HttpStatusCode.NotFound, mapOf("error" to "user profile not found"))
                     return@post
                 }
 
                 val fullName =
-                    "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+                    "${studentPersonalInfo.lastName}, ${studentPersonalInfo.firstName} ${studentPersonalInfo.middleName} ${studentPersonalInfo.extensionName ?: ""}"
 
 
 
@@ -122,12 +122,12 @@ fun Route.staffRoutes(
 
 
                 // Retrieve the full name of the student for better clarity in responses
-                val studentProfile = userServiceImpl.retrieveProfileById(student.id ?: 0)
+                val studentPersonalInfo = userServiceImpl.getUserProfile(student.id ?: 0)?.userPersonalInfo
 
-                if (studentProfile != null) {
+                if (studentPersonalInfo != null) {
 
                     val fullName =
-                        "${studentProfile.lastName}, ${studentProfile.firstName} ${studentProfile.middleName} ${studentProfile.extensionName ?: ""}"
+                        "${studentPersonalInfo.lastName}, ${studentPersonalInfo.firstName} ${studentPersonalInfo.middleName} ${studentPersonalInfo.extensionName ?: ""}"
 
                     println("Moved previous student back to the front: $fullName")
 

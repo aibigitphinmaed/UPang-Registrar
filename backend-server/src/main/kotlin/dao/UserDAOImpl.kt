@@ -31,35 +31,35 @@ class UserDAOImpl : UserDAO {
             locationInfo?.let {
                 LocationInformationTable.insert {
                     it[userIdRef] = userId
-                    it[houseNumber] = locationInfo.houseNumber
-                    it[street] = locationInfo.street
-                    it[zone] = locationInfo.zone
-                    it[barangay] = locationInfo.barangay
-                    it[cityMunicipality] = locationInfo.cityMunicipality
-                    it[province] = locationInfo.province
-                    it[country] = locationInfo.country
-                    it[postalCode] = locationInfo.postalCode
+                    it[houseNumber] = locationInfo.houseNumber ?: ""
+                    it[street] = locationInfo.street ?: ""
+                    it[zone] = locationInfo.zone ?: ""
+                    it[barangay] = locationInfo.barangay ?: ""
+                    it[cityMunicipality] = locationInfo.cityMunicipality ?: ""
+                    it[province] = locationInfo.province ?: ""
+                    it[country] = locationInfo.country ?: ""
+                    it[postalCode] = locationInfo.postalCode ?: ""
                 }
             }
 
             personalInfo?.let {
                 PersonalInformationTable.insert {
                     it[userIdRef] = userId
-                    it[firstName] = personalInfo.firstName
-                    it[lastName] = personalInfo.lastName
-                    it[middleName] = personalInfo.middleName
-                    it[extensionName] = personalInfo.extensionName
-                    it[gender] = personalInfo.gender
-                    it[citizenship] = personalInfo.citizenship
-                    it[religion] = personalInfo.religion
-                    it[civilStatus] = personalInfo.civilStatus
-                    it[email] = personalInfo.email
+                    it[firstName] = personalInfo.firstName ?: ""
+                    it[lastName] = personalInfo.lastName ?: ""
+                    it[middleName] = personalInfo.middleName ?: ""
+                    it[extensionName] = personalInfo.extensionName ?: ""
+                    it[gender] = personalInfo.gender ?: ""
+                    it[citizenship] = personalInfo.citizenship ?: ""
+                    it[religion] = personalInfo.religion ?: ""
+                    it[civilStatus] = personalInfo.civilStatus ?: ""
+                    it[email] = personalInfo.email ?: ""
                     it[contactNumber] = personalInfo.number
                     it[birthDate] = personalInfo.birthDate?.toKotlinLocalDate()
-                    it[fatherName] = personalInfo.fatherName
-                    it[motherName] = personalInfo.motherName
-                    it[spouseName] = personalInfo.spouseName
-                    it[contactPersonNumber] = personalInfo.contactPersonNumber
+                    it[fatherName] = personalInfo.fatherName ?: ""
+                    it[motherName] = personalInfo.motherName ?: ""
+                    it[spouseName] = personalInfo.spouseName ?: ""
+                    it[contactPersonNumber] = personalInfo.contactPersonNumber ?: ""
                 }
             }
 
@@ -71,13 +71,13 @@ class UserDAOImpl : UserDAO {
     override fun getUserProfileById(userId: Int): UserProfile? {
         return transaction {
             // Fetch User from UserTable
-            val userRow = UserTable.select ( UserTable.id eq userId ).singleOrNull() ?: return@transaction null
+            val userRow = UserTable.select ( UserTable.id ).where{ UserTable.id eq userId }.singleOrNull() ?: return@transaction null
 
             // Fetch Personal Information (if exists)
-            val personalInfoRow = PersonalInformationTable.select ( PersonalInformationTable.userIdRef eq userId ).singleOrNull()
+            val personalInfoRow = PersonalInformationTable.selectAll().where{ PersonalInformationTable.userIdRef eq userId }.singleOrNull()
 
             // Fetch Location Information (if exists)
-            val locationInfoRow = LocationInformationTable.select ( LocationInformationTable.userIdRef eq userId ).singleOrNull()
+            val locationInfoRow = LocationInformationTable.selectAll().where{ LocationInformationTable.userIdRef eq userId }.singleOrNull()
 
             // Map Personal Information (if available)
             val personalInfo = personalInfoRow?.let {
@@ -124,7 +124,7 @@ class UserDAOImpl : UserDAO {
 
     override fun updateUser(userId: Int?, updatedUser: UserProfile?): Boolean {
         return transaction {
-            val userExists = UserTable.select( UserTable.id eq userId ).count() > 0
+            val userExists = UserTable.selectAll().where{UserTable.id eq userId}.count() > 0
             if(!userExists)return@transaction false
             if(updatedUser == null){
                 return@transaction false
@@ -145,21 +145,21 @@ class UserDAOImpl : UserDAO {
             // 2️⃣ Update PersonalInformation table (if data is provided)
             updatedUser.userPersonalInfo?.let { personalInfo ->
                 PersonalInformationTable.update({ PersonalInformationTable.userIdRef eq userId }) {
-                    it[firstName] = personalInfo.firstName
-                    it[lastName] = personalInfo.lastName
-                    it[middleName] = personalInfo.middleName
-                    it[extensionName] = personalInfo.extensionName
-                    it[gender] = personalInfo.gender
-                    it[citizenship] = personalInfo.citizenship
-                    it[religion] = personalInfo.religion
-                    it[civilStatus] = personalInfo.civilStatus
-                    it[email] = personalInfo.email
-                    it[contactNumber] = personalInfo.number
+                    it[firstName] = personalInfo.firstName ?: ""
+                    it[lastName] = personalInfo.lastName ?: ""
+                    it[middleName] = personalInfo.middleName ?: ""
+                    it[extensionName] = personalInfo.extensionName ?: ""
+                    it[gender] = personalInfo.gender ?: ""
+                    it[citizenship] = personalInfo.citizenship ?: ""
+                    it[religion] = personalInfo.religion ?: ""
+                    it[civilStatus] = personalInfo.civilStatus ?: ""
+                    it[email] = personalInfo.email ?: ""
+                    it[contactNumber] = personalInfo.number ?: ""
                     it[birthDate] = personalInfo.birthDate?.toKotlinLocalDate()
-                    it[fatherName] = personalInfo.fatherName
-                    it[motherName] = personalInfo.motherName
-                    it[spouseName] = personalInfo.spouseName
-                    it[contactPersonNumber] = personalInfo.contactPersonNumber
+                    it[fatherName] = personalInfo.fatherName ?: ""
+                    it[motherName] = personalInfo.motherName ?: ""
+                    it[spouseName] = personalInfo.spouseName ?: ""
+                    it[contactPersonNumber] = personalInfo.contactPersonNumber ?: ""
                     it[updatedAt] = System.now()
                 }
             }
@@ -167,14 +167,14 @@ class UserDAOImpl : UserDAO {
             // 3️⃣ Update LocationInformation table (if data is provided)
             updatedUser.userAddressInfo?.let { locationInfo ->
                 LocationInformationTable.update( { LocationInformationTable.userIdRef eq userId }){
-                    it[houseNumber] = locationInfo.houseNumber
-                    it[street] = locationInfo.street
-                    it[zone] = locationInfo.zone
-                    it[barangay] = locationInfo.barangay
-                    it[cityMunicipality] = locationInfo.cityMunicipality
-                    it[province] = locationInfo.province
-                    it[country] = locationInfo.country
-                    it[postalCode] = locationInfo.postalCode
+                    it[houseNumber] = locationInfo.houseNumber ?: ""
+                    it[street] = locationInfo.street ?: ""
+                    it[zone] = locationInfo.zone ?: ""
+                    it[barangay] = locationInfo.barangay ?: ""
+                    it[cityMunicipality] = locationInfo.cityMunicipality ?: ""
+                    it[province] = locationInfo.province ?: ""
+                    it[country] = locationInfo.country ?: ""
+                    it[postalCode] = locationInfo.postalCode ?: ""
                     it[updatedAt] = System.now()
                 }
             }
@@ -205,8 +205,9 @@ class UserDAOImpl : UserDAO {
 
     override fun getUserIdByUsername(username: String): Int? {
         return transaction {
+            println("Looking for: $username")
             UserTable
-                .select ( UserTable.username eq username )
+                .select ( UserTable.id ).where { UserTable.username eq username }
                 .singleOrNull()
                 ?.get(UserTable.id)
                 ?.value
@@ -216,7 +217,7 @@ class UserDAOImpl : UserDAO {
     override fun getUserByUserId(userId: Int?): User? {
         return transaction {
             UserTable
-                .select ( UserTable.id eq userId )
+                .selectAll().where { UserTable.id eq userId }
                 .mapNotNull { row ->
                     User(
                         id = userId,
@@ -248,21 +249,24 @@ class UserDAOImpl : UserDAO {
         }
     }
 
-    override fun recordImage(fileName: String, userId: Int?): Boolean {
-        return try {
-            if(userId == null){
-                return false
+    override fun recordImage(fileName: String, userId: Int?): Int {
+        return transaction {
+            try {
+                if(userId == null){
+                    return@transaction -1
+                }
+               val imageId = ImageRecordsTable.insert { row ->
+                   row[ImageRecordsTable.fileName] = fileName
+                   row[fileType] = getFileType(fileName)
+                   row[userRefId] = userId
+                   row[createdAt] = System.now()
+               }[ImageRecordsTable.id].value
+
+                return@transaction imageId // Return true if insertion succeeds
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return@transaction -1 // Return false if an error occurs
             }
-            ImageRecordsTable.insert { row ->
-                row[ImageRecordsTable.fileName] = fileName
-                row[fileType] = getFileType(fileName)
-                row[userRefId] = userId
-                row[createdAt] = System.now()
-            }
-            true // Return true if insertion succeeds
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false // Return false if an error occurs
         }
     }
     private fun getFileType(fileName: String): String {
@@ -272,7 +276,7 @@ class UserDAOImpl : UserDAO {
 
     override fun getImageRecord(imageId: Int): ImageRecord? {
         return transaction {
-            ImageRecordsTable.select ( ImageRecordsTable.id eq imageId )
+            ImageRecordsTable.selectAll().where { ImageRecordsTable.id eq imageId }
                 .mapNotNull { row ->
                     ImageRecord(
                         id = row[ImageRecordsTable.id].value, // Extract ID from EntityID
@@ -287,10 +291,11 @@ class UserDAOImpl : UserDAO {
 
     override fun getCurrentUserProfileImageId(userId: Int): Int? {
         return transaction {
-            UserTable
-                .select ( UserTable.id eq userId )
-                .map { it[UserTable.imageId] }
+            return@transaction UserTable
+                .select( UserTable.imageId)
+                .where { UserTable.id eq userId }
                 .singleOrNull()
+                ?.get(UserTable.imageId)
         }
     }
 

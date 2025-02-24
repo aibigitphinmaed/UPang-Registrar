@@ -1,6 +1,6 @@
 package com.ite393group5.routes
 
-import com.ite393group5.dto.UserProfile
+import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
@@ -34,7 +34,7 @@ fun Route.staffRoutes(
             "/static",
             "static"
         )
-
+        //region create student by staff
         post("/staff/add-student") {
             val staffPrincipal = call.principal<JWTPrincipal>()!!
             val username = staffPrincipal.payload.getClaim("username").asString()
@@ -74,6 +74,7 @@ fun Route.staffRoutes(
             }
         }
 
+        //endregion
 
         //region Queue-feature
         post("/reset-queue") {

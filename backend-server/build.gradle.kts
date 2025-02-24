@@ -55,6 +55,12 @@ dependencies {
     //websocket
     implementation("io.ktor:ktor-server-websockets:3.0.3")
 
-
+    //exposed ORM
+    implementation("org.jetbrains.exposed:exposed-core:0.59.0")
+    implementation("org.jetbrains.exposed:exposed-crypt:0.59.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.59.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.59.0")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.59.0")
+    implementation("org.jetbrains.exposed:exposed-json:0.59.0")
 
 }

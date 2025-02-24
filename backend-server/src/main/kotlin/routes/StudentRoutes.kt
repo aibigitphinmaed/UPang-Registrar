@@ -1,6 +1,6 @@
 package com.ite393group5.routes
 
-import com.ite393group5.dto.UserProfile
+import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.dto.PasswordRequest
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
@@ -284,8 +284,20 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
         //endregion
 
         //region appointment-feature-student
+
         //region student-appointment-request
         post("/student-appointment-request"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@post
+            }
+
+
+
 
         }
         //endregion
@@ -304,6 +316,10 @@ fun Route.studentRoutes(userServiceImpl: UserService, studentService: StudentSer
 
         }
         //endregion
+
+
+
+
         //endregion
     }
 }

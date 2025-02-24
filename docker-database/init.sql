@@ -1,6 +1,6 @@
 -- Create the User table first
 CREATE TABLE IF NOT EXISTS "User" (
-    user_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "User" (
 
 -- Create the PersonalInformation table
 CREATE TABLE IF NOT EXISTS "PersonalInformation" (
-    profile_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -30,12 +30,12 @@ CREATE TABLE IF NOT EXISTS "PersonalInformation" (
     contact_person_number VARCHAR(15) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 -- Create the LocationInformation table
 CREATE TABLE IF NOT EXISTS "LocationInformation" (
-    location_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     house_number VARCHAR(10),
     street VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS "LocationInformation" (
     postal_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "Notification" (
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS "Notification" (
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "Image_Records" (
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS "Image_Records" (
 	file_type VARCHAR(20) NOT NULL,
 	user_id INT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 ALTER TABLE "User"
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS "Appointment" (
     cancellation_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES "User"(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (staff_id) REFERENCES "User"(user_id) ON DELETE SET NULL
+    FOREIGN KEY (student_id) REFERENCES "User"(id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES "User"(id) ON DELETE SET NULL
 );
 
 -- Create the Function for Automatically Updating `updated_at`

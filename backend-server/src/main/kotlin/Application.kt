@@ -42,10 +42,10 @@ fun Application.module() {
     val database = configureDatabases()
 
 
-    val userService = UserServiceImpl(database)
-    val studentService = StudentServiceImpl(database)
+    val userService = UserServiceImpl()
+
     configureSockets(userService)
-    configureRouting(userService,studentService, tokenService, studentTokenConfig,staffTokenConfig)
+    configureRouting(userService, tokenService, studentTokenConfig,staffTokenConfig)
 
 
 

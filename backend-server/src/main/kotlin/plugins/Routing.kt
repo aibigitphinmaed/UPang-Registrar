@@ -27,7 +27,6 @@ import java.time.LocalDate
 
 fun Application.configureRouting(
     userServiceImpl: UserService,
-    studentService: StudentServiceImpl,
     tokenService: JwtTokenService,
     studentTokenConfig: TokenConfig,
     staffTokenConfig: TokenConfig
@@ -73,7 +72,7 @@ fun Application.configureRouting(
             studentTokenConfig,
             staffTokenConfig)
 
-        studentRoutes(userServiceImpl,studentService)
+        studentRoutes(userServiceImpl)
         //endregion
 
         //region websockets

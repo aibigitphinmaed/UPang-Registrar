@@ -1,11 +1,15 @@
 package com.ite393group5.routes
 
-import com.ite393group5.dto.PasswordRequest
+import com.ite393group5.dto.user.PasswordRequest
+import com.ite393group5.dto.appointment.CancelAppointmentRequest
+import com.ite393group5.dto.appointment.CreateAppointmentRequest
+import com.ite393group5.dto.appointment.ModifyAppointmentRequest
+import com.ite393group5.dto.appointment.UpdateAppointmentRequest
 import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
-import com.ite393group5.services.StudentServiceImpl
-import com.ite393group5.services.UserService
+import com.ite393group5.services.appointment.AppointmentService
+import com.ite393group5.services.user.UserService
 import com.ite393group5.utilities.SHA256HashingService
 import com.ite393group5.utilities.SaltedHash
 import io.ktor.http.*
@@ -20,7 +24,7 @@ import io.ktor.utils.io.*
 import java.io.File
 import java.util.*
 
-fun Route.studentRoutes(userServiceImpl: UserService) {
+fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: AppointmentService) {
     authenticate("student-auth") {
 
         //region student queue
@@ -290,30 +294,92 @@ fun Route.studentRoutes(userServiceImpl: UserService) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
                 return@post
             }
-
-
-
-
+            val appointmentRequest = call.receive<CreateAppointmentRequest>()
+            println(appointmentRequest)
+            if(appointmentRequest == null) {
+                call.respond(HttpStatusCode.InternalServerError, "Appointment Request body is missing")
+                return@post
+            }
+            val appointmentResponse = appointmentService.createAppointment(appointmentRequest, userid)
+            if(appointmentResponse == null) {
+                call.respond(HttpStatusCode.InternalServerError, "Response from the server is null. Probably Under maintenance.")
+                return@post
+            }
+            call.respond(HttpStatusCode.Created,appointmentResponse)
         }
         //endregion
         //region student-get-appointments
         get("student-get-appointments"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@get
+            }
+
+            val studentsAppointments = appointmentService.getAllAppointments(userid)
+            if(studentsAppointments == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No appointments found for user $username"))
+                return@get
+            }
+
+            call.respond(HttpStatusCode.Found, studentsAppointments)
 
         }
         //endregion
+
         //region student-modify-appoint-request
         post("student-modify-appointments"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@post
+            }
+
+            val modifyAppointmentRequest = call.receive<ModifyAppointmentRequest>()
+
+            if(modifyAppointmentRequest == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Appointment request body is missing"))
+                return@post
+            }
+
+            val modifyAppointmentResponse = appointmentService.modifyAppointmentRequest(modifyAppointmentRequest, userid)
+
+            if(modifyAppointmentResponse == null) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Something went wrong with the server. Try again later"))
+            }
+
+            call.respond(HttpStatusCode.OK, modifyAppointmentResponse ?: mapOf("error" to "No appointments found for user $username"))
 
         }
         //endregion
         //region student-cancel-appointment
         post("student-cancel-appointments"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@post
+            }
+
+            val cancelAppointmentRequest = call.receive<CancelAppointmentRequest>()
+            if(cancelAppointmentRequest == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Appointment request for cancellation body is missing"))
+            }
+            val isAppointmentCancelled = appointmentService.cancelAppointment(cancelAppointmentRequest, userid)
+            if(isAppointmentCancelled == null) {
+                call.respond(HttpStatusCode.NoContent, mapOf("error" to "No Appointment cancelled"))
+            }
 
         }
         //endregion
-
-
-
 
         //endregion
     }

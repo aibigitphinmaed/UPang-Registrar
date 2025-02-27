@@ -1,11 +1,12 @@
 package com.ite393group5.utilities
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,17 +16,19 @@ object DateSerializer : KSerializer<LocalDate> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     override fun serialize(encoder: Encoder, value: LocalDate) {
-        return try {
+        try {
             encoder.encodeString(value.format(formatter))
-        } catch (e: SerializationException) {
-
         } catch (e: Exception) {
-
+            throw IllegalArgumentException("Error serializing LocalDate: ${e.message}", e)
         }
-
     }
 
     override fun deserialize(decoder: Decoder): LocalDate {
-        return LocalDate.parse(decoder.decodeString(), formatter)
+        return try {
+            LocalDate.parse(decoder.decodeString(), formatter)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Error deserializing LocalDate: ${e.message}", e)
+        }
     }
 }
+

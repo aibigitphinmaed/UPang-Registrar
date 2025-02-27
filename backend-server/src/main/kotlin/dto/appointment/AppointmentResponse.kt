@@ -3,7 +3,7 @@ package com.ite393group5.dto.appointment
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AppointmentDTO(
+data class AppointmentResponse(
     val id: Int,
     val studentId: Int,
     val staffId: Int?,

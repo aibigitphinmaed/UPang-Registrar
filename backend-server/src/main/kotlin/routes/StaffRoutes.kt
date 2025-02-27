@@ -8,7 +8,7 @@ import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
 import com.ite393group5.plugins.previousQueueList
 import com.ite393group5.plugins.queueResponseFlow
-import com.ite393group5.services.UserService
+import com.ite393group5.services.user.UserService
 import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
 import io.ktor.http.*

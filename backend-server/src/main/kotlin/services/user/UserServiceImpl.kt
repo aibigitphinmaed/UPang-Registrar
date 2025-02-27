@@ -1,7 +1,7 @@
-package com.ite393group5.services
+package com.ite393group5.services.user
 
-import com.ite393group5.dao.UserDAOImpl
-import com.ite393group5.dto.ImageRecord
+import com.ite393group5.dao.user.UserDAOImpl
+import com.ite393group5.dto.user.ImageRecord
 import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo

@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS "appointment" (
     appointment_type VARCHAR(255) NOT NULL,
     document_type VARCHAR(255),
     reason TEXT,
-    requested_date DATE NOT NULL,
+    requested_date TIMESTAMP NOT NULL,
     scheduled_date TIMESTAMP,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
     notified_at TIMESTAMP,

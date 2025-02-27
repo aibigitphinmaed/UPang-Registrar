@@ -29,8 +29,6 @@ class ProfileScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _profileBitmapFlow = MutableStateFlow<String?>(null)
-    val profileBitmapFlow: StateFlow<String?> = _profileBitmapFlow
     private val _mutableStateProfile = MutableStateFlow(ProfileScreenState())
     val flowProfileState: StateFlow<ProfileScreenState> = _mutableStateProfile
     private var originalPersonalInfo: PersonalInfo? = null

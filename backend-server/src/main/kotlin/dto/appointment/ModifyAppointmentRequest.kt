@@ -3,14 +3,12 @@ package com.ite393group5.dto.appointment
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateAppointmentRequest(
+data class ModifyAppointmentRequest(
+    val id: Int,
     val studentId: Int,
-    val staffId: Int? = null,
+    val staffId: Int?,
     val appointmentType: String,
     val documentType: String?,
     val reason: String?,
     val requestedDate: String,
-    val scheduledDate: String? = null,
-    val isUrgent: Boolean
 )
-

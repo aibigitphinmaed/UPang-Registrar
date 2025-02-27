@@ -2,14 +2,15 @@ package com.ite393group5
 
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.plugins.*
-import com.ite393group5.services.StudentServiceImpl
-import com.ite393group5.services.UserServiceImpl
+import com.ite393group5.services.appointment.AppointmentServiceImpl
+import com.ite393group5.services.user.UserServiceImpl
 import com.ite393group5.utilities.JwtTokenService
 import io.ktor.server.application.*
+import io.ktor.server.netty.EngineMain
 import java.time.Duration
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    EngineMain.main(args)
 }
 
 fun Application.module() {
@@ -43,9 +44,9 @@ fun Application.module() {
 
 
     val userService = UserServiceImpl()
-
+    val appointmentService = AppointmentServiceImpl()
     configureSockets(userService)
-    configureRouting(userService, tokenService, studentTokenConfig,staffTokenConfig)
+    configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig)
 
 
 

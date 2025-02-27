@@ -1,4 +1,4 @@
-package com.ite393group5.dto
+package com.ite393group5.dto.user
 
 import kotlinx.serialization.Serializable
 

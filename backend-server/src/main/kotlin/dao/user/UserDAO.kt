@@ -1,6 +1,6 @@
-package com.ite393group5.dao
+package com.ite393group5.dao.user
 
-import com.ite393group5.dto.ImageRecord
+import com.ite393group5.dto.user.ImageRecord
 import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo

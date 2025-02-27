@@ -47,9 +47,14 @@ class LocalServiceImpl @Inject constructor(
                 _mutableAddressInfo.emit(it.locationInfo ?: LocationInfo())
                 _mutableImageProfile.emit(it.profileImageLocation ?: "")
             }
-            Timber.tag("LocalServiceImpl").e("Emitting PersonalInfo: ${_mutablePersonalInfo.value}")
-            Timber.tag("LocalServiceImpl").e("Emitting LocationInfo: ${_mutableAddressInfo.value}")
-            Timber.tag("LocalServiceImpl").e("Emitting Profile Image location: ${_mutableImageProfile.value}")
+            try{
+                Timber.tag("LocalServiceImpl").e("Emitting PersonalInfo: ${_mutablePersonalInfo.value}")
+                Timber.tag("LocalServiceImpl").e("Emitting LocationInfo: ${_mutableAddressInfo.value}")
+                Timber.tag("LocalServiceImpl").e("Emitting Profile Image location: ${_mutableImageProfile.value}")
+            }catch (e:Exception){
+                Timber.tag("LocalServiceImpl").e(e)
+            }
+
 
         }
     }

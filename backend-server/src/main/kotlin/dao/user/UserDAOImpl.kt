@@ -1,10 +1,10 @@
-package com.ite393group5.dao
+package com.ite393group5.dao.user
 
 import com.ite393group5.db.ImageRecordsTable
 import com.ite393group5.db.LocationInformationTable
 import com.ite393group5.db.PersonalInformationTable
 import com.ite393group5.db.UserTable
-import com.ite393group5.dto.ImageRecord
+import com.ite393group5.dto.user.ImageRecord
 import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
@@ -192,11 +192,11 @@ class UserDAOImpl : UserDAO {
             if (!userExists) return@transaction false
 
             // Delete related records first due to foreign key constraints (if applicable)
-            PersonalInformationTable.deleteWhere { PersonalInformationTable.userIdRef eq userId }
-            LocationInformationTable.deleteWhere { LocationInformationTable.userIdRef eq userId }
+            PersonalInformationTable.deleteWhere { userIdRef eq userId }
+            LocationInformationTable.deleteWhere { userIdRef eq userId }
 
             // Delete the user
-            val deletedRows = UserTable.deleteWhere { UserTable.id eq userId }
+            val deletedRows = UserTable.deleteWhere { id eq userId }
 
             // Return true if a user was deleted, false otherwise
             return@transaction deletedRows > 0

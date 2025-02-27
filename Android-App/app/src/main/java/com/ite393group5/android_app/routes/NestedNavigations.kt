@@ -67,7 +67,7 @@ fun NavGraphBuilder.authenticatedGraph(
     ) {
 
 
-        //start Dashboard
+        //region start Dashboard
         composable(route = NavigationRoutes.Authenticated.Dashboard.route) {
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
                 DashboardScreen(
@@ -83,9 +83,9 @@ fun NavGraphBuilder.authenticatedGraph(
                 )
             }
         }
-        //end of Dashboard
+        //endregion
 
-        //start logout
+        //region start logout
          composable(route = NavigationRoutes.Authenticated.Logout.route) {
              LogoutScreen(
                  onNavigationToUnauthenticatedRoutes = {
@@ -93,9 +93,9 @@ fun NavGraphBuilder.authenticatedGraph(
                  }
              )
          }
-        //end of Logout
+        //endregion
 
-        //start of Appointment Booking
+        //region start of Appointment Booking
         composable(route = NavigationRoutes.Authenticated.AppointmentBooking.route){
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
                 AppointmentBookingScreen(
@@ -108,9 +108,9 @@ fun NavGraphBuilder.authenticatedGraph(
                 )
             }
         }
-        //end of Appointment Booking
+        //endregion
 
-        //start of Profile Screen
+        //region start of Profile Screen
         composable(route = NavigationRoutes.Authenticated.ProfileManagement.route) {
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
                 ProfileScreen(
@@ -123,7 +123,22 @@ fun NavGraphBuilder.authenticatedGraph(
                 )
             }
         }
-        //end of Profile Screen
+        //endregion
+
+        //region start of appointment booking
+        composable(route = NavigationRoutes.Authenticated.AppointmentBooking.route){
+            AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
+                AppointmentBookingScreen(
+                    modifier = modifier,
+                    openDrawer = {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+        }
+        //endregion
     }
 
 }

@@ -8,8 +8,8 @@ import com.ite393group5.models.TokenConfig
 import com.ite393group5.models.User
 import com.ite393group5.routes.staffRoutes
 import com.ite393group5.routes.studentRoutes
-import com.ite393group5.services.StudentServiceImpl
-import com.ite393group5.services.UserService
+import com.ite393group5.services.appointment.AppointmentService
+import com.ite393group5.services.user.UserService
 import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
 import com.ite393group5.utilities.SaltedHash
@@ -27,6 +27,7 @@ import java.time.LocalDate
 
 fun Application.configureRouting(
     userServiceImpl: UserService,
+    appointmentServiceImpl: AppointmentService,
     tokenService: JwtTokenService,
     studentTokenConfig: TokenConfig,
     staffTokenConfig: TokenConfig
@@ -72,7 +73,10 @@ fun Application.configureRouting(
             studentTokenConfig,
             staffTokenConfig)
 
-        studentRoutes(userServiceImpl)
+        studentRoutes(
+            userServiceImpl,
+            appointmentServiceImpl
+        )
         //endregion
 
         //region websockets

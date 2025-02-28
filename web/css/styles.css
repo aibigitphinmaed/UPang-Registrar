@@ -1,0 +1,51 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+.login-container {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+.logo {
+    width: 100px;
+    margin-bottom: 10px;
+}
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+}
+input {
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+button {
+    background: #004d40;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+.forgot-password {
+    margin-top: 10px;
+    display: block;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+label {
+    text-align: left;
+}

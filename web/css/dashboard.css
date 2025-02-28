@@ -1,0 +1,69 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+.navbar {
+    background: #2d411a;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+
+}
+.navbar nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+
+
+
+}
+.navbar .active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+.content {
+    padding: 20px;
+    text-align: center;
+}
+.announcement-box, .events-container {
+    background: #d3d3a3;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 5px;
+}
+.event-box {
+    background: #a4a87a;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+.logo {
+
+    margin-right: 10px;
+    display:flex;
+    width: 100px;
+
+
+
+}
+
+.logo-container{
+    align-items:center;
+    display: flex;
+}
+.footer{
+    text-align: center;
+    color: white;
+    background-color: #2d411a;
+    padding: 10px;
+    width: 100%;
+    bottom: 0;
+    position: fixed;
+}

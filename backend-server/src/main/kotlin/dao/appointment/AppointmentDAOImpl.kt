@@ -43,7 +43,7 @@ class AppointmentDAOImpl : AppointmentDAO {
                 it[appointmentType] = appointmentRequest.appointmentType
                 it[documentType] = appointmentRequest.documentType
                 it[reason] = appointmentRequest.reason
-                it[requestedDate] = CurrentTimestamp
+                it[requestedDate] = LocalDate.parse(appointmentRequest.requestedDate)
                 it[scheduledDate] = null
                 it[status] = "Pending"
                 it[notifiedAt] = null
@@ -213,15 +213,12 @@ class AppointmentDAOImpl : AppointmentDAO {
     ): Appointment? {
         return transaction {
 
-            val localDate = java.time.LocalDate.parse(modifyAppointmentRequest.requestedDate, formatter)
-            val instant = localDate.atStartOfDay(ZoneOffset.UTC).toInstant()
-
             val updatedRows = AppointmentTable.update( { AppointmentTable.id eq modifyAppointmentRequest.id }){ row ->
 
                row[appointmentType] = modifyAppointmentRequest.appointmentType
                row[documentType] = modifyAppointmentRequest.documentType
                row[reason] = modifyAppointmentRequest.reason
-               row[requestedDate] = Instant.fromEpochMilliseconds(instant.toEpochMilli())
+               row[requestedDate] = LocalDate.parse(modifyAppointmentRequest.requestedDate)
                row[updatedAt] = CurrentTimestamp
                row[staffId] = modifyAppointmentRequest.staffId
             }

@@ -9,9 +9,9 @@ class Token
 {
     public $bearerToken;
     public $refreshToken;
-    public $expirationTimeDate; // Will be stored as "YYYY-MM-DD"
+    public $expirationTimeDate; // Stored as "YYYY-MM-DD"
 
-    public function __construct($bearerToken,$refreshToken,$expirationTimeDate) {
+    public function __construct($bearerToken, $refreshToken, $expirationTimeDate) {
         $this->bearerToken = $bearerToken;
         $this->refreshToken = $refreshToken;
         $this->expirationTimeDate = $expirationTimeDate;
@@ -20,7 +20,7 @@ class Token
     // Convert JSON string to Token object
     public static function fromJson($json) {
         try {
-            $data = json_decode($json, true); // Decode JSON to array
+            $data = json_decode($json, true);
             if (!$data) {
                 throw new Exception("Invalid JSON");
             }
@@ -39,6 +39,16 @@ class Token
     public function toJson() {
         return json_encode(get_object_vars($this));
     }
+
+    // Check if token is expired
+    public function isExpired(): bool {
+        $currentDate = new DateTime(); // Get current date
+        $expirationDate = DateTime::createFromFormat("Y-m-d", $this->expirationTimeDate);
+
+        if (!$expirationDate) {
+            return true; // If date format is invalid, assume expired
+        }
+
+        return $currentDate > $expirationDate;
+    }
 }
-
-

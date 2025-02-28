@@ -13,7 +13,8 @@ class LoginRequest
         $this->password = $password;
     }
 
-    public function toJson(){
+    public function toJson(): false|string
+    {
         return json_encode(get_object_vars($this));
     }
 }

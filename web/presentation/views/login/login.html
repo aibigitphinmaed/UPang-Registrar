@@ -13,10 +13,15 @@
         <input type="text" name="username" placeholder="staff-id" required>
         <label>Password</label>
         <input type="password" name="password" placeholder="Password" required>
+        <p id="error-message"></p> <!-- Error Message Area -->
         <button type="submit">Log in</button>
     </form>
     <a href="#" class="forgot-password">Forgot Password?</a>
 </div>
 
+<script type="module">
+    import { showErrorFromURL } from "../../../js/errorHandler.js";
+    showErrorFromURL();
+</script>
 </body>
 </html>

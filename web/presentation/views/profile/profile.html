@@ -1,0 +1,19 @@
+<h3>Personal Information</h3>
+<p><strong>First Name:</strong> <?= htmlspecialchars($personalInfo['firstName'] ?? 'N/A') ?></p>
+<p><strong>Last Name:</strong> <?= htmlspecialchars($personalInfo['lastName'] ?? 'N/A') ?></p>
+<p><strong>Middle Name:</strong> <?= htmlspecialchars($personalInfo['middleName'] ?? 'N/A') ?></p>
+<p><strong>Email:</strong> <?= htmlspecialchars($personalInfo['email'] ?? 'N/A') ?></p>
+<p><strong>Number:</strong> <?= htmlspecialchars($personalInfo['number'] ?? 'N/A') ?></p>
+
+<h3>Location Information</h3>
+<p><strong>House Number:</strong> <?= htmlspecialchars($locationInfo['houseNumber'] ?? 'N/A') ?></p>
+<p><strong>Street:</strong> <?= htmlspecialchars($locationInfo['street'] ?? 'N/A') ?></p>
+<p><strong>Barangay:</strong> <?= htmlspecialchars($locationInfo['barangay'] ?? 'N/A') ?></p>
+<p><strong>City:</strong> <?= htmlspecialchars($locationInfo['cityMunicipality'] ?? 'N/A') ?></p>
+<p><strong>Province:</strong> <?= htmlspecialchars($locationInfo['province'] ?? 'N/A') ?></p>
+<p><strong>Country:</strong> <?= htmlspecialchars($locationInfo['country'] ?? 'N/A') ?></p>
+
+<!-- Change Password Button -->
+<form action="javascript:void(0);" onsubmit="loadPage('../../views/change_password/change_password.php')">
+    <button type="submit" class="btn">Change Password</button>
+</form>

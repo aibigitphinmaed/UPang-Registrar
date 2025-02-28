@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+include '../security/session_check.php';
+
 
 require_once '../../includes/models/LoginRequest.php';
 require_once '../../includes/models/Token.php';
@@ -10,13 +12,11 @@ use models\Token;
 
 
 if (!isset($_SESSION['SESSION_TOKEN'])) {
-    header("Location: ../views/login.html");
+    header("Location: ../views/login/login.html");
     exit();
 }
 
 
 $jwtToken = Token::fromJson($_SESSION['SESSION_TOKEN']);
-
-
 
 

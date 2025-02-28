@@ -1,8 +1,8 @@
 <?php
 
-define('ADMIN_USER', 'admin');
-define('ADMIN_PASS', '1234');
-define('KTOR_HOST', 'http://localhost:8080');
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = '1234';
+const KTOR_HOST = 'http://localhost:8080';
 
 
 function getHttpPostOptionsWithToken($token,$data){
@@ -15,3 +15,5 @@ function getHttpPostOptionsWithToken($token,$data){
         ]
     ];
 }
+
+

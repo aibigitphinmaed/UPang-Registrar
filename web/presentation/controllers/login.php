@@ -1,52 +1,48 @@
 <?php
 session_start();
 
-
 include_once '../../includes/models/LoginRequest.php';
 include_once '../../includes/models/Token.php';
+include_once '../../includes/config.php';
 
 use models\LoginRequest;
 use models\Token;
 
-include_once '../../includes/config.php';
-
-
-
-$ktorApiUrl = KTOR_HOST."/login";
-
-
+$ktorApiUrl = KTOR_HOST . "/login";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $formDataRequest = json_encode(["username" => $username, "password" => $password]);
-    $loginRequest = new LoginRequest($username, $password);
+    $loginRequest = json_encode(["username" => $username, "password" => $password]);
 
-    $options = [
-        "http" => [
-            "header" => "Content-Type: application/json\r\n",
-            "method" => "POST",
-            "content" => json_encode($loginRequest),
-        ]
-    ];
+    // Initialize cURL
+    $ch = curl_init($ktorApiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $loginRequest);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    $context = stream_context_create($options);
-    $response = file_get_contents($ktorApiUrl, false, $context);
+    // Execute cURL request
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-
-    if($response){
+    if ($httpCode == 200 && $response) {
         $token = Token::fromJson($response);
-        if($token){
+        if ($token) {
             $_SESSION['SESSION_TOKEN'] = $token->toJson();
-            header("Location: /presentation/views/dashboard/dashboard.html");
-
-        }else{
-            echo "Failed to parse token JSON.";
+            header("Location: /presentation/views/dashboard/dashboard.php"); // Redirect only on success
+            exit;
         }
-    }else{
-        echo "Failed to connect to Ktor API.";
+    } else {
+        // Extract error message from JSON response
+        $decodedResponse = json_decode($response, true);
+        $errorDetail = isset($decodedResponse['error']) ? $decodedResponse['error'] : "Invalid credentials.";
+
+        // Redirect back to login.html with an error message
+        header("Location: /presentation/views/login/login.html?error=" . urlencode($errorDetail));
+        exit;
     }
 }
-
-

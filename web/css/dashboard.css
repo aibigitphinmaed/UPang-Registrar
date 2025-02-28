@@ -4,61 +4,65 @@ body {
     margin: 0;
     padding: 0;
 }
+
+/* Navbar */
 .navbar {
     background: #2d411a;
     color: white;
     padding: 15px;
-    text-align: center;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-
 }
+
 .navbar nav a {
     color: white;
     margin: 0 15px;
     text-decoration: none;
-
-
-
 }
+
 .navbar .active {
     font-weight: bold;
     text-decoration: underline;
 }
+
+/* Content */
 .content {
     padding: 20px;
     text-align: center;
 }
-.announcement-box, .events-container {
+
+/* Announcements & Events */
+.announcement-box,
+.events-container {
     background: #d3d3a3;
     padding: 20px;
     margin: 20px auto;
     width: 80%;
     border-radius: 5px;
 }
+
 .event-box {
     background: #a4a87a;
     padding: 10px;
     margin: 10px;
     border-radius: 5px;
 }
+
+/* Logo */
 .logo {
-
     margin-right: 10px;
-    display:flex;
+    display: flex;
     width: 100px;
-
-
-
 }
 
-.logo-container{
-    align-items:center;
+.logo-container {
+    align-items: center;
     display: flex;
 }
-.footer{
+
+/* Footer */
+.footer {
     text-align: center;
     color: white;
     background-color: #2d411a;
@@ -66,4 +70,83 @@ body {
     width: 100%;
     bottom: 0;
     position: fixed;
+}
+
+/* Change Password Form */
+.change-password-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.change-password-container h3 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.change-password-container form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.change-password-container label {
+    text-align: left;
+    font-weight: bold;
+    margin: 10px 0 5px;
+}
+
+.change-password-container input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+/* Submit Button */
+.change-password-container .btn {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.change-password-container .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Password Visibility Toggle */
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.password-wrapper input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    padding-right: 35px; /* Space for the icon */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
 }

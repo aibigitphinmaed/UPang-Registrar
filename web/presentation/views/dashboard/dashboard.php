@@ -1,8 +1,36 @@
+<?php
+session_start();
+include '../../security/session_check.php';
+
+if (!isset($_SESSION['SESSION_TOKEN'])) {
+    header("Location: ../login/login.html");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="EN">
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../../../css/dashboard.css">
+    <script>
+        function loadPage(page) {
+            fetch(page)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("content").innerHTML = data;
+                })
+                .catch(error => console.error("Error loading page:", error));
+        }
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+    </script>
 </head>
 <body>
 <div class="navbar">
@@ -11,8 +39,8 @@
         <h2>UNIVERSITY OF PANGASINAN</h2>
     </div>
     <nav>
-        <a href="../../controllers/testApiCall.php">History</a>
-        <a href="#">Profile</a>
+        <a href="#">History</a>
+        <a href="javascript:void(0);" onclick="loadPage('../../controllers/profile.php')">Profile</a>
         <a href="#">Appointment</a>
         <a href="../queue/queue.html">Queue</a>
         <a href="#">FAQ's</a>
@@ -21,7 +49,7 @@
     </nav>
 </div>
 
-<div class="content">
+<div id="content" class="content">
     <h3>Announcement</h3>
     <div class="announcement-box">
         <?php if (empty($announcements)): ?>

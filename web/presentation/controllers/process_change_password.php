@@ -1,6 +1,6 @@
 <?php
-session_start();
-include '../../security/session_check.php';
+include("../../includes/config.php");
+include '../security/session_check.php';
 require '../../includes/models/Token.php';
 
 use models\Token;
@@ -13,10 +13,7 @@ if (!isset($_SESSION['SESSION_TOKEN'])) {
 $currentPassword = $_POST['currentPassword'] ?? '';
 $newPassword = $_POST['newPassword'] ?? '';
 
-// Debug: Print received values
-echo "<pre>Received Form Data:\n";
-print_r($_POST);
-echo "</pre>";
+
 
 // Validate input
 if (empty($currentPassword) || empty($newPassword)) {
@@ -31,7 +28,7 @@ $data = json_encode([
 ]);
 
 $tokenSession = $_SESSION['SESSION_TOKEN'];
-$url = "http://localhost:8080/staff-change-password";
+$url = KTOR_HOST."/staff-change-password";
 $token = Token::fromJson($tokenSession);
 // Debug: Show what will be sent
 
@@ -59,10 +56,16 @@ if ($httpCode === 400) {
 } elseif ($httpCode === 500) {
     echo "<p style='color:red;'>Server Error: Something went wrong.</p>";
     exit();
+}elseif ($httpCode === 404) {
+    echo "<p style='color:red;'>Page Not Found.</p>";
+}elseif ($httpCode === 200) {
+
+    $_SESSION = [];
+    session_unset();
+    session_destroy();
+    setcookie(session_name(), session_id(), time() - 3600, "/");
+    header("Location: /presentation/views/login/login.html");
+    exit();
 }
 
-echo "<p style='color:green;'>Password changed successfully!</p>";
 
-session_destroy();
-header("Location: ../../index.php");
-exit();

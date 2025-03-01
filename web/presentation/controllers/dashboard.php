@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 include '../security/session_check.php';
 

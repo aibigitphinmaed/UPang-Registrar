@@ -71,7 +71,8 @@ fun Application.configureRouting(
         staffRoutes(userServiceImpl,
             tokenService,
             studentTokenConfig,
-            staffTokenConfig)
+            staffTokenConfig,
+            appointmentServiceImpl)
 
         studentRoutes(
             userServiceImpl,
@@ -214,5 +215,10 @@ fun Application.configureRouting(
             }
         }
         //endregion-later
+
+        //this should be limited to 5 calls per restart and refilled every hour for the health-check
+        get("/health-check") {
+            call.respond(HttpStatusCode.OK, "Server is healthy")
+        }
     }
 }

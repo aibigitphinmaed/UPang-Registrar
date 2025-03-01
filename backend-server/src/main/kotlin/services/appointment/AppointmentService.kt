@@ -5,6 +5,7 @@ import com.ite393group5.dto.appointment.CancelAppointmentRequest
 import com.ite393group5.dto.appointment.CreateAppointmentRequest
 import com.ite393group5.dto.appointment.ModifyAppointmentRequest
 import com.ite393group5.dto.appointment.UpdateAppointmentRequest
+import com.ite393group5.models.Appointment
 
 interface AppointmentService {
     suspend fun createAppointment(createAppointmentRequest: CreateAppointmentRequest, studentId: Int): AppointmentResponse?
@@ -13,4 +14,7 @@ interface AppointmentService {
     suspend fun cancelAppointment(appointmentCancelRequest: CancelAppointmentRequest, studentId: Int): AppointmentResponse?
     suspend fun updateAppointment(appointmentUpdateRequest: UpdateAppointmentRequest, studentId: Int): AppointmentResponse?
     suspend fun modifyAppointmentRequest(modifyAppointmentRequest: ModifyAppointmentRequest, studentId: Int): AppointmentResponse?
+
+    suspend fun retrieveAppointmentByStatus(status:String): List<Appointment>?
+
 }

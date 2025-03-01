@@ -2,6 +2,7 @@ package com.ite393group5.services.appointment
 
 import com.ite393group5.dao.appointment.AppointmentDAOImpl
 import com.ite393group5.dto.appointment.*
+import com.ite393group5.models.Appointment
 import kotlinx.datetime.LocalDate
 
 class AppointmentServiceImpl(
@@ -152,6 +153,31 @@ class AppointmentServiceImpl(
                 cancellationReason = it.cancellationReason,
             )
         }
+    }
+
+    override suspend fun retrieveAppointmentByStatus(status: String): List<Appointment>? {
+        return appointmentDAO.readAllAppointments()
+            ?.filter { appointment -> appointment.status == status }
+            ?.map {
+                Appointment(
+                    id = it.id,
+                    studentId = it.studentId,
+                    staffId = it.staffId,
+                    appointmentType = it.appointmentType,
+                    documentType = it.documentType,
+                    reason = it.reason,
+                    requestedDate = it.requestedDate,
+                    scheduledDate = it.scheduledDate,
+                    status = it.status,
+                    notifiedAt = it.notifiedAt,
+                    isUrgent = it.isUrgent,
+                    remarks = it.remarks,
+                    cancellationReason = it.cancellationReason,
+                    createdAt = it.createdAt,
+                    updatedAt = it.updatedAt
+                )
+            }
+            ?.ifEmpty { emptyList() }
     }
 
 }

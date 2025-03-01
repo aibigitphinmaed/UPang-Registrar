@@ -41,7 +41,7 @@ if (!isset($_SESSION['SESSION_TOKEN'])) {
     <nav>
         <a href="#">History</a>
         <a href="javascript:void(0);" onclick="loadPage('../../controllers/profile.php')">Profile</a>
-        <a href="#">Appointment</a>
+        <a href="javascript:void(0);" onclick="loadPage('../appointment/appointment-management-view.php')">Appointment</a>
         <a href="../queue/queue.html">Queue</a>
         <a href="#">FAQ's</a>
         <a href="#">Feedback</a>

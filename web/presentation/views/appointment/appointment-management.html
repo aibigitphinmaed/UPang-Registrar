@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Appointment Management</title>
+    <script>
+        document.getElementById("filterForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent page reload
+
+            const formData = new FormData(this);
+
+            fetch("appointment-management-view.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("appointmentResults").innerHTML = data; // Update results
+                })
+                .catch(error => console.error("Error:", error));
+        });
+    </script>
+
+</head>
+<body>
+<div class="container">
+    <h2>Staff Appointment Management</h2>
+
+    <form id="filterForm">
+        <div class="filters">
+            <input type="text" name="searchQuery" placeholder="Search by student name or ID">
+            <select name="status">
+                <option value="">Filter by Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <input type="date" name="requestedDate">
+            <input type="date" name="approvedDate">
+            <button type="submit">Apply Filter</button>
+        </div>
+    </form>
+
+
+    <!-- Table where filtered data will be displayed -->
+    <div id="appointmentResults">
+        <!-- Filtered results will be injected here -->
+    </div>
+
+
+    <div class="pagination">
+        <a href="#">&laquo; Prev</a>
+        <a href="#">1</a>
+        <a href="#">2</a>
+        <a href="#">Next &raquo;</a>
+    </div>
+</div>
+</body>
+</html>

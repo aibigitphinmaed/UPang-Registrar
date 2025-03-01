@@ -47,7 +47,7 @@ fun Application.module() {
     val appointmentService = AppointmentServiceImpl()
     configureSockets(userService)
     configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig)
-
+    configureRateLimiter()
 
 
 }

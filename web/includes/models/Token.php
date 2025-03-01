@@ -48,7 +48,6 @@ class Token
         if (!$expirationDate) {
             return true; // If date format is invalid, assume expired
         }
-
         return $currentDate > $expirationDate;
     }
 }

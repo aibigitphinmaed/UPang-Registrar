@@ -1,4 +1,5 @@
 <?php
+namespace models;
 class LocationInfo {
     public ?string $houseNumber;
     public ?string $street;

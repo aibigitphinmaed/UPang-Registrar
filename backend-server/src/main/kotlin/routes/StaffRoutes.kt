@@ -1,5 +1,6 @@
 package com.ite393group5.routes
 
+import com.ite393group5.dto.appointment.AppointStatusRequest
 import com.ite393group5.dto.user.PasswordRequest
 import com.ite393group5.dto.user.UserProfile
 import com.ite393group5.models.LocationInfo
@@ -9,6 +10,7 @@ import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
 import com.ite393group5.plugins.previousQueueList
 import com.ite393group5.plugins.queueResponseFlow
+import com.ite393group5.services.appointment.AppointmentService
 import com.ite393group5.services.user.UserService
 import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
@@ -26,7 +28,8 @@ fun Route.staffRoutes(
     userServiceImpl: UserService,
     tokenService: JwtTokenService,
     studentTokenConfig: TokenConfig,
-    staffTokenConfig: TokenConfig
+    staffTokenConfig: TokenConfig,
+    appointmentServiceImpl: AppointmentService
 ) {
     authenticate("staff-auth") {
 
@@ -159,9 +162,39 @@ fun Route.staffRoutes(
 
         }
         // endregion
-        //region get-all-appointments
-        get("get-all-appointments"){
+        //region get-all-appointments-by-status
+        post("get-all-appointments-by-status"){
+            val staffPrincipal = call.principal<JWTPrincipal>()
+            val statusAppointmentRequest = call.receive<AppointStatusRequest>()
+            //checking for user principal
 
+            val status = statusAppointmentRequest.status.lowercase()
+            if( staffPrincipal == null ) {
+                call.respond(HttpStatusCode.Unauthorized, "Access Denied")
+                return@post
+            }
+            //role checking
+            val userRole = staffPrincipal.payload.getClaim("role").asString()
+
+            if(userRole != "staff") {
+                call.respond(HttpStatusCode.Unauthorized, "Access Denied Wrong Role")
+                return@post
+            }
+
+            if (status == "" || status == null){
+                call.respond(HttpStatusCode.BadRequest, "Access Denied")
+                return@post
+            }
+
+            //proceed with the get appointments by status
+            val listOfAppointmentByStatus = appointmentServiceImpl.retrieveAppointmentByStatus(status)
+
+            if(listOfAppointmentByStatus == null || listOfAppointmentByStatus.isEmpty()){
+                call.respond(HttpStatusCode.NotFound, "No appointment found by status")
+                return@post
+            }
+
+            call.respond(HttpStatusCode.Found, listOfAppointmentByStatus)
         }
         //endregion
 

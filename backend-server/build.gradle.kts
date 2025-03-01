@@ -59,4 +59,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.59.0")
     implementation("org.jetbrains.exposed:exposed-json:0.59.0")
 
+    //rate limiter
+
+    implementation("io.ktor:ktor-server-rate-limit:3.0.3")
 }

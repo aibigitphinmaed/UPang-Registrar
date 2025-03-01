@@ -21,7 +21,7 @@ fun Application.configureDatabases() {
 fun Application.connectToPostgres() {
     try{
         val url = environment.config.propertyOrNull("database.url")?.getString()
-            ?: "jdbc:postgresql://localhost:5432/postgresdb"
+            ?: "jdbc:postgresql://docker-database:5432/postgresdb"
         val user = environment.config.propertyOrNull("database.user")?.getString() ?: "postgres"
         val password = environment.config.propertyOrNull("database.password")?.getString() ?: "postgres"
         Database.connect(

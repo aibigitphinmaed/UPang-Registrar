@@ -2,7 +2,7 @@
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = '1234';
-const KTOR_HOST = 'http://localhost:8080';
+const KTOR_HOST = 'http://backend-server:8080';
 
 
 function getHttpPostOptionsWithToken($token,$data){

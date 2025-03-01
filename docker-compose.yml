@@ -1,0 +1,44 @@
+services:
+  docker-database:
+    build: ./docker-database
+    container_name: docker-database
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgresdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgresdb"]
+      interval: 5s
+      retries: 5
+
+  backend-server:
+    build: ./backend-server
+    container_name: backend-server
+    restart: always
+    depends_on:
+      docker-database:
+        condition: service_healthy  # 🚀 Waits until PostgreSQL is ready
+    environment:
+      DATABASE_URL: jdbc:postgresql://docker-database:5432/postgresdb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+
+  web-application:
+    build: ./web
+    container_name: web-application
+    restart: always
+    depends_on:
+      - backend-server
+    ports:
+      - "3001:80"
+
+volumes:
+  pgdata:
+

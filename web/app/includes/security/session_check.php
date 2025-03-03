@@ -1,6 +1,8 @@
 <?php
 
-use app\models\Token;
+require_once __DIR__ . "/../../models/Token.php";
+
+use App\Models\Token;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -12,7 +14,11 @@ function checkToken(): bool
 
 function checkExpiration(): bool
 {
+    if(!checkToken()) {
+        return true;
+    }
     $token = Token::fromJson($_SESSION['SESSION_TOKEN']);
+
     return $token->isExpired();
 }
 
@@ -21,6 +27,8 @@ function requireLogin(): void
     if(!checkToken() and checkExpiration()){
         header("Location: /login");
         exit;
+    }else{
+        redirectIfLoggedIn();
     }
 }
 

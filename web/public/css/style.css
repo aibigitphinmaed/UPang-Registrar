@@ -16,3 +16,20 @@ body {
     padding: 20px;
     flex-grow: 1;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+th {
+    background-color: #f4f4f4;
+}
+input, select {
+    padding: 5px;
+    margin-bottom: 10px;
+}

@@ -1,23 +1,26 @@
 <?php
-namespace app\models;
+
+namespace App\Models;
+
 use JsonSerializable;
 
-class Appointment implements JsonSerializable {
-    private int $id;
-    private int $studentId;
-    private ?int $staffId;
-    private string $appointmentType;
-    private ?string $documentType;
-    private ?string $reason;
-    private ?string $requestedDate;
-    private ?string $scheduledDate;
-    private string $status;
-    private ?string $notifiedAt;
-    private bool $isUrgent;
-    private ?string $remarks;
-    private ?string $cancellationReason;
-    private string $createdAt;
-    private string $updatedAt;
+class Appointment implements JsonSerializable
+{
+    public int $id;
+    public int $studentId;
+    public ?int $staffId;
+    public string $appointmentType;
+    public ?string $documentType;
+    public ?string $reason;
+    public ?string $requestedDate;
+    public ?string $scheduledDate;
+    public string $status;
+    public ?string $notifiedAt;
+    public bool $isUrgent;
+    public ?string $remarks;
+    public ?string $cancellationReason;
+    public string $createdAt;
+    public string $updatedAt;
 
     public function __construct(
         int $id,
@@ -53,25 +56,35 @@ class Appointment implements JsonSerializable {
         $this->updatedAt = $updatedAt;
     }
 
-    // Implement JsonSerializable to customize JSON serialization
-    public function jsonSerialize(): array {
-        return [
-            'id' => $this->id,
-            'studentId' => $this->studentId,
-            'staffId' => $this->staffId,
-            'appointmentType' => $this->appointmentType,
-            'documentType' => $this->documentType,
-            'reason' => $this->reason,
-            'requestedDate' => $this->requestedDate,
-            'scheduledDate' => $this->scheduledDate,
-            'status' => $this->status,
-            'notifiedAt' => $this->notifiedAt,
-            'isUrgent' => $this->isUrgent,
-            'remarks' => $this->remarks,
-            'cancellationReason' => $this->cancellationReason,
-            'createdAt' => $this->createdAt,
-            'updatedAt' => $this->updatedAt
-        ];
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
+
+    public static function fromJson(string $json): ?self
+    {
+        $data = json_decode($json, true);
+
+        if (!$data) {
+            return null;
+        }
+
+        return new self(
+            $data['id'],
+            $data['studentId'],
+            $data['staffId'] ?? null,
+            $data['appointmentType'],
+            $data['documentType'] ?? null,
+            $data['reason'] ?? null,
+            $data['requestedDate'] ?? null,
+            $data['scheduledDate'] ?? null,
+            $data['status'],
+            $data['notifiedAt'] ?? null,
+            $data['isUrgent'],
+            $data['remarks'] ?? null,
+            $data['cancellationReason'] ?? null,
+            $data['createdAt'],
+            $data['updatedAt']
+        );
     }
 }
-?>

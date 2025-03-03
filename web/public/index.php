@@ -6,6 +6,7 @@ $routes = [
     'logout' => 'App\Controllers\AuthController@logout',
     'admin'  => 'App\Controllers\Admin\AdminController@dashboard',
     'staff'  => 'App\Controllers\Staff\StaffController@dashboard',
+    'student-appointments'  => 'App\Controllers\Staff\StaffController@appointments',
 ];
 
 $route = $_GET['route'] ?? 'login';
@@ -31,10 +32,15 @@ if (array_key_exists($route, $routes)) {
 
             // Ensure the method exists before calling it
             if (method_exists($instance, $method)) {
+                ob_start();
                 $instance->$method();
+                $content = ob_get_clean();
+
+                require __DIR__ . '/../app/views/layout.php';
             } else {
                 die("Error: Method '$method' not found in $controllerNamespace.");
             }
+
         } else {
             die("Error: Controller class '$controllerNamespace' not found.");
         }

@@ -33,6 +33,8 @@ fun Route.staffRoutes(
 ) {
     authenticate("staff-auth") {
 
+
+
         post("/test-staff-call") {
             call.respond(HttpStatusCode.OK, "staff called an api")
         }
@@ -289,6 +291,33 @@ fun Route.staffRoutes(
                 return@post
             }
         }
+        //endregion
+
+
+
+
+        //region get-role of staff
+
+        post("/get-role"){
+            val jwtPrincipal = call.principal<JWTPrincipal>()
+            println(jwtPrincipal!!.payload.getClaim("role").asString())
+            if (jwtPrincipal == null) {
+                call.respond(HttpStatusCode.Unauthorized, "No JWT Principal found")
+                return@post
+            }
+            val username = jwtPrincipal.payload.getClaim("username").asString()
+            if (username == null) {
+                call.respond(HttpStatusCode.BadRequest, "No username found")
+                return@post
+            }
+            val role = userServiceImpl.findByUsername(username)?.role
+            if(role == null) {
+                call.respond(HttpStatusCode.BadRequest, "No role found for this user contact admin for role assigning")
+                return@post
+            }
+            return@post call.respond(HttpStatusCode.OK, mapOf("role" to role))
+        }
+
         //endregion
 
 

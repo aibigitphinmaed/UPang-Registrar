@@ -25,6 +25,7 @@ class JwtTokenService {
     fun generateStaffToken(config: TokenConfig,username: String): String{
 
 
+        //this need to be revised since we have two web users admin and staff
         var token = JWT.create()
             .withAudience(*config.audience.toTypedArray())
             .withIssuer(config.issuer)

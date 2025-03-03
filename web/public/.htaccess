@@ -1,0 +1,15 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Allow requests for existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all requests to index.php
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
+
+# Protect .htaccess file
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>

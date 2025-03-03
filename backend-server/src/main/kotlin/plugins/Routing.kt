@@ -16,6 +16,8 @@ import com.ite393group5.utilities.SaltedHash
 import com.ite393group5.utilities.shaService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -49,7 +51,7 @@ fun Application.configureRouting(
                             refreshToken = "refresh_Token",
                             expirationTimeDate = LocalDate.now().plusDays(30)
                         )
-                        //not deleting this just in case we decided to create a mobile app for the staff user
+                        //
                         "staff" -> Token(
                             bearerToken = tokenService.generateStaffToken(staffTokenConfig, findUser.username),
                             refreshToken = "refresh_Token",
@@ -59,6 +61,8 @@ fun Application.configureRouting(
                             return@post
                         }
                     }
+
+                    println(findUser.username + " has logged in")
                     call.respond(HttpStatusCode.OK, generatedToken)
                 } else {
                     call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "User not found"))
@@ -220,5 +224,6 @@ fun Application.configureRouting(
         get("/health-check") {
             call.respond(HttpStatusCode.OK, "Server is healthy")
         }
+
     }
 }

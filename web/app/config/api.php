@@ -38,7 +38,15 @@ function getAllAppointmentsApi(): String | bool{
         'Authorization: Bearer ' . $token->bearerToken,
     ]);
     curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([]));
     $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+    if ($response === false || $httpCode !== 200) {
+        error_log("API request failed: " . curl_error($ch) . " (HTTP Code: $httpCode)");
+        $response = false;
+    }
+
+    curl_close($ch);
     return $response;
 }

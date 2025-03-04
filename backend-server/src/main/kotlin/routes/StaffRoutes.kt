@@ -242,7 +242,7 @@ fun Route.staffRoutes(
 
         //region get-all-appointments
         post("get-all-appointments"){
-            val allAppointments = listOf(appointmentServiceImpl.retrieveAllAppointments())
+            val allAppointments = appointmentServiceImpl.retrieveAllAppointments() ?: emptyList()
             if(allAppointments.isEmpty() == true){
                 call.respond(HttpStatusCode.NotFound, "No appointment found")
             }

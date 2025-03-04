@@ -31,12 +31,13 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.format.DateTimeFormatter
-import java.time.ZoneOffset
 
 
 class AppointmentDAOImpl : AppointmentDAO {
+
     override fun createAppointment(appointmentRequest: CreateAppointmentRequest, studentId: Int): Appointment? {
         return transaction {
+
             val appointmentId = AppointmentTable.insertAndGetId {
                 it[AppointmentTable.studentId] = studentId
                 it[staffId] = appointmentRequest.staffId
@@ -52,6 +53,8 @@ class AppointmentDAOImpl : AppointmentDAO {
                 it[cancellationReason] = null
             }
 
+            println(appointmentRequest.requestedDate)
+            println(LocalDate.parse(appointmentRequest.requestedDate))
             // Return the newly created appointment as an object
             return@transaction Appointment(
                 id = appointmentId.value,
@@ -61,7 +64,7 @@ class AppointmentDAOImpl : AppointmentDAO {
                 documentType = appointmentRequest.documentType,
                 reason = appointmentRequest.reason,
                 requestedDate = LocalDate.parse(appointmentRequest.requestedDate),
-                scheduledDate = LocalDate.parse(appointmentRequest.scheduledDate.toString()),
+                scheduledDate = null,
                 status = "Pending",
                 notifiedAt = null,
                 isUrgent = appointmentRequest.isUrgent,
@@ -86,7 +89,9 @@ class AppointmentDAOImpl : AppointmentDAO {
                     reason = it[reason],
                     requestedDate = LocalDate.parse(it[requestedDate].toString()),
                     staffId = it[staffId]?.value,
-                    scheduledDate = LocalDate.parse(it[scheduledDate].toString()),
+                    scheduledDate = runCatching {
+                        it[scheduledDate]?.toString()?.let { dateStr -> LocalDate.parse(dateStr) }
+                    }.getOrNull(),
                     status = it[status],
                     notifiedAt = it[notifiedAt].toString(),
                     isUrgent = it[isUrgent],
@@ -120,9 +125,9 @@ class AppointmentDAOImpl : AppointmentDAO {
                             appointmentType = it[appointmentType],
                             documentType = it[documentType],
                             reason = it[reason],
-                            requestedDate = LocalDate.parse(it[requestedDate].toString()),
+                             requestedDate = LocalDate.parse(it[requestedDate].toString()),
                             staffId = it[staffId]?.value,
-                            scheduledDate = LocalDate.parse(it[scheduledDate].toString()),
+                             scheduledDate =LocalDate.parse(it[requestedDate].toString()),
                             status = it[status],
                             notifiedAt = it[notifiedAt].toString(),
                             isUrgent = it[isUrgent],
@@ -157,9 +162,9 @@ class AppointmentDAOImpl : AppointmentDAO {
                     appointmentType = it[appointmentType],
                     documentType = it[documentType],
                     reason = it[reason],
-                    requestedDate = LocalDate.parse(it[requestedDate].toString()),
+                     requestedDate = LocalDate.parse(it[requestedDate].toString()),
                     staffId = it[staffId]?.value,
-                    scheduledDate = LocalDate.parse(it[scheduledDate].toString()),
+                     scheduledDate = LocalDate.parse(it[requestedDate].toString()),
                     status = it[status],
                     notifiedAt = it[notifiedAt].toString(),
                     isUrgent = it[isUrgent],
@@ -233,9 +238,9 @@ class AppointmentDAOImpl : AppointmentDAO {
                             appointmentType = it[appointmentType],
                             documentType = it[documentType],
                             reason = it[reason],
-                            requestedDate = LocalDate.parse(it[requestedDate].toString()),
+                             requestedDate = LocalDate.parse(it[requestedDate].toString()),
                             staffId = it[staffId]?.value,
-                            scheduledDate = LocalDate.parse(it[scheduledDate].toString()),
+                             scheduledDate = LocalDate.parse(it[requestedDate].toString()),
                             status = it[status],
                             notifiedAt = it[notifiedAt].toString(),
                             isUrgent = it[isUrgent],

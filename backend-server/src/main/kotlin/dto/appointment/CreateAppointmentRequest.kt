@@ -10,7 +10,7 @@ data class CreateAppointmentRequest(
     val documentType: String?,
     val reason: String?,
     val requestedDate: String,
-    val scheduledDate: String? = null,
+    val scheduledDate: String?,
     val isUrgent: Boolean
 )
 

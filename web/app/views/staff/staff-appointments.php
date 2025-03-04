@@ -38,8 +38,6 @@ include_once __DIR__.'/../../includes/security/session_check.php';
         <th>Urgent</th>
         <th>Remarks</th>
         <th>Cancellation Reason</th>
-        <th>Created At</th>
-        <th>Updated At</th>
     </tr>
     </thead>
     <tbody id="appointmentsBody">
@@ -61,14 +59,12 @@ include_once __DIR__.'/../../includes/security/session_check.php';
                     <td><?= isset($appointment->isUrgent) && $appointment->isUrgent ? 'Yes' : 'No' ?></td>
                     <td><?= htmlspecialchars($appointment->remarks ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($appointment->cancellationReason ?? 'N/A') ?></td>
-                    <td><?= htmlspecialchars($appointment->createdAt ?? 'N/A') ?></td>
-                    <td><?= htmlspecialchars($appointment->updatedAt ?? 'N/A') ?></td>
                 </tr>
             <?php endif; ?>
         <?php endforeach; ?>
     <?php else: ?>
         <tr>
-            <td colspan="12">No appointments available.</td>
+            <td colspan="10">No appointments available.</td>
         </tr>
     <?php endif; ?>
 

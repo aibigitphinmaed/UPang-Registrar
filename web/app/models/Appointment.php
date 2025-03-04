@@ -56,6 +56,30 @@ class Appointment implements JsonSerializable
         $this->updatedAt = $updatedAt;
     }
 
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['id'],
+            $data['studentId'],
+            $data['staffId'] ?? null,
+            $data['appointmentType'],
+            $data['documentType'] ?? null,
+            $data['reason'] ?? null,
+            $data['requestedDate'] ?? null,
+            $data['scheduledDate'] ?? null,
+            $data['status'] ?? 'Pending',
+            $data['notifiedAt'] ?? null,  // ✅ FIXED: Prevents "Undefined array key" warning
+            $data['isUrgent'] ?? false,
+            $data['remarks'] ?? null,
+            $data['cancellationReason'] ?? null,
+            $data['createdAt'] ?? '',
+            $data['updatedAt'] ?? ''
+        );
+    }
+
+
+
+
     public function jsonSerialize(): array
     {
         return get_object_vars($this);

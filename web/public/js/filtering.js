@@ -5,34 +5,44 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.getElementById("appointmentsBody");
     const rows = tableBody.getElementsByTagName("tr");
 
+    console.log("Total rows found:", rows.length); // Debugging step
+
     function filterTable() {
         const searchValue = searchInput.value.trim().toLowerCase();
         const statusValue = statusFilter.value.trim().toLowerCase();
         const typeValue = typeFilter.value.trim().toLowerCase();
 
-
         for (let row of rows) {
             const cells = row.getElementsByTagName("td");
-            console.log(cells)
-            // Ensure the row has at least 12 columns before proceeding
-            if (cells.length < 12) {
-                console.error("Skipping row due to missing columns:", row);
+
+            // Skip rows without <td> elements (like empty or malformed rows)
+            if (cells.length < 10) {
+                console.warn("Skipping invalid row:", row);
                 continue;
             }
 
+            // Extract values safely
+            const appointmentType = cells[1]?.innerText?.trim().toLowerCase() || "";
+            const documentType = cells[2]?.innerText?.trim().toLowerCase() || "";
+            const reason = cells[3]?.innerText?.trim().toLowerCase() || "";
+            const requestedDate = cells[4]?.innerText?.trim().toLowerCase() || "";
+            const scheduledDate = cells[5]?.innerText?.trim().toLowerCase() || "";
+            const status = cells[6]?.innerText?.trim().toLowerCase() || "";
+            const cancellationReason = cells[9]?.innerText?.trim().toLowerCase() || "";
 
-            // Safely extract values
-            const appointmentType = cells[1]?.innerText.trim().toLowerCase() || "";
-            const documentType = cells[2]?.innerText.trim().toLowerCase() || "";
-            const reason = cells[3]?.innerText.trim().toLowerCase() || "";
-            const status = cells[6]?.innerText.trim().toLowerCase() || "";
+            console.log("Processing row:", {
+                appointmentType, documentType, reason, status
+            });
 
-            // Apply search filter (matches Document Type, Reason, Appointment Type, or Status)
+            // Apply search filter (matches multiple columns)
             const matchesSearch =
                 appointmentType.includes(searchValue) ||
                 documentType.includes(searchValue) ||
                 reason.includes(searchValue) ||
-                status.includes(searchValue);
+                requestedDate.includes(searchValue) ||
+                scheduledDate.includes(searchValue) ||
+                status.includes(searchValue) ||
+                cancellationReason.includes(searchValue);
 
             // Apply status filter
             const matchesStatus = !statusValue || status === statusValue;
@@ -45,8 +55,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Attach event listeners to filters
+    console.log("Attaching event listeners...");
     searchInput.addEventListener("input", filterTable);
     statusFilter.addEventListener("change", filterTable);
     typeFilter.addEventListener("change", filterTable);
+
+    setTimeout(() => {
+        console.log("Running filter setup after delay...");
+        filterTable(); // Initial filtering
+    }, 500);
 });

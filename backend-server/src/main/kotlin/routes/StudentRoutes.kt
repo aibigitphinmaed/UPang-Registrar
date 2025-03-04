@@ -300,6 +300,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
                 call.respond(HttpStatusCode.InternalServerError, "Appointment Request body is missing")
                 return@post
             }
+
             val appointmentResponse = appointmentService.createAppointment(appointmentRequest, userid)
             if(appointmentResponse == null) {
                 call.respond(HttpStatusCode.InternalServerError, "Response from the server is null. Probably Under maintenance.")

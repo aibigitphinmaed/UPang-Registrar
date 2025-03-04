@@ -1,6 +1,5 @@
 package com.ite393group5.models
 
-import com.ite393group5.utilities.DateSerializer
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
@@ -13,14 +12,12 @@ data class Appointment(
     val appointmentType: String,
     val documentType: String?,
     val reason: String?,
-    @Serializable(with = DateSerializer::class)
     val requestedDate: LocalDate? = null,
-    @Serializable(with = DateSerializer::class)
     val scheduledDate: LocalDate? = null,
     val status: String,
     val notifiedAt: String?,
     val isUrgent: Boolean,
-    val remarks: String?,
+    val remarks: String? = null,
     val cancellationReason: String?,
     val createdAt: String,
     val updatedAt: String

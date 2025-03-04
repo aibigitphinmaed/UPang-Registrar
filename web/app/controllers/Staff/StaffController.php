@@ -30,11 +30,19 @@ class StaffController {
         checkRole('staff');
         $this->mockAppointments = getMockAppointments();
         $serverResponseOnList = getAllAppointmentsApi();
-        if($serverResponseOnList){
-            $this->listOfAppointments = json_decode($serverResponseOnList, true);
-        }else{
-            $this->listOfAppointments = [];
+        if ($serverResponseOnList && is_string($serverResponseOnList)) {
+            $cleanJson = str_replace('"null"', 'null', $serverResponseOnList); // Replace string "null" with actual null
+            $decodedArray = json_decode($cleanJson, true);
+
+            if (is_array($decodedArray)) {
+                $this->listOfAppointments = array_map(fn($item) => Appointment::fromArray($item), $decodedArray);
+            } else {
+                $this->listOfAppointments = [];
+                error_log("Failed to decode JSON response.");
+            }
         }
+
+
 
     }
     public function dashboard() {
@@ -48,9 +56,9 @@ class StaffController {
         $statusFilter = $_GET['status'] ?? '';
         $typeFilter = $_GET['type'] ?? '';
 
-        $listOfAppointments = $this->listOfAppointments;
+
         // Filter appointments based on user input
-        $filteredAppointments = array_filter($listOfAppointments, function ($appointment) use ($search, $statusFilter, $typeFilter) {
+        $filteredAppointments = array_filter($this->listOfAppointments, function ($appointment) use ($search, $statusFilter, $typeFilter) {
             $matchesSearch = empty($search) ||
                 stripos($appointment->id, $search) !== false ||
                 stripos($appointment->studentId, $search) !== false ||

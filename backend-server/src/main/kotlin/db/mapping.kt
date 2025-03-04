@@ -4,7 +4,6 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
 import org.jetbrains.exposed.sql.kotlin.datetime.date
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 

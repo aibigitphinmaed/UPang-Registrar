@@ -1,5 +1,7 @@
 <?php
-$user_role = $_SESSION['role'] ?? '';
+include_once __DIR__.'/../includes/security/session_check.php';
+$user_role = $_SESSION['role'];
+
 ?>
 
 <!DOCTYPE html>
@@ -14,6 +16,8 @@ $user_role = $_SESSION['role'] ?? '';
 <body>
 
 <!-- Sidebar -->
+
+<?php if(isLoggedIn()): ?>
 <div class="header">
     <img src="/static/images/University_of_Pangasinan_logo (1).png" alt="University Logo">
     <h1>UNIVERSITY OF PANGASINAN</h1>
@@ -35,7 +39,7 @@ $user_role = $_SESSION['role'] ?? '';
         <li><a href="/logout">Logout</a></li>
     </ul>
 </div>
-
+<?php endif; ?>
 <!-- Content Area -->
 <div class="content">
     <?= $content ?> <!-- Dynamic content -->

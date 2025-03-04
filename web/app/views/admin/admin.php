@@ -1,3 +1,7 @@
+<?php
+include_once __DIR__.'/../../includes/security/session_check.php';
+requireLogin();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,23 +1,24 @@
 <?php
 // Define routes with full namespaces
 
-$routes = [
-    'login'  => 'App\Controllers\AuthController@login',
-    'logout' => 'App\Controllers\AuthController@logout',
-    'admin'  => 'App\Controllers\Admin\AdminController@dashboard',
-    'staff'  => 'App\Controllers\Staff\StaffController@dashboard',
-    'student-appointments'  => 'App\Controllers\Staff\StaffController@appointments',
-];
+//$routes = [
+//    'login'  => 'App\Controllers\AuthController@login',
+//    'logout' => 'App\Controllers\AuthController@logout',
+//    'unauthorized'  => 'App\Controllers\AuthController@unauthorized',
+//    'admin'  => 'App\Controllers\Admin\AdminController@dashboard',
+//    'staff'  => 'App\Controllers\Staff\StaffController@dashboard',
+//    'student-appointments'  => 'App\Controllers\Staff\StaffController@appointments',
+//    'staff/view-student-appointment' => 'App\Controllers\Staff\StaffController@viewStudentAppointment',
+//];
 
+$routes = require __DIR__. '/../app/config/routes/routes.php';
+
+//http://localhost:3001/staff/view-appointment.php?id=1
 $route = $_GET['route'] ?? 'login';
 
 // Check if the requested route exists
 if (array_key_exists($route, $routes)) {
     list($controllerNamespace, $method) = explode('@', $routes[$route]);
-
-  //  $controllerFile = realpath(__DIR__.'/../app/controllers/' . str_replace('App\Controllers\\', '', $controllerNamespace) . '.php');
-
-
 
     // Convert namespace to file path (handles subdirectories)
     $controllerFile = realpath(__DIR__ . '/../app/controllers/' . str_replace(['App\\Controllers\\', '\\'], ['', '/'], $controllerNamespace) . '.php');

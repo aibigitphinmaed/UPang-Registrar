@@ -12,6 +12,7 @@ use const App\Includes\MODELS_HOST;
 require_once MODELS_HOST . "Token". ".php";
 
 
+
 class AuthController
 {
     public $jwtToken = Token::class;
@@ -20,7 +21,9 @@ class AuthController
     //region Dependency Injection construct
     private static $instance = null;
     public function __construct(){
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
     }
 
     public static function getInstance() {
@@ -70,6 +73,7 @@ class AuthController
                     $this->jwtToken = Token::fromJson(json_encode($result));
                     $role = $this->retrieveRole();
                     $_SESSION['role'] = $role;
+
                     // Redirect based on role
                     switch (strtolower($role)) {
                         case 'admin':
@@ -130,6 +134,10 @@ class AuthController
         }
 
         return $decodedResponse['role'];
+    }
+
+    public function unauthorized(): void{
+        include __DIR__. '/../views/unauthorized.php';
     }
 
 }

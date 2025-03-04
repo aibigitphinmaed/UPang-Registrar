@@ -27,12 +27,11 @@ function requireLogin(): void
     if(!checkToken() and checkExpiration()){
         header("Location: /login");
         exit;
-    }else{
-        redirectIfLoggedIn();
     }
 }
 
-function redirectIfLoggedIn(){
+function redirectIfLoggedIn(): void
+{
     if(checkToken() and !checkExpiration()){
         $role = $_SESSION['role'];
         switch (strtolower($role)) {
@@ -46,6 +45,23 @@ function redirectIfLoggedIn(){
                 header("Location: /login");
                 break;
         }
+    }
+}
+
+function checkRole($allowedRole): void
+{
+    if (!isset($_SESSION['role']) ||($_SESSION['role'] !== $allowedRole) ) {
+        header_remove();
+        header("Location: /unauthorized"); // Redirect to an unauthorized page
+        exit;
+    }
+}
+
+function isLoggedIn(): bool{
+    if(isset($_SESSION['role']) and !checkExpiration()){
+        return true;
+    }else{
+        return false;
     }
 }
 

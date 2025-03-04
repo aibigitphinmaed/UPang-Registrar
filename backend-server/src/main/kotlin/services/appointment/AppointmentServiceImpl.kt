@@ -1,9 +1,11 @@
 package com.ite393group5.services.appointment
 
 import com.ite393group5.dao.appointment.AppointmentDAOImpl
+import com.ite393group5.db.AppointmentTable
 import com.ite393group5.dto.appointment.*
 import com.ite393group5.models.Appointment
 import kotlinx.datetime.LocalDate
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class AppointmentServiceImpl(
 
@@ -178,6 +180,25 @@ class AppointmentServiceImpl(
                 )
             }
             ?.ifEmpty { emptyList() }
+    }
+
+    override suspend fun retrieveAllAppointments(): List<AppointmentResponse>? {
+     return appointmentDAO.readAllAppointments()?.map { appointment ->
+           AppointmentResponse(
+               id = appointment.id,
+               studentId = appointment.studentId,
+               staffId = appointment.staffId,
+               appointmentType = appointment.appointmentType,
+               documentType = appointment.documentType,
+               reason = appointment.reason,
+               requestedDate = appointment.requestedDate.toString(),
+               scheduledDate = appointment.scheduledDate.toString(),
+               status = appointment.status,
+               isUrgent = appointment.isUrgent,
+               remarks = appointment.remarks,
+               cancellationReason = appointment.cancellationReason,
+           )
+       }?.ifEmpty { emptyList() }
     }
 
 }

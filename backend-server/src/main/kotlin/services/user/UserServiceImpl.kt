@@ -13,7 +13,6 @@ class UserServiceImpl() : UserService {
     val userDAO = UserDAOImpl()
     override suspend fun findByUsername(username: String): User? {
         val userId = userDAO.getUserIdByUsername(username)
-        println("found: $userId")
         if (userId != null){
             return userDAO.getUserByUserId(userId)
         }

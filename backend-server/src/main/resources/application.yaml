@@ -9,6 +9,7 @@ jwt:
   domain: "http://localhost:8080/"
   studentAudience: ["http://localhost:8080/", "mobile-client"]
   staffAudience: ["http://localhost:8080/", "web-client"]
+  adminAudience: ["http://localhost:8080/", "web-client", "mobile-client"]
   issuer: "http://localhost:8080/"
   realm: "UPang Registrar Development Realm"
 postgres:

@@ -1,16 +1,6 @@
 <?php
 // Define routes with full namespaces
 
-//$routes = [
-//    'login'  => 'App\Controllers\AuthController@login',
-//    'logout' => 'App\Controllers\AuthController@logout',
-//    'unauthorized'  => 'App\Controllers\AuthController@unauthorized',
-//    'admin'  => 'App\Controllers\Admin\AdminController@dashboard',
-//    'staff'  => 'App\Controllers\Staff\StaffController@dashboard',
-//    'student-appointments'  => 'App\Controllers\Staff\StaffController@appointments',
-//    'staff/view-student-appointment' => 'App\Controllers\Staff\StaffController@viewStudentAppointment',
-//];
-
 $routes = require __DIR__. '/../app/config/routes/routes.php';
 
 //http://localhost:3001/staff/view-appointment.php?id=1

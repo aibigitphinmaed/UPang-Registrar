@@ -1,8 +1,10 @@
 package com.ite393group5.routes
 
 import com.ite393group5.dto.appointment.AppointStatusRequest
+import com.ite393group5.dto.appointment.UpdateAppointmentRequest
 import com.ite393group5.dto.user.PasswordRequest
 import com.ite393group5.dto.user.UserProfile
+import com.ite393group5.models.Appointment
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.PersonalInfo
 import com.ite393group5.models.TokenConfig
@@ -23,7 +25,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-
 fun Route.staffRoutes(
     userServiceImpl: UserService,
     tokenService: JwtTokenService,
@@ -31,6 +32,7 @@ fun Route.staffRoutes(
     staffTokenConfig: TokenConfig,
     appointmentServiceImpl: AppointmentService
 ) {
+
     authenticate("staff-auth") {
 
 
@@ -161,8 +163,46 @@ fun Route.staffRoutes(
         //endregion
         //region modify-student-appointment
         post("modify-student-appointment"){
+            val staffPrincipal = call.principal<JWTPrincipal>()
 
-        }
+            val username = staffPrincipal!!.payload.getClaim("username").asString()
+            val userId = userServiceImpl.findByUsername(username)?.id
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "You are not allowed"))
+            }
+            val appointment = call.receive<Appointment>()
+            if( staffPrincipal == null ) {
+                call.respond(HttpStatusCode.Unauthorized, "Access Denied")
+                return@post
+            }
+
+            val modifiedAppointment = appointment.copy(
+                staffId = userId,
+            ).let {
+                UpdateAppointmentRequest(
+                    id = it.id,
+                    studentId = it.studentId,
+                    staffId = it.staffId,
+                    scheduledDate = it.scheduledDate.toString(),
+                    status = it.status,
+                    isUrgent = it.isUrgent,
+                    remarks = it.remarks,
+                    cancellationReason = it.cancellationReason,
+                )
+            }
+
+            val updateResponse = appointmentServiceImpl.updateAppointment(
+                appointmentUpdateRequest = modifiedAppointment,
+                studentId = modifiedAppointment.studentId,
+            )
+
+            if(updateResponse == null){
+                call.respond(HttpStatusCode.NotFound, "Update Failed")
+                return@post
+            }
+            call.respond(HttpStatusCode.OK, updateResponse)
+
+         }
         // endregion
         //region get-all-appointments-by-status
         post("get-all-appointments-by-status"){
@@ -200,6 +240,15 @@ fun Route.staffRoutes(
         }
         //endregion
 
+        //region get-all-appointments
+        post("get-all-appointments"){
+            val allAppointments = listOf(appointmentServiceImpl.retrieveAllAppointments())
+            if(allAppointments.isEmpty() == true){
+                call.respond(HttpStatusCode.NotFound, "No appointment found")
+            }
+            println(allAppointments)
+            call.respond(HttpStatusCode.OK,allAppointments)
+        }
         //endregion
 
 
@@ -322,6 +371,7 @@ fun Route.staffRoutes(
 
 
     }
+
 
 
 }

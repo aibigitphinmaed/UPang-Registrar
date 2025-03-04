@@ -5,3 +5,5 @@ return [
     'manage-users' => 'App\Controllers\Admin\AdminController@manageUsers',
     'reports' => 'App\Controllers\Admin\AdminController@reports',
 ];
+
+

@@ -17,4 +17,5 @@ interface AppointmentService {
 
     suspend fun retrieveAppointmentByStatus(status:String): List<Appointment>?
 
+    suspend fun retrieveAllAppointments(): List<AppointmentResponse>?
 }

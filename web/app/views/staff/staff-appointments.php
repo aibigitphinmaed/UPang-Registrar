@@ -24,6 +24,7 @@ include_once __DIR__.'/../../includes/security/session_check.php';
     <option value="Enrollment">Enrollment</option>
 </select>
 
+
 <table border="1" id="appointmentsTable">
     <thead>
     <tr>
@@ -42,25 +43,35 @@ include_once __DIR__.'/../../includes/security/session_check.php';
     </tr>
     </thead>
     <tbody id="appointmentsBody">
-    <?php foreach ($filteredAppointments as $appointment): ?>
-        <tr data-student-id="<?= htmlspecialchars($appointment->studentId) ?>"
-            data-staff-id="<?= htmlspecialchars($appointment->staffId) ?>">
-            <td>
-                <button onclick="viewAppointment('<?= $appointment->id ?>')">View</button>
-            </td>
-            <td><?= htmlspecialchars($appointment->appointmentType) ?></td>
-            <td><?= htmlspecialchars($appointment->documentType ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->reason ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->requestedDate ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->scheduledDate ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->status) ?></td>
-            <td><?= $appointment->isUrgent ? 'Yes' : 'No' ?></td>
-            <td><?= htmlspecialchars($appointment->remarks ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->cancellationReason ?? 'N/A') ?></td>
-            <td><?= htmlspecialchars($appointment->createdAt) ?></td>
-            <td><?= htmlspecialchars($appointment->updatedAt) ?></td>
+
+    <?php if (!empty($filteredAppointments) && is_array($filteredAppointments)): ?>
+        <?php foreach ($filteredAppointments as $appointment): ?>
+            <?php if ($appointment !== null): ?>
+                <tr data-student-id="<?= htmlspecialchars($appointment->studentId ?? 'N/A') ?>"
+                    data-staff-id="<?= htmlspecialchars($appointment->staffId ?? 'N/A') ?>">
+                    <td>
+                        <button onclick="viewAppointment('<?= htmlspecialchars($appointment->id ?? '') ?>')">View</button>
+                    </td>
+                    <td><?= htmlspecialchars($appointment->appointmentType ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->documentType ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->reason ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->requestedDate ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->scheduledDate ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->status ?? 'N/A') ?></td>
+                    <td><?= isset($appointment->isUrgent) && $appointment->isUrgent ? 'Yes' : 'No' ?></td>
+                    <td><?= htmlspecialchars($appointment->remarks ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->cancellationReason ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->createdAt ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($appointment->updatedAt ?? 'N/A') ?></td>
+                </tr>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="12">No appointments available.</td>
         </tr>
-    <?php endforeach; ?>
+    <?php endif; ?>
+
     </tbody>
 
 </table>

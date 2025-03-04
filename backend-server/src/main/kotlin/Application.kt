@@ -34,6 +34,13 @@ fun Application.module() {
         secret = environment.config.property("jwt.secret").getString(),
         realm = environment.config.property("jwt.realm").getString(),
     )
+    val adminTokenConfig = TokenConfig(
+        issuer = environment.config.property("jwt.issuer").getString(),
+        audience = environment.config.property("jwt.adminAudience").getList(),
+        expiresIn = Duration.ofDays(30).toMillis(),
+        secret = environment.config.property("jwt.secret").getString(),
+        realm = environment.config.property("jwt.realm").getString(),
+    )
 
     configureSecurity(studentTokenConfig,staffTokenConfig)
     configureMonitoring()
@@ -46,7 +53,7 @@ fun Application.module() {
     val userService = UserServiceImpl()
     val appointmentService = AppointmentServiceImpl()
     configureSockets(userService)
-    configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig)
+    configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig,adminTokenConfig)
     configureRateLimiter()
 
 

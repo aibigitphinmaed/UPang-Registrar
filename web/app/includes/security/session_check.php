@@ -36,10 +36,10 @@ function redirectIfLoggedIn(): void
         $role = $_SESSION['role'];
         switch (strtolower($role)) {
             case 'admin':
-                header("Location: /admin");
+                header("Location: /admin-dashboard");
                 break;
             case 'staff':
-                header("Location: /staff");
+                header("Location: /staff-dashboard");
                 break;
             default:
                 header("Location: /login");

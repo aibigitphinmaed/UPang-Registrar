@@ -1,7 +1,6 @@
 <?php
 namespace App\Includes;
-const ADMIN_USER = 'Admin';
-const ADMIN_PASS = '1234';
+
 const KTOR_HOST = 'http://backend-server:8080';
 
 const MODELS_HOST = __DIR__ . "/../models/";

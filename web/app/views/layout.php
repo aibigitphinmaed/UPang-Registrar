@@ -23,13 +23,14 @@ $user_role = $_SESSION['role'];
     <h1>UNIVERSITY OF PANGASINAN</h1>
 
     <ul class="nav-links">
-        <li><a href="?route=dashboard">Dashboard</a></li>
 
         <?php if ($user_role === 'admin'): ?>
+            <li><a href="?route=admin-dashboard">Dashboard</a></li>
             <li><a href="?route=manage-users">Manage Users</a></li>
             <li><a href="?route=reports">Reports</a></li>
 
         <?php elseif ($user_role === 'staff'): ?>
+            <li><a href="?route=staff-dashboard">Dashboard</a></li>
             <li><a href="?route=student-appointments">Appointment</a></li>
             <li><a href="?route=queue">Queue</a></li>
             <li><a href="?route=feedback">Feedback</a></li>

@@ -1,0 +1,7 @@
+# Deny access to core folders
+RewriteEngine On
+RewriteRule ^(app|models|controllers) - [F,L]
+
+# Redirect everything to public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ /public/$1 [L,R=301]

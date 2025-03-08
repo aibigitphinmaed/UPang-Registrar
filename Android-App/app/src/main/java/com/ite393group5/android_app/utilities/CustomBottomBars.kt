@@ -118,6 +118,34 @@ fun ProfileConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
         })
 }
 
+@Composable
+fun CustomConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
+    BottomAppBar(
+        actions = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    IconButton(onClick = { confirmEdit.invoke() }) {
+                        Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.notification))
+                    }
+                    Text("Confirm Edit")
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    IconButton(onClick = { cancelEdit.invoke() }) {
+                        Icon(Icons.Filled.Cancel, contentDescription = stringResource(R.string.notification))
+                    }
+                    Text("Cancel Edit")
+                }
+
+            }
+        })
+}
 
 
 

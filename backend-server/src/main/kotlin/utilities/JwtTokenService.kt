@@ -3,9 +3,7 @@ package com.ite393group5.utilities
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.ite393group5.models.TokenConfig
-import java.util.Date
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
+import java.util.*
 
 class JwtTokenService {
 
@@ -22,15 +20,17 @@ class JwtTokenService {
         return token.sign(Algorithm.HMAC256(config.secret))
     }
 
-    fun generateStaffToken(config: TokenConfig,username: String): String{
+    fun generateStaffToken(config: TokenConfig,username: String, role: String): String{
 
 
+        //this need to be revised since we have two web users admin and staff
         var token = JWT.create()
             .withAudience(*config.audience.toTypedArray())
             .withIssuer(config.issuer)
             .withExpiresAt(Date(System.currentTimeMillis()  + config.expiresIn))
             .withClaim("username", username)
-            .withClaim("role", "staff")
+            .withClaim("role", role)
+
 
         return token.sign(Algorithm.HMAC256(config.secret))
     }

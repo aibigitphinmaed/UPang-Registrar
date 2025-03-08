@@ -1,0 +1,9 @@
+__DIR__
+in docker the root folder is:
+/var/www/html/public
+check Dockerfile or if you want to edit it
+
+
+
+//TODO LIST
+1. API ERROR HANDLING FUNCTION IN PHP FILES

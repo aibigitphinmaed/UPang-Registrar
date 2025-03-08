@@ -8,14 +8,16 @@ import com.ite393group5.models.TokenConfig
 import com.ite393group5.models.User
 import com.ite393group5.routes.staffRoutes
 import com.ite393group5.routes.studentRoutes
-import com.ite393group5.services.StudentServiceImpl
-import com.ite393group5.services.UserService
+import com.ite393group5.services.appointment.AppointmentService
+import com.ite393group5.services.user.UserService
 import com.ite393group5.utilities.JwtTokenService
 import com.ite393group5.utilities.SHA256HashingService
 import com.ite393group5.utilities.SaltedHash
 import com.ite393group5.utilities.shaService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -27,10 +29,11 @@ import java.time.LocalDate
 
 fun Application.configureRouting(
     userServiceImpl: UserService,
-    studentService: StudentServiceImpl,
+    appointmentServiceImpl: AppointmentService,
     tokenService: JwtTokenService,
     studentTokenConfig: TokenConfig,
-    staffTokenConfig: TokenConfig
+    staffTokenConfig: TokenConfig,
+    adminTokenConfig: TokenConfig
 ) {
 
     routing {
@@ -40,26 +43,37 @@ fun Application.configureRouting(
             val password = user.password
             val username = user.username
             val findUser = userServiceImpl.findByUsername(username)
+            println("User Role: ${findUser?.role}")
             if (findUser != null) {
                 val saltedHash = SaltedHash(findUser.password, findUser.salt)
+
                 if (shaService.verify(password, saltedHash)) {
+
                     val generatedToken = when (findUser.role) {
                         "student" -> Token(
                             bearerToken = tokenService.generateStudentToken(studentTokenConfig, findUser.username),
                             refreshToken = "refresh_Token",
                             expirationTimeDate = LocalDate.now().plusDays(30)
                         )
-                        //not deleting this just in case we decided to create a mobile app for the staff user
                         "staff" -> Token(
-                            bearerToken = tokenService.generateStaffToken(staffTokenConfig, findUser.username),
+                            bearerToken = tokenService.generateStaffToken(staffTokenConfig, findUser.username, findUser.role),
                             refreshToken = "refresh_Token",
                             expirationTimeDate = LocalDate.now().plusDays(1)
-                        )else -> {
+                        )
+                        "admin" -> Token(
+                            bearerToken = tokenService.generateStaffToken(adminTokenConfig, findUser.username, findUser.role),
+                            refreshToken = "refresh_Token",
+                            expirationTimeDate = LocalDate.now().plusDays(1)
+                        )
+                        else -> {
                             call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Unknown role"))
                             return@post
                         }
                     }
+
+                    println(findUser.username + " has logged in")
                     call.respond(HttpStatusCode.OK, generatedToken)
+
                 } else {
                     call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "User not found"))
                 }
@@ -71,9 +85,13 @@ fun Application.configureRouting(
         staffRoutes(userServiceImpl,
             tokenService,
             studentTokenConfig,
-            staffTokenConfig)
+            staffTokenConfig,
+            appointmentServiceImpl)
 
-        studentRoutes(userServiceImpl,studentService)
+        studentRoutes(
+            userServiceImpl,
+            appointmentServiceImpl
+        )
         //endregion
 
         //region websockets
@@ -121,95 +139,90 @@ fun Application.configureRouting(
 
         //region must-delete-route
         //delete this later on
+
         post("/createUsersForTesting") {
             try {
-                val studentSaltedHash = SHA256HashingService().generateSaltedHash("student123")
-                val studentUser = User(
-                    id = null,
-                    username = "student123",
-                    password = studentSaltedHash.hash,
-                    role = "student",
-                    salt = studentSaltedHash.salt,
+                val userService = userServiceImpl
+                val hashingService = SHA256HashingService()
+
+                val users = listOf(
+                    // Students
+                    Triple("student1@phinmaed.com.test", "student1@phinmaed.com.test", "student123"),
+                    Triple("student2@phinmaed.com.test", "student2@phinmaed.com.test", "student123"),
+                    Triple("student3@phinmaed.com.test", "student3@phinmaed.com.test", "student123"),
+                    // Staff
+                    Triple("staff1@phinmaed.com.test", "staff1@phinmaed.com.test", "staff123"),
+                    Triple("staff2@phinmaed.com.test", "staff2@phinmaed.com.test", "staff123"),
+                    Triple("staff3@phinmaed.com.test", "staff3@phinmaed.com.test", "staff123"),
+                    // Admins
+                    Triple("admin1@phinmaed.com.test", "admin1@phinmaed.com.test", "admin123"),
+                    Triple("admin2@phinmaed.com.test", "admin2@phinmaed.com.test", "admin123")
                 )
 
-                val staffSaltedHash = SHA256HashingService().generateSaltedHash("staff123")
+                val createdUsers = mutableListOf<User>()
 
-                val staffUser = User(
-                    id = null,
-                    username = "staff123",
-                    password = staffSaltedHash.hash,
-                    role = "staff",
-                    salt = staffSaltedHash.salt,
-                )
+                users.forEachIndexed { index, (username, email, password) ->
+                    val role = when {
+                        index < 3 -> "student"
+                        index < 6 -> "staff"
+                        else -> "admin"
+                    }
+                   log.info("Adding user $username to $role with email $email and password $password")
+                    val saltedHash = hashingService.generateSaltedHash(password)
+                    val user = User(
+                        id = null,
+                        username = username,
+                        password = saltedHash.hash,
+                        role = role,
+                        salt = saltedHash.salt
+                    )
 
-                val studentLocation = LocationInfo(
-                    houseNumber = "123",
-                    street = "Student St.",
-                    zone = "1",
-                    barangay = "Student Barangay",
-                    cityMunicipality = "Student City",
-                    province = "Student Province",
-                    country = "PH",
-                    postalCode = "1234"
-                )
+                    val locationInfo = LocationInfo(
+                        houseNumber = "${100 + index}",
+                        street = "$role St.",
+                        zone = "${index + 1}",
+                        barangay = "$role Barangay",
+                        cityMunicipality = "$role City",
+                        province = "$role Province",
+                        country = "PH",
+                        postalCode = "100${index}"
+                    )
 
-                val staffLocation = LocationInfo(
-                    houseNumber = "456",
-                    street = "Staff St.",
-                    zone = "2",
-                    barangay = "Staff Barangay",
-                    cityMunicipality = "Staff City",
-                    province = "Staff Province",
-                    country = "PH",
-                    postalCode = "5678"
-                )
+                    val personalInfo = PersonalInfo(
+                        firstName = "$role FirstName$index",
+                        lastName = "$role LastName$index",
+                        middleName = "M",
+                        extensionName = "",
+                        gender = if (index % 2 == 0) "Male" else "Female",
+                        citizenship = "Filipino",
+                        religion = "Catholic",
+                        civilStatus = if (index % 2 == 0) "Single" else "Married",
+                        email = email,
+                        number = "0912345678${index}",
+                        birthDate = LocalDate.of(2000 + index, (index % 12) + 1, (index % 28) + 1),
+                        fatherName = "$role Father$index",
+                        motherName = "$role Mother$index",
+                        spouseName = if (role == "admin") "Admin Spouse$index" else null,
+                        contactPersonNumber = "0912987654${index}"
+                    )
 
-                val studentPersonalInfo = PersonalInfo(
-                    firstName = "John",
-                    lastName = "Doe",
-                    middleName = "S",
-                    extensionName = "",
-                    gender = "Male",
-                    citizenship = "Filipino",
-                    religion = "Catholic",
-                    civilStatus = "Single",
-                    email = "student123@email.com",
-                    number = "09123456789",
-                    birthDate = LocalDate.of(2002, 5, 10),
-                    fatherName = "Father Doe",
-                    motherName = "Mother Doe",
-                    spouseName = null,
-                    contactPersonNumber = "09129876543"
-                )
+                    val createdUser = userService.register(user, locationInfo, personalInfo)
+                    createdUsers.add(createdUser)
+                }
 
-                val staffPersonalInfo = PersonalInfo(
-                    firstName = "Jane",
-                    lastName = "Smith",
-                    middleName = "M",
-                    extensionName = "",
-                    gender = "Female",
-                    citizenship = "Filipino",
-                    religion = "Catholic",
-                    civilStatus = "Married",
-                    email = "staff123@email.com",
-                    number = "09234567890",
-                    birthDate = LocalDate.of(1990, 8, 20),
-                    fatherName = "Father Smith",
-                    motherName = "Mother Smith",
-                    spouseName = "Mr. Smith",
-                    contactPersonNumber = "09345678901"
-                )
-
-                // Register users
-                val createdStudent = userServiceImpl.register(studentUser, studentLocation, studentPersonalInfo)
-                val createdStaff = userServiceImpl.register(staffUser, staffLocation, staffPersonalInfo)
-
-                call.respond(HttpStatusCode.Created, mapOf("student" to createdStudent, "staff" to createdStaff))
+                call.respond(HttpStatusCode.Created, mapOf("users" to createdUsers))
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "Error creating users: ${e.localizedMessage}")
             }
         }
+
         //endregion-later
+
+        //this should be limited to 5 calls per restart and refilled every hour for the health-check
+        get("/health-check") {
+            call.respond(HttpStatusCode.OK, "Server is healthy")
+        }
+
     }
 }

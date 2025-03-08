@@ -2,14 +2,15 @@ package com.ite393group5
 
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.plugins.*
-import com.ite393group5.services.StudentServiceImpl
-import com.ite393group5.services.UserServiceImpl
+import com.ite393group5.services.appointment.AppointmentServiceImpl
+import com.ite393group5.services.user.UserServiceImpl
 import com.ite393group5.utilities.JwtTokenService
 import io.ktor.server.application.*
+import io.ktor.server.netty.EngineMain
 import java.time.Duration
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    EngineMain.main(args)
 }
 
 fun Application.module() {
@@ -33,6 +34,13 @@ fun Application.module() {
         secret = environment.config.property("jwt.secret").getString(),
         realm = environment.config.property("jwt.realm").getString(),
     )
+    val adminTokenConfig = TokenConfig(
+        issuer = environment.config.property("jwt.issuer").getString(),
+        audience = environment.config.property("jwt.adminAudience").getList(),
+        expiresIn = Duration.ofDays(30).toMillis(),
+        secret = environment.config.property("jwt.secret").getString(),
+        realm = environment.config.property("jwt.realm").getString(),
+    )
 
     configureSecurity(studentTokenConfig,staffTokenConfig)
     configureMonitoring()
@@ -42,11 +50,11 @@ fun Application.module() {
     val database = configureDatabases()
 
 
-    val userService = UserServiceImpl(database)
-    val studentService = StudentServiceImpl(database)
+    val userService = UserServiceImpl()
+    val appointmentService = AppointmentServiceImpl()
     configureSockets(userService)
-    configureRouting(userService,studentService, tokenService, studentTokenConfig,staffTokenConfig)
-
+    configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig,adminTokenConfig)
+    configureRateLimiter()
 
 
 }

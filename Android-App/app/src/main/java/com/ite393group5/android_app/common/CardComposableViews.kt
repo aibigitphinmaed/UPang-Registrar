@@ -2,6 +2,7 @@ package com.ite393group5.android_app.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ConfirmationNumber
@@ -18,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ite393group5.android_app.theme.CustomTheme
-
+import com.ite393group5.android_app.models.Appointment
 @Composable
 fun DashboardCard(title: String, value: String, icon: ImageVector, modifier: Modifier = Modifier) {
     Card(
@@ -60,6 +61,28 @@ fun AppointmentItem(dateTime: String, status: String) {
         }
     }
 }
+
+@Composable
+fun AppointmentItem(appointment: Appointment) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Type: ${appointment.appointmentType}", style = MaterialTheme.typography.bodyLarge)
+            appointment.documentType?.let {
+                Text(text = "Document: $it", style = MaterialTheme.typography.bodyMedium)
+            }
+            Text(text = "Status: ${appointment.status}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Date: ${appointment.requestedDate ?: "N/A"}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
 
 @Composable
 fun AnnouncementCard(message: String) {

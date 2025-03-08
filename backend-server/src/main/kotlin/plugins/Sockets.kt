@@ -1,7 +1,7 @@
 package com.ite393group5.plugins
 
 import com.ite393group5.models.User
-import com.ite393group5.services.UserServiceImpl
+import com.ite393group5.services.user.UserServiceImpl
 import io.ktor.server.application.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*

@@ -1,0 +1,54 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+/* Main Content */
+.content {
+    margin-left: 270px;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+th {
+    background-color: #f4f4f4;
+}
+input, select {
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+textarea {
+    width: 100%; /* Full width */
+    min-height: 120px; /* Set a reasonable height */
+    padding: 10px; /* Spacing inside the textarea */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Readable text size */
+    font-family: Arial, sans-serif; /* Consistent font */
+    resize: vertical; /* Allow resizing only vertically */
+    outline: none; /* Remove default focus outline */
+    transition: border-color 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Style when textarea is focused */
+textarea:focus {
+    border-color: #007BFF; /* Change border color when focused */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add a subtle glow */
+}

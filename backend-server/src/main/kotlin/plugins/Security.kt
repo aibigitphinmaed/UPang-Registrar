@@ -56,7 +56,7 @@ fun Application.configureSecurity(studentTokenConfig: TokenConfig, staffTokenCon
             validate { credential ->
                 val tokenAudiences = credential.payload.audience
 
-                if ("web-client" in tokenAudiences) {
+                if ("web-client" in tokenAudiences || credential.payload.getClaim("username").asString() != null) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
@@ -66,7 +66,7 @@ fun Application.configureSecurity(studentTokenConfig: TokenConfig, staffTokenCon
             challenge { defaultScheme, realm ->
                 call.respond(
                     HttpStatusCode.Unauthorized,
-                    mapOf("error" to "Invalid or missing authentication token for student access.")
+                    mapOf("error" to "Invalid or missing authentication token for staff access.")
                 )
             }
         }

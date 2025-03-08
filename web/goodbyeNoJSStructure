@@ -1,0 +1,22 @@
+/your_project
+│── /public
+│   ├── index.php           # Login Page
+│   ├── home.php            # Dashboard Page
+│   ├── logout.php          # Logout handler
+│── /views
+│   ├── dashboard.html      # Dashboard UI
+│   ├── profile.html        # Profile UI
+│   ├── settings.html       # Settings UI
+│── /controllers
+│   ├── AuthController.php  # Handles login/logout
+│── /config
+│   ├── config.php          # Stores API URL
+│── /css
+│   ├── styles.css          # Global styles
+│── /js
+│   ├── auth.js             # Handles authentication
+│   ├── api.js              # Handles API calls
+│   ├── loadViews.js        # Loads dynamic views
+│   ├── navigation.js       # Manages UI navigation
+│   ├── main.js             # Entry point, initializes other scripts
+│── .htaccess               # (Optional) URL routing

@@ -12,6 +12,7 @@ $user_role = $_SESSION['role'];
     <title>University System - <?= ucfirst($user_role) ?></title>
     <link rel="stylesheet" href="/css/sidebar.css">
     <link rel="stylesheet" href="/css/style.css">
+
 </head>
 <body>
 

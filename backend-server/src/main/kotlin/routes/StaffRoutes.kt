@@ -35,8 +35,6 @@ fun Route.staffRoutes(
 
     authenticate("staff-auth") {
 
-
-
         post("/test-staff-call") {
             call.respond(HttpStatusCode.OK, "staff called an api")
         }

@@ -56,22 +56,27 @@ class StaffController {
         $statusFilter = $_GET['status'] ?? '';
         $typeFilter = $_GET['type'] ?? '';
 
+        if($this->listOfAppointments){
+            $retrieveAppointments = $this->listOfAppointments;
+            // Filter appointments based on user input
+            $filteredAppointments = array_filter($retrieveAppointments, function ($appointment) use ($search, $statusFilter, $typeFilter) {
+                $matchesSearch = empty($search) ||
+                    stripos($appointment->id, $search) !== false ||
+                    stripos($appointment->studentId, $search) !== false ||
+                    stripos($appointment->staffId, $search) !== false ||
+                    stripos($appointment->appointmentType, $search) !== false;
 
-        // Filter appointments based on user input
-        $filteredAppointments = array_filter($this->listOfAppointments, function ($appointment) use ($search, $statusFilter, $typeFilter) {
-            $matchesSearch = empty($search) ||
-                stripos($appointment->id, $search) !== false ||
-                stripos($appointment->studentId, $search) !== false ||
-                stripos($appointment->staffId, $search) !== false ||
-                stripos($appointment->appointmentType, $search) !== false;
+                $matchesStatus = empty($statusFilter) || stripos($appointment->status, $statusFilter) !== false;
+                $matchesType = empty($typeFilter) || stripos($appointment->appointmentType, $typeFilter) !== false;
 
-            $matchesStatus = empty($statusFilter) || stripos($appointment->status, $statusFilter) !== false;
-            $matchesType = empty($typeFilter) || stripos($appointment->appointmentType, $typeFilter) !== false;
+                return $matchesSearch && $matchesStatus && $matchesType;
+            });
 
-            return $matchesSearch && $matchesStatus && $matchesType;
-        });
+            include_once __DIR__ . "/../../views/staff/staff-appointments.php";
 
-        include_once __DIR__ . "/../../views/staff/staff-appointments.php";
+        } else {
+            echo "NO APPOINTMENTS ATM";
+        }
     }
 
     public function viewStudentAppointment(): void

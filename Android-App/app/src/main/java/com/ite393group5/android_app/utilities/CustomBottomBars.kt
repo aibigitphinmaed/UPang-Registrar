@@ -119,7 +119,7 @@ fun ProfileConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
 }
 
 @Composable
-fun CustomConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
+fun CustomConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit, optionCheckName:String, optionCancelName:String){
     BottomAppBar(
         actions = {
             Row(
@@ -132,7 +132,7 @@ fun CustomConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
                     IconButton(onClick = { confirmEdit.invoke() }) {
                         Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.notification))
                     }
-                    Text("Confirm Edit")
+                    Text(optionCheckName)
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -140,7 +140,7 @@ fun CustomConfirmBottomBar(confirmEdit: ()->Unit, cancelEdit: ()->Unit){
                     IconButton(onClick = { cancelEdit.invoke() }) {
                         Icon(Icons.Filled.Cancel, contentDescription = stringResource(R.string.notification))
                     }
-                    Text("Cancel Edit")
+                    Text(optionCancelName)
                 }
 
             }

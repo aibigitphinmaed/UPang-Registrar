@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import com.ite393group5.android_app.models.AppPreferences
+import com.ite393group5.android_app.models.Appointment
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
 import com.ite393group5.android_app.models.Token
@@ -249,5 +250,29 @@ class LocalServiceImpl @Inject constructor(
         _mutableImageProfile.value = profileImageLocation
         _mutableImageProfile.emit(profileImageLocation)
         saveToDateStore()
+    }
+
+    override suspend fun hasCurrentAppointment(): Boolean {
+      return dataStore.data.firstOrNull()?.currentAppointment != null
+    }
+
+    override suspend fun saveCurrentAppointment(newAppointment: Appointment){
+        dataStore.updateData {
+            it.copy(
+                currentAppointment = newAppointment
+            )
+        }
+    }
+
+    override suspend fun getCurrentAppointment(): Appointment? {
+        return dataStore.data.firstOrNull()?.currentAppointment
+    }
+
+    override suspend fun clearCurrentAppointment() {
+        dataStore.updateData {
+            it.copy(
+                currentAppointment = null
+            )
+        }
     }
 }

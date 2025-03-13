@@ -79,6 +79,12 @@ class LoginViewModel @Inject constructor(
 
                 }
             }
+
+            is LoginUiEvent.OnVisibilityToggle -> {
+                _loginState.value = _loginState.value.copy(
+                    passwordVisible = !_loginState.value.passwordVisible
+                )
+            }
         }
     }
 

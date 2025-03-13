@@ -12,21 +12,38 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = LocalDate::class)
-object DateSerializer : KSerializer<LocalDate> {
+object DateSerializer : KSerializer<LocalDate?> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-    override fun serialize(encoder: Encoder, value: LocalDate) {
-        return try {
-            encoder.encodeString(value.format(formatter))
-        }catch(e : SerializationException){
+    override fun serialize(encoder: Encoder, value: LocalDate?) {
+        try {
+            if (value != null) {
+                encoder.encodeString(value.format(formatter))
+            } else {
+                encoder.encodeNull()
+            }
+        } catch (e: SerializationException) {
             Timber.tag("DateSerializer").e(e)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             Timber.tag("DateSerializer").e(e)
         }
-
     }
 
-    override fun deserialize(decoder: Decoder): LocalDate {
-        return LocalDate.parse(decoder.decodeString(), formatter)
+    override fun deserialize(decoder: Decoder): LocalDate? {
+        return try {
+            val dateString = decoder.decodeString()
+            if (dateString.isNotBlank()) {
+                LocalDate.parse(dateString, formatter)
+            } else {
+                null
+            }
+        } catch (e: SerializationException) {
+            Timber.tag("DateSerializer").e(e)
+            null
+        } catch (e: Exception) {
+            Timber.tag("DateSerializer").e(e)
+            null
+        }
     }
 }
+

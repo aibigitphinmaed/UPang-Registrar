@@ -31,6 +31,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 
 class AppointmentDAOImpl : AppointmentDAO {
@@ -48,7 +49,7 @@ class AppointmentDAOImpl : AppointmentDAO {
                 it[scheduledDate] = null
                 it[status] = "Pending"
                 it[notifiedAt] = null
-                it[isUrgent] = appointmentRequest.isUrgent
+                it[isUrgent] = appointmentRequest.isUrgent == true
                 it[remarks] = null
                 it[cancellationReason] = null
             }
@@ -67,7 +68,7 @@ class AppointmentDAOImpl : AppointmentDAO {
                 scheduledDate = null,
                 status = "Pending",
                 notifiedAt = null,
-                isUrgent = appointmentRequest.isUrgent,
+                isUrgent = appointmentRequest.isUrgent == true,
                 remarks = null,
                 cancellationReason = null,
                 createdAt = System.currentTimeMillis().toString(),
@@ -188,13 +189,9 @@ class AppointmentDAOImpl : AppointmentDAO {
                         appointmentType = it[appointmentType],
                         documentType = it[documentType],
                         reason = it[reason],
-                        requestedDate = Instant.parse(it[requestedDate].toString())
-                            .toLocalDateTime(TimeZone.UTC) // Convert Instant to LocalDateTime
-                            .date,
+                        requestedDate = LocalDate.parse(it[requestedDate].toString()),
                         staffId = it[staffId]?.value,
-                        scheduledDate = Instant.parse(it[requestedDate].toString())
-                            .toLocalDateTime(TimeZone.UTC) // Convert Instant to LocalDateTime
-                            .date,
+                        scheduledDate = it[scheduledDate],
                         status = it[status],
                         notifiedAt = it[notifiedAt].toString(),
                         isUrgent = it[isUrgent],
@@ -208,7 +205,7 @@ class AppointmentDAOImpl : AppointmentDAO {
         }
     }
 
-    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 
 
@@ -240,7 +237,7 @@ class AppointmentDAOImpl : AppointmentDAO {
                             reason = it[reason],
                              requestedDate = LocalDate.parse(it[requestedDate].toString()),
                             staffId = it[staffId]?.value,
-                             scheduledDate = LocalDate.parse(it[requestedDate].toString()),
+                             scheduledDate =it[scheduledDate],
                             status = it[status],
                             notifiedAt = it[notifiedAt].toString(),
                             isUrgent = it[isUrgent],

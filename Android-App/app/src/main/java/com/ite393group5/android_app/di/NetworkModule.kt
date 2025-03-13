@@ -1,13 +1,16 @@
 package com.ite393group5.android_app.di
 
+import android.content.Context
 import com.ite393group5.android_app.models.Token
 import com.ite393group5.android_app.services.local.LocalService
 import com.ite393group5.android_app.services.remote.RemoteService
 import com.ite393group5.android_app.services.remote.RemoteServiceImpl
+import com.ite393group5.android_app.utilities.NetworkMonitor
 import com.ite393group5.android_app.utilities.Url
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -111,13 +114,11 @@ object NetworkModule {
         }
     }
 
+
     @Provides
     @Singleton
-    fun provideRemoteService(ktorClient: HttpClient, localService: LocalService): RemoteService {
-        return RemoteServiceImpl(localService,ktorClient)
+    fun provideNetworkMonitor(@ApplicationContext context: Context): NetworkMonitor {
+        return NetworkMonitor(context)
     }
-
-
-
 
 }

@@ -18,8 +18,6 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.readBytes
-import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -27,11 +25,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.isEmpty
-import io.ktor.utils.io.core.readBytes
 import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
 import timber.log.Timber
@@ -194,7 +189,7 @@ class RemoteServiceImpl @Inject constructor(
                         )
                     )
                 }
-                Timber.tag("Image-upload-endpoitn").e(profileImageResponse.status.toString())
+                Timber.tag("Image-upload-endpoint").e(profileImageResponse.status.toString())
                 profileImageResponse.status
             }else{
                 HttpStatusCode.ExpectationFailed

@@ -1,7 +1,5 @@
-package com.ite393group5.android_app.appointmentbooking
+package com.ite393group5.android_app.appointment
 
-import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,23 +22,49 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ite393group5.android_app.common.CustomDropdownMenu
 import com.ite393group5.android_app.common.DatePickerModal
+import com.ite393group5.android_app.models.Appointment
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
-    var selectedAppointmentType by remember { mutableStateOf("") }
-    var selectedDocumentType by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf("22/10/1991") }
+fun ModifyAppointmentScreen(
+    appointment: Appointment,
+    paddingValues: PaddingValues,
+    onChangeDocumentType: (String) -> Unit,
+    onChangeAppointmentType: (String) -> Unit,
+    onChangeRequestedDate: (String) -> Unit,
+    onChangeReason: (String) -> Unit,
+    ){
+    var selectedAppointmentType by remember { mutableStateOf(appointment.appointmentType) }
+    var selectedDocumentType by remember { mutableStateOf(appointment.documentType) }
+    var selectedDate by remember { mutableStateOf(appointment.requestedDate.toString()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // Function to find the next valid weekday (skips weekends)
+    fun getNextValidDate(startingOffset: Int): String {
+        calendar.timeInMillis = System.currentTimeMillis()
+        calendar.add(Calendar.DAY_OF_MONTH, startingOffset)
+
+        while (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+    }
+
+    val minDateStr = getNextValidDate(3) // Minimum: 3 days ahead
+    val preferredDateStr = getNextValidDate(5) // Recommended: 5 days ahead
+
+    if (selectedDate.isEmpty()) {
+        selectedDate = preferredDateStr // Set default date
+    }
 
     val registrarAppointmentTypes = listOf(
         "Transcript Request", "Diploma & Certificate Issuance",
@@ -96,6 +118,11 @@ fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
         derivedStateOf { requiredDocumentsMap[selectedDocumentType] ?: emptyList() }
     }
 
+
+    onChangeAppointmentType(selectedAppointmentType)
+    (selectedDocumentType ?: appointment.documentType)?.let { onChangeDocumentType(it) }
+    onChangeRequestedDate(selectedDate)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -115,10 +142,12 @@ fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
             CustomDropdownMenu(
                 label = "Select Appointment Type",
                 options = registrarAppointmentTypes,
-                selectedOption = selectedAppointmentType,
+                selectedOption = appointment.appointmentType,
                 onOptionSelected = {
                     selectedAppointmentType = it
                     selectedDocumentType = documentTypes.firstOrNull() ?: ""
+                    onChangeAppointmentType(it)
+                    onChangeDocumentType(selectedDocumentType!!)
                 }
             )
 
@@ -127,22 +156,36 @@ fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
                 CustomDropdownMenu(
                     label = "Select Document Type",
                     options = documentTypes,
-                    selectedOption = selectedDocumentType,
-                    onOptionSelected = { selectedDocumentType = it }
+                    selectedOption = appointment.documentType,
+                    onOptionSelected = {
+                        selectedDocumentType = it
+                        onChangeDocumentType(it)
+                    }
                 )
             }
 
             // Required Documents Display
-            if (selectedDocumentType.isNotEmpty() && requiredDocuments.isNotEmpty()) {
+            if (selectedDocumentType!!.isNotEmpty() && requiredDocuments.isNotEmpty()) {
                 Text("Required Documents:", style = MaterialTheme.typography.bodyLarge)
                 requiredDocuments.forEach { document ->
                     Text("- $document", style = MaterialTheme.typography.bodyMedium)
                 }
             }
 
+
+
+            // Hint Message for Date Selection
+            Text(
+                text = "Appointments must be at least 2-3 days ahead. We recommend 5 days ahead.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
             // Requested Date Picker
-            // Date Picker
-            Row(modifier = Modifier.fillMaxWidth().weight(1f),verticalAlignment = Alignment.CenterVertically,) {
+            Row(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "Requesting Date: \n ${selectedDate.ifEmpty { "Not Set" }}",
                     style = MaterialTheme.typography.bodyLarge
@@ -154,12 +197,37 @@ fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
                     Text("Open Calendar", textAlign = TextAlign.Center)
                 }
             }
+            OutlinedTextField(
+                value = appointment.reason?: "",
+                onValueChange = { onChangeReason(it) },
+                label = { Text("Reason") },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 5
+            )
 
-            // Show Date Picker Modal only when triggered
+            // Warning Message (if date is invalid)
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            // Show Date Picker Modal when triggered
             if (showDatePicker) {
                 DatePickerModal(
                     onDateSelected = {
-                        selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(it)
+                        val selectedDateMillis = it
+                        val selectedDateStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDateMillis)
+                        onChangeRequestedDate(selectedDateStr)
+                        // Validate the selected date
+                        if (selectedDateStr >= minDateStr) {
+                            selectedDate = selectedDateStr
+                            errorMessage = "" // Clear any previous error
+                        } else {
+                            errorMessage = "Invalid date! Please choose a weekday at least 3 days ahead."
+                        }
                         showDatePicker = false
                     },
                     onDismiss = { showDatePicker = false }
@@ -168,4 +236,3 @@ fun CreateAnAppointmentScreen(paddingValues: PaddingValues) {
         }
     }
 }
-

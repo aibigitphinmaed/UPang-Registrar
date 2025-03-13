@@ -1,11 +1,13 @@
 package com.ite393group5.routes
 
+import com.ite393group5.dto.appointment.AppointmentResponse
 import com.ite393group5.dto.user.PasswordRequest
 import com.ite393group5.dto.appointment.CancelAppointmentRequest
 import com.ite393group5.dto.appointment.CreateAppointmentRequest
 import com.ite393group5.dto.appointment.ModifyAppointmentRequest
 import com.ite393group5.dto.appointment.UpdateAppointmentRequest
 import com.ite393group5.dto.user.UserProfile
+import com.ite393group5.models.Appointment
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
 import com.ite393group5.services.appointment.AppointmentService
@@ -21,6 +23,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.util.*
 
@@ -290,11 +295,16 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
 
+
             if (userid == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
                 return@post
             }
-            val appointmentRequest = call.receive<CreateAppointmentRequest>()
+
+            val jObject = call.receiveText()
+
+
+            val appointmentRequest = Json.decodeFromString<CreateAppointmentRequest>(jObject)
             println(appointmentRequest)
             if(appointmentRequest == null) {
                 call.respond(HttpStatusCode.InternalServerError, "Appointment Request body is missing")
@@ -306,7 +316,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
                 call.respond(HttpStatusCode.InternalServerError, "Response from the server is null. Probably Under maintenance.")
                 return@post
             }
-            call.respond(HttpStatusCode.Created,appointmentResponse)
+            call.respond(HttpStatusCode.OK,appointmentResponse)
         }
         //endregion
         //region student-get-appointments
@@ -378,6 +388,59 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             if(isAppointmentCancelled == null) {
                 call.respond(HttpStatusCode.NoContent, mapOf("error" to "No Appointment cancelled"))
             }
+
+        }
+
+        post("current-appointment-request"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@post
+            }
+
+            val bodyText = call.receiveText()
+            val jsonObject = Json.parseToJsonElement(bodyText).jsonObject
+            val appointmentId = jsonObject["appointmentId"]?.jsonPrimitive?.content?.toIntOrNull()
+            if (appointmentId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid appointmentId")
+                return@post
+            }
+            val appointment: AppointmentResponse? = appointmentService.getAllAppointments(userid)
+                ?.firstOrNull { it.id == appointmentId }
+            if(appointment == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No current appointment found for user $username"))
+            }else{
+                call.respond(HttpStatusCode.OK, appointment)
+            }
+        }
+
+        post("current-appointment-status"){
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if (userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+                return@post
+            }
+            val bodyText = call.receiveText()
+            val jsonObject = Json.parseToJsonElement(bodyText).jsonObject
+            val appointmentId = jsonObject["appointmentId"]?.jsonPrimitive?.content?.toIntOrNull()
+            if (appointmentId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid appointmentId")
+                return@post
+            }
+            val appointment: AppointmentResponse? = appointmentService.getAllAppointments(userid)
+                ?.firstOrNull { it.id == appointmentId }
+            if(appointment == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No current appointment found for user $username"))
+            }else{
+                call.respond(mapOf("status" to appointment.status))
+            }
+
 
         }
         //endregion

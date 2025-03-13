@@ -1,5 +1,7 @@
 package com.ite393group5.android_app.di
 
+import com.ite393group5.android_app.appointment.AppointmentRepository
+import com.ite393group5.android_app.appointment.AppointmentRepositoryImpl
 import com.ite393group5.android_app.data.auth.AuthRepository
 import com.ite393group5.android_app.data.auth.AuthRepositoryImpl
 import com.ite393group5.android_app.services.local.LocalService
@@ -10,7 +12,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.HttpClient
 import javax.inject.Singleton
 
 @Module
@@ -30,5 +31,15 @@ abstract class RepositoryModule {
         localServiceImpl: LocalServiceImpl
     ): LocalService
 
+    @Binds
+    @Singleton
+    abstract fun bindRemoteService(
+        remoteServiceImpl: RemoteServiceImpl
+    ):RemoteService
 
+    @Binds
+    @Singleton
+    abstract fun bindAppointmentRepository(
+        appointmentRepository: AppointmentRepositoryImpl
+    ): AppointmentRepository
 }

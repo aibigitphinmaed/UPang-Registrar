@@ -10,9 +10,9 @@ data class LoginState(
     val password:String = "",
     val errorState: LoginErrorState = LoginErrorState(),
     val isLoading:Boolean = false,
-    val isLoggedIn:Boolean = false
+    val isLoggedIn:Boolean = false,
+    val passwordVisible: Boolean = false
 )
-
 @Serializable
 data class LoginErrorState(
     val emailErrorState:ErrorState = ErrorState(),

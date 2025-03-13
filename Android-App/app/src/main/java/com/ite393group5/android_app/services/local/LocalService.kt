@@ -1,5 +1,6 @@
 package com.ite393group5.android_app.services.local
 
+import com.ite393group5.android_app.models.Appointment
 import com.ite393group5.android_app.models.LocationInfo
 import com.ite393group5.android_app.models.PersonalInfo
 import com.ite393group5.android_app.models.Token
@@ -32,5 +33,8 @@ suspend fun getUserId():Int?
 
     suspend fun updateProfileImageLocation(path:String?)
     suspend fun saveProfileImageLocation(profileImageLocation: String)
-
+    suspend fun hasCurrentAppointment(): Boolean
+    suspend fun saveCurrentAppointment(newAppointment:Appointment)
+    suspend fun getCurrentAppointment(): Appointment?
+    suspend fun clearCurrentAppointment()
 }

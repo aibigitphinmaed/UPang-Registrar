@@ -78,9 +78,6 @@ fun PasswordTextField(
         mutableStateOf(false)
     }
 
-
-
-
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,

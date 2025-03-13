@@ -1,11 +1,12 @@
 package com.ite393group5.android_app.login
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ite393group5.android_app.R
@@ -19,6 +20,7 @@ fun LoginInputs(
     loginState: LoginState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onVisibilityToggle: () -> Unit,
     onSubmit: () -> Unit,
 ) {
     Column(
@@ -39,15 +41,16 @@ fun LoginInputs(
 
         // Password Field
         PasswordTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            value = loginState.password,
-            onValueChange = onPasswordChange,
-            label = stringResource(id = R.string.login_password_label),
+            label = "password here",
+            password = loginState.password,
+            onPasswordChange = onPasswordChange,
+            passwordVisible = loginState.passwordVisible,
+            onVisibilityToggle = {
+                onVisibilityToggle()
+            },
             isError = loginState.errorState.passwordErrorState.hasError,
             errorText = stringResource(id = loginState.errorState.passwordErrorState.errorMessageStringResource),
-            imeAction = ImeAction.Done
+            enabled = !loginState.isLoading
         )
 
         // Login Button
@@ -69,7 +72,8 @@ fun LoginInputsPreview() {
             loginState = LoginState(),
             onEmailChange = {},
             onPasswordChange = {},
-            onSubmit = { }
+            onSubmit = { },
+            onVisibilityToggle = {}
         )
     }
 }

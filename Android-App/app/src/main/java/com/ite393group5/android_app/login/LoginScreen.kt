@@ -101,6 +101,11 @@ fun LoginScreen(
                                 loginViewModel.onUiEvent(
                                     LoginUiEvent.Submit
                                 )
+                            },
+                            onVisibilityToggle = {
+                                loginViewModel.onUiEvent(
+                                    LoginUiEvent.OnVisibilityToggle("visibility")
+                                )
                             }
                         )
                     }

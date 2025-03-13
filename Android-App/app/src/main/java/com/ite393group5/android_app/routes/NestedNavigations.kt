@@ -6,7 +6,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.ite393group5.android_app.appointmentbooking.AppointmentBookingScreen
+import com.ite393group5.android_app.appointment.AppointmentScreen
 import com.ite393group5.android_app.dashboard.DashboardScreen
 import com.ite393group5.android_app.loadingscreen.LoadingScreen
 import com.ite393group5.android_app.login.LoginScreen
@@ -98,7 +98,7 @@ fun NavGraphBuilder.authenticatedGraph(
         //region start of Appointment Booking
         composable(route = NavigationRoutes.Authenticated.AppointmentBooking.route){
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
-                AppointmentBookingScreen(
+                AppointmentScreen(
                     modifier = modifier,
                     openDrawer = {
                         coroutineScope.launch {
@@ -128,7 +128,7 @@ fun NavGraphBuilder.authenticatedGraph(
         //region start of appointment booking
         composable(route = NavigationRoutes.Authenticated.AppointmentBooking.route){
             AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
-                AppointmentBookingScreen(
+                AppointmentScreen(
                     modifier = modifier,
                     openDrawer = {
                         coroutineScope.launch {

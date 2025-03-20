@@ -1,8 +1,11 @@
 package com.ite393group5.android_app.appointment
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ite393group5.android_app.appointment.state.AppointmentScreenState
+import com.ite393group5.android_app.common.WarningCancellation
 import com.ite393group5.android_app.models.Appointment
 import com.ite393group5.android_app.utilities.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,18 +70,27 @@ class AppointmentViewModel @Inject constructor(
 
     fun firstConfirmationRequest() {
 
-        viewModelScope.launch(Dispatchers.IO) {
+        val documentType = _stateAppointmentView.value.appointmentRequest.documentType
+        val appointmentType = _stateAppointmentView.value.appointmentRequest.appointmentType
+        Timber.tag("cAR").e("ViewModel: %s", _stateAppointmentView.value.appointmentRequest.toString())
+        if(documentType == "" || appointmentType == "") {
+            viewModelScope.launch { _toastMessage.emit("⚠️ Please fill out all fields.") }
+            return
+        }else{
+            viewModelScope.launch(Dispatchers.IO) {
 
-            if (_stateAppointmentView.value.appointmentRequest == null) {
-                _toastMessage.emit("Appointment Request is null")
-                return@launch
+                if (_stateAppointmentView.value.appointmentRequest == null) {
+                    _toastMessage.emit("Appointment Request is null")
+                    return@launch
+                }
+
+                _stateAppointmentView.value = _stateAppointmentView.value.copy(
+                    firstConfirmation = true
+                )
+                _toastMessage.emit("Confirming New Appointment")
             }
-
-            _stateAppointmentView.value = _stateAppointmentView.value.copy(
-                firstConfirmation = true
-            )
-            _toastMessage.emit("Confirming New Appointment")
         }
+
     }
 
     fun cancelOnFirstConfirmationRequest() {
@@ -187,7 +199,9 @@ private var originalState: Appointment? = null
         )
     }
 
+
     fun cancelCurrentAppointment() {
+
         _stateAppointmentView.value = _stateAppointmentView.value.copy(
             cancellingCurrentAppointment = true
         )
@@ -230,6 +244,49 @@ private var originalState: Appointment? = null
                 reason = it
             )
         )
+    }
+
+    fun cancelCurrentAppointmentFinal(it: Boolean) {
+        when (it) {
+            true -> {
+                viewModelScope.launch {
+                    val response = _stateAppointmentView.value.newAppointmentState?.let { it1 ->
+                        appointmentRepository.cancelCurrentAppointment(
+                            it1.id
+                        )
+                    }
+                    if (response != null) {
+                        when (response.value) {
+                            200 -> {
+                                _stateAppointmentView.value = _stateAppointmentView.value.copy(
+                                    cancellingCurrentAppointment = false
+                                )
+                                _toastMessage.emit("Appointment Cancelled")
+                                _stateAppointmentView.value = _stateAppointmentView.value.copy(
+                                    hasAppointment = false
+                                )
+                                originalState = null
+                            }
+
+                            404 -> {
+                                _stateAppointmentView.value = _stateAppointmentView.value.copy(
+                                    cancellingCurrentAppointment = false
+                                )
+                                _toastMessage.emit("Appointment Not Found")
+                            }
+                        }
+                    }
+                }
+            }
+
+            false -> {
+                _stateAppointmentView.value = _stateAppointmentView.value.copy(
+                    cancellingCurrentAppointment = false
+                )
+            }
+        }
+
+
     }
 
 

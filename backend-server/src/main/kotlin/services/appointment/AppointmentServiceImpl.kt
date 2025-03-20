@@ -63,15 +63,34 @@ class AppointmentServiceImpl(
     }
 
     override suspend fun cancelAppointment(
-        appointmentCancelRequest: CancelAppointmentRequest,
+        appointmentId:Int,
         studentId: Int
     ): AppointmentResponse? {
-        val appointment = appointmentDAO.findAppointmentById(appointmentCancelRequest.id)
+
+        val appointmentCancelRequest = try {
+            val appointment = appointmentDAO.findAppointmentById(appointmentId)
+
+            if (appointment != null) {
+                CancelAppointmentRequest(
+                    id = appointment.id,
+                    studentId = appointment.studentId,
+                    staffId = null, // If staffId should be included, set it properly
+                    cancellationReason = appointment.cancellationReason ?: "No reason provided",
+                    status = "cancelled"
+                )
+            } else {
+                null // Handle case when appointment is not found
+            }
+        } catch (e: Exception) {
+            println("Error fetching appointment: ${e.message}")
+            null
+        }
+        val appointment = appointmentDAO.findAppointmentById(appointmentCancelRequest?.id ?: -1)
         if (appointment == null) {
             return null
         }
         val updateAppointmentRequest = UpdateAppointmentRequest(
-            id = appointmentCancelRequest.id,
+            id = appointmentCancelRequest!!.id,
             studentId = appointmentCancelRequest.studentId,
             staffId = appointmentCancelRequest.staffId,
             scheduledDate = appointment.scheduledDate.toString(),

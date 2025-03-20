@@ -91,16 +91,31 @@ class AppointmentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cancelCurrentAppointment(appointmentId: Int): HttpStatusCode {
-        return HttpStatusCode.BadRequest
+        val token = localServiceImpl.getBearerToken()
+        val serverResponse = ktorClient.post("student-cancel-appointment") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+            }
+            setBody(mapOf(
+                "appointmentId" to appointmentId.toString()
+            ))
+        }
+        if (serverResponse.status == HttpStatusCode.OK) {
+
+            localServiceImpl.clearCurrentAppointment()
+            return HttpStatusCode.OK
+        }else{
+            localServiceImpl.clearCurrentAppointment()
+            return HttpStatusCode.NotFound
+        }
+
     }
 
     override suspend fun getCurrentAppointment(): Appointment? {
 
         val localAppointment = localServiceImpl.getCurrentAppointment()
         val token = localServiceImpl.getBearerToken()
-
-
-
 
         if (localAppointment != null) {
             val checkStatusResponse = ktorClient.post("current-appointment-status") {

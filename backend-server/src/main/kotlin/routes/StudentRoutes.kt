@@ -370,23 +370,24 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
         }
         //endregion
         //region student-cancel-appointment
-        post("student-cancel-appointments"){
+        post("student-cancel-appointment"){
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
-
+            println("student-cancel-appointments: $userid")
             if (userid == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
                 return@post
             }
 
-            val cancelAppointmentRequest = call.receive<CancelAppointmentRequest>()
-            if(cancelAppointmentRequest == null) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Appointment request for cancellation body is missing"))
-            }
-            val isAppointmentCancelled = appointmentService.cancelAppointment(cancelAppointmentRequest, userid)
+            val reqBody = call.receive<Map<String, String>>()
+            val appointmentId = reqBody["appointmentId"]
+
+            val isAppointmentCancelled = appointmentService.cancelAppointment(appointmentId?.toInt() ?: -1, userid)
             if(isAppointmentCancelled == null) {
                 call.respond(HttpStatusCode.NoContent, mapOf("error" to "No Appointment cancelled"))
+            }else{
+                call.respond(HttpStatusCode.OK, isAppointmentCancelled)
             }
 
         }

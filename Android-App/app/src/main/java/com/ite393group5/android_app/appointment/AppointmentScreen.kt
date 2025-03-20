@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.WifiOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,11 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ite393group5.android_app.R
 import com.ite393group5.android_app.common.CustomFAB
+import com.ite393group5.android_app.common.WarningCancellation
 import com.ite393group5.android_app.utilities.CustomAppTopbar
 import com.ite393group5.android_app.utilities.CustomConfirmBottomBar
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentScreen(
     openDrawer: () -> Unit,
@@ -55,6 +59,7 @@ fun AppointmentScreen(
             toast.show()
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -100,7 +105,9 @@ fun AppointmentScreen(
             when {
                 uiState.isCreatingAppointment && !uiState.firstConfirmation ->
                     CustomConfirmBottomBar(
-                        { appointmentViewModel.firstConfirmationRequest() },
+                        {
+                                appointmentViewModel.firstConfirmationRequest()
+                        },
                         { appointmentViewModel.cancelOnFirstConfirmationRequest() },
                         optionCheckName = "make an appointment",
                         optionCancelName = "cancel"
@@ -118,7 +125,9 @@ fun AppointmentScreen(
 
                 uiState.hasAppointment && !uiState.isModifyingAppointment -> {
                     CustomConfirmBottomBar(
-                        { appointmentViewModel.modifyCurrentAppointment() },
+                        {
+                            appointmentViewModel.modifyCurrentAppointment() 
+                        },
                         { appointmentViewModel.cancelCurrentAppointment() },
                         optionCheckName = "modify appointment",
                         optionCancelName = "cancel appointment"
@@ -132,9 +141,6 @@ fun AppointmentScreen(
                         optionCheckName = "finalize modify appointment",
                         optionCancelName = "cancel" )
                 }
-
-
-                !uiState.hasAppointment -> {}
 
             }
         },
@@ -177,6 +183,7 @@ fun AppointmentScreen(
                         Timber.tag("cAR").e(it)
                     }
                 )
+
                 uiState.isModifyingAppointment && uiState.newAppointmentState != null-> ModifyAppointmentScreen(
                     paddingValues = paddingValues,
                     onChangeDocumentType = {
@@ -193,10 +200,24 @@ fun AppointmentScreen(
                     },
                     appointment = uiState.newAppointmentState!!
                 )
-                uiState.hasAppointment && !uiState.isModifyingAppointment -> {
+
+                uiState.hasAppointment && !uiState.isModifyingAppointment && !uiState.cancellingCurrentAppointment-> {
                     uiState.newAppointmentState?.let { AppointmentDetailsScreen(it, paddingValues) }
                 }
+
                 !uiState.hasAppointment -> NoAppointmentMade(paddingValues)
+                uiState.cancellingCurrentAppointment -> WarningCancellation(
+                    onDismissRequest = {
+                            it ->
+                        appointmentViewModel.cancelCurrentAppointmentFinal(it)
+                    },
+                    onConfirmation = {
+                            it ->
+                        appointmentViewModel.cancelCurrentAppointmentFinal(it)
+                    },
+                    dialogTitle = "Cancel Current Appointment",
+                    dialogText = "Are you sure cancelling your current appointment?"
+                )
             }
         }
     }

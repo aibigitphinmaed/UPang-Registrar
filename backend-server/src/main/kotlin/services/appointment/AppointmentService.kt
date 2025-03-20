@@ -11,7 +11,7 @@ interface AppointmentService {
     suspend fun createAppointment(createAppointmentRequest: CreateAppointmentRequest, studentId: Int): AppointmentResponse?
     //getAllAppointments(userid)
     suspend fun getAllAppointments(userId:Int): List<AppointmentResponse>?
-    suspend fun cancelAppointment(appointmentCancelRequest: CancelAppointmentRequest, studentId: Int): AppointmentResponse?
+    suspend fun cancelAppointment(appointmentId: Int, studentId: Int): AppointmentResponse?
     suspend fun updateAppointment(appointmentUpdateRequest: UpdateAppointmentRequest, studentId: Int): AppointmentResponse?
     suspend fun modifyAppointmentRequest(modifyAppointmentRequest: ModifyAppointmentRequest, studentId: Int): AppointmentResponse?
 

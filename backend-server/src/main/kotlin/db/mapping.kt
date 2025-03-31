@@ -77,3 +77,17 @@ object AppointmentTable : IntIdTable("appointment") {
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 }
 
+object DocumentRecordsTable : IntIdTable("document_records") {
+    val studentId = reference("student_id", UserTable, onDelete = ReferenceOption.CASCADE)
+    val documentType = varchar("document_type", 255)
+    val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
+}
+
+object DocumentRequirementsImagesTable : IntIdTable("document_requirement_image") {
+    val documentId = reference("document_id", DocumentRecordsTable, onDelete = ReferenceOption.CASCADE)
+    val fileName = varchar("file_name", 255)
+    val fileType = varchar("file_type", 20)
+}
+
+

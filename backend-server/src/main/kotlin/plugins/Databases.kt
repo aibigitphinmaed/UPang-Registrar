@@ -1,6 +1,8 @@
 package com.ite393group5.plugins
 
 import com.ite393group5.db.AppointmentTable
+import com.ite393group5.db.DocumentRecordsTable
+import com.ite393group5.db.DocumentRequirementsImagesTable
 import com.ite393group5.db.ImageRecordsTable
 import com.ite393group5.db.LocationInformationTable
 import com.ite393group5.db.PersonalInformationTable
@@ -37,6 +39,8 @@ fun Application.connectToPostgres() {
             LocationInformationTable,
             ImageRecordsTable,
             AppointmentTable,
+            DocumentRecordsTable,
+            DocumentRequirementsImagesTable
         ) }
 
         log.info("✅ Successfully connected to PostgresSQL and initialized tables.")

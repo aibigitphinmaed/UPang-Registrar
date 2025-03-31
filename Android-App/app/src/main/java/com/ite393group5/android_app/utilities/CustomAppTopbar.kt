@@ -3,6 +3,7 @@ package com.ite393group5.android_app.utilities
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,6 +47,37 @@ fun CustomAppTopbar(title: String, openDrawer: () -> Unit, modifier: Modifier) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarNavigateBack(
+    navigateBack: () -> Unit,
+    title: String,
+    modifier: Modifier,
+){
+    TopAppBar(
+        title = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = navigateBack){
+                Icon(Icons.Filled.ArrowBackIosNew, stringResource(id = R.string.back_button))
+            }
+
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
 
 
 @Preview("Top App Bar")

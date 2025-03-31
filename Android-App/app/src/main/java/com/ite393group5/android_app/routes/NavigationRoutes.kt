@@ -17,14 +17,19 @@ sealed class NavigationRoutes{
         data object ProfileManagement: Authenticated("ProfileManagement")
 
 
-        //below here is for you guys
+        //remove feature
         data object AppointmentBooking: Authenticated("AppointmentBooking")
         data object QueueTicket: Authenticated("QueueTicket")
         data object ModifyAppointments: Authenticated("ModifyAppointments")
+        //end of remove feature
+
+
+
+
         data object Notifications: Authenticated("Notifications")
         data object FeedbackSubmission: Authenticated("FeedbackSubmission")
         data object HelpAndSupport: Authenticated("HelpAndSupport")
-
+        data object RequestDocument: Authenticated("RequestDocument")
     }
 
 }

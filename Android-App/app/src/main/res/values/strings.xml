@@ -7,7 +7,7 @@
     <string name="login_button_text">Sign-In</string>
     <string name="open_drawer">Open Drawer</string>
     <string name="dashboard_content_description">Dashboard</string>
-    <string name="appointment_booking_content_description">Appointment</string>
+    <string name="appointment_booking_content_description">Request Document</string>
     <string name="queue_ticket_content_description">Queue</string>
     <string name="modify_appointments_content_description">Modify Appointment</string>
     <string name="notifications_content_description">Notifications</string>
@@ -19,4 +19,7 @@
     <string name="notification">Notifications</string>
     <string name="document">Documents</string>
     <string name="home_content_description">Home</string>
+    <string name="back_button">Back</string>
+    <string name="document_request_content_description">Request Document</string>
+    <string name="track_requested_documents_description">Track Requested Documents</string>
 </resources>

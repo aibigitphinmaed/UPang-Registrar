@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,16 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Book
-import androidx.compose.material.icons.rounded.Dashboard
-import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Feedback
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Output
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material.icons.rounded.Queue
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -67,11 +64,12 @@ fun AppModalDrawer(
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-        AppDrawer(currentRoute = currentRoute,
+        AppDrawer(
+            currentRoute = currentRoute,
+            closeDrawer = { coroutineScope.launch { drawerState.close() } },
+            modifier = Modifier,
             navigateToDashboard = { navigationActions.navigateToDashboard() },
-            navigateToAppointmentBooking = { navigationActions.navigateToAppointmentBooking() },
             navigateToQueueTicket = { navigationActions.navigateToQueueTicket() },
-            navigateToModifyAppointments = { navigationActions.navigateToModifyAppointments() },
             navigateToNotifications = { navigationActions.navigateToNotifications() },
             navigateToProfileManagement = { navigationActions.navigateToProfileManagement() },
             navigateToFeedbackSubmission = { navigationActions.navigateToFeedbackSubmission() },
@@ -82,7 +80,8 @@ fun AppModalDrawer(
                 }
                 navigationActions.navigateToLogoutScreen()
             },
-            closeDrawer = { coroutineScope.launch { drawerState.close() } })
+            navigateToRequestDocument = { navigationActions.navigateToRequestDocument() }
+        )
     }) {
         content()
     }
@@ -94,14 +93,13 @@ private fun AppDrawer(
     closeDrawer: () -> Unit,
     modifier: Modifier = Modifier,
     navigateToDashboard: () -> Unit,
-    navigateToAppointmentBooking: () -> Unit,
     navigateToQueueTicket: () -> Unit,
-    navigateToModifyAppointments: () -> Unit,
     navigateToNotifications: () -> Unit,
     navigateToProfileManagement: () -> Unit,
     navigateToFeedbackSubmission: () -> Unit,
     navigateToHelpAndSupport: () -> Unit,
-    navigateToLogout: () -> Unit
+    navigateToLogout: () -> Unit,
+    navigateToRequestDocument: () -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -162,28 +160,28 @@ private fun AppDrawer(
 
             DrawerButton(modifier = modifier,
                 Icons.Rounded.Book,
-                contentDescription = stringResource(id = R.string.appointment_booking_content_description),
-                isSelected = currentRoute == NavigationRoutes.Authenticated.AppointmentBooking.route,
+                contentDescription = stringResource(id = R.string.document_request_content_description),
+                isSelected = currentRoute == NavigationRoutes.Authenticated.RequestDocument.route,
                 action = {
-                    navigateToAppointmentBooking()
+                    navigateToRequestDocument()
                     closeDrawer()
                 })
             DrawerButton(modifier = modifier,
-                Icons.Rounded.Queue,
-                contentDescription = stringResource(id = R.string.queue_ticket_content_description),
+                Icons.Rounded.History,
+                contentDescription = stringResource(id = R.string.track_requested_documents_description),
                 isSelected = currentRoute == NavigationRoutes.Authenticated.QueueTicket.route,
                 action = {
                     navigateToQueueTicket()
                     closeDrawer()
                 })
-            DrawerButton(modifier = modifier,
-                Icons.Rounded.EditNote,
-                contentDescription = stringResource(id = R.string.modify_appointments_content_description),
-                isSelected = currentRoute == NavigationRoutes.Authenticated.ModifyAppointments.route,
-                action = {
-                    navigateToModifyAppointments()
-                    closeDrawer()
-                })
+//            DrawerButton(modifier = modifier,
+//                Icons.Rounded.EditNote,
+//                contentDescription = stringResource(id = R.string.modify_appointments_content_description),
+//                isSelected = currentRoute == NavigationRoutes.Authenticated.ModifyAppointments.route,
+//                action = {
+//                    navigateToModifyAppointments()
+//                    closeDrawer()
+//                })
 
             //endregion
 
@@ -292,17 +290,18 @@ fun DrawerButton(
 @Composable
 fun AppModalDrawerPreview() {
     CustomTheme {
-        AppDrawer(currentRoute = "Test",
+        AppDrawer(
+            currentRoute = "Test",
             closeDrawer = {},
             modifier = Modifier,
             navigateToDashboard = { },
-            navigateToAppointmentBooking = { },
             navigateToQueueTicket = {},
-            navigateToModifyAppointments = {},
             navigateToNotifications = {},
             navigateToProfileManagement = {},
             navigateToFeedbackSubmission = {},
             navigateToHelpAndSupport = {},
-            navigateToLogout = {})
+            navigateToLogout = {},
+            navigateToRequestDocument = {}
+        )
     }
 }

@@ -447,6 +447,15 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
         //endregion
 
         //endregion
+
+        //region create document request
+        post("/student-document-request"){
+
+        }
+        post("/student-upload-requirements"){
+
+        }
+        //endregion
     }
 }
 

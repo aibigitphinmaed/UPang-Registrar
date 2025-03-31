@@ -70,6 +70,7 @@ fun CreateAnAppointmentScreen(
         "Late Registration & Overload Requests", "Document Authentication & Certification"
     )
 
+
     val documentTypesMap = mapOf(
         "Transcript Request" to listOf("Official Transcript", "Unofficial Transcript"),
         "Diploma & Certificate Issuance" to listOf("Diploma", "Certificate of Graduation"),

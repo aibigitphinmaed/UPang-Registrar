@@ -82,4 +82,14 @@ class AppNavigationActions(private val navController: NavHostController) {
         }
     }
 
+    fun backStackPop() {
+        navController.popBackStack()
+    }
+
+    fun navigateToRequestDocument() {
+        navController.navigate(
+            route = NavigationRoutes.Authenticated.RequestDocument.route
+        )
+    }
+
 }

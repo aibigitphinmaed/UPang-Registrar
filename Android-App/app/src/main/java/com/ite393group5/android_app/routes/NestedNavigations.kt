@@ -12,6 +12,7 @@ import com.ite393group5.android_app.loadingscreen.LoadingScreen
 import com.ite393group5.android_app.login.LoginScreen
 import com.ite393group5.android_app.logout.LogoutScreen
 import com.ite393group5.android_app.profilemanagement.ProfileScreen
+import com.ite393group5.android_app.requestdocument.DocumentRequestScreen
 import com.ite393group5.android_app.utilities.AppModalDrawer
 import com.ite393group5.android_app.utilities.AppNavigationActions
 import kotlinx.coroutines.CoroutineScope
@@ -104,6 +105,9 @@ fun NavGraphBuilder.authenticatedGraph(
                         coroutineScope.launch {
                             drawerState.open()
                         }
+                    },
+                    navigateBackAction = {
+                        appNavigationActions.backStackPop()
                     }
                 )
             }
@@ -134,6 +138,29 @@ fun NavGraphBuilder.authenticatedGraph(
                         coroutineScope.launch {
                             drawerState.open()
                         }
+                    },
+                    navigateBackAction = {
+                        appNavigationActions.backStackPop()
+                    }
+                )
+            }
+        }
+        //endregion
+
+
+
+
+        //region document requesting
+        composable(route = NavigationRoutes.Authenticated.RequestDocument.route) {
+            AppModalDrawer(drawerState, currentRoute, appNavigationActions) {
+                DocumentRequestScreen(
+                    openDrawer = {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    },
+                    popToBackStack = {
+                        appNavigationActions.backStackPop()
                     }
                 )
             }

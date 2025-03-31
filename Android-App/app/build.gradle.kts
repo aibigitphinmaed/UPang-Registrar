@@ -100,6 +100,10 @@ dependencies {
     implementation("androidx.datastore:datastore:1.1.2")
 
 
+    //coil
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+
 }
 
 // Allow references to generated code

@@ -36,9 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ite393group5.android_app.R
 import com.ite393group5.android_app.common.CustomFAB
+import com.ite393group5.android_app.common.NoInternetScreen
 import com.ite393group5.android_app.common.WarningCancellation
 import com.ite393group5.android_app.utilities.CustomAppTopbar
 import com.ite393group5.android_app.utilities.CustomConfirmBottomBar
+import com.ite393group5.android_app.utilities.TopBarNavigateBack
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -46,8 +48,10 @@ import timber.log.Timber
 @Composable
 fun AppointmentScreen(
     openDrawer: () -> Unit,
+    navigateBackAction: () -> Unit,
     appointmentViewModel: AppointmentViewModel = hiltViewModel(),
-    modifier: Modifier
+    modifier: Modifier,
+
 ) {
     val uiState by appointmentViewModel.stateAppointmentView.collectAsState()
     val context = LocalContext.current
@@ -67,10 +71,14 @@ fun AppointmentScreen(
                 // Existing top bar logic
                 when {
                     uiState.isCreatingAppointment ->
-                        CustomAppTopbar(
-                            title = "Create Appointment", openDrawer = openDrawer,
+                        TopBarNavigateBack(
+                            navigateBack = {
+                                appointmentViewModel.cancelOnFirstConfirmationRequest()
+                            },
+                            title = "Back",
                             modifier = Modifier
                         )
+
 
                     uiState.isModifyingAppointment ->
                         CustomAppTopbar(
@@ -223,40 +231,7 @@ fun AppointmentScreen(
     }
 }
 
-@Composable
-fun NoInternetScreen(paddingValues: PaddingValues) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.WifiOff,
-                contentDescription = "No Internet",
-                tint = Color.Red, // Adjust color if needed
-                modifier = Modifier.size(100.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "No Internet Connection",
-                color = Color.Red,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Please check your connection and try again.",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
+
 
 
 
@@ -279,7 +254,7 @@ fun NoAppointmentMade(paddingValues: PaddingValues) {
             )
             Spacer(modifier = Modifier.height(16.dp)) // Adds spacing between Image and Text
             Text(
-                text = "No Appointment Made",
+                text = "No Request Made",
                 style = MaterialTheme.typography.bodyLarge
             )
         }

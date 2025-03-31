@@ -20,11 +20,12 @@ class UserCreateDocumentUseCase @Inject constructor(
         }
     }
 
-    suspend fun uploadImageRequirements(): HttpStatusCode = withContext(Dispatchers.IO){
-        try{
+    suspend fun uploadImageRequirements(): HttpStatusCode = withContext(Dispatchers.IO) {
+        try {
 
             HttpStatusCode.OK
-        }catch (e: Exception){
+        } catch (e: Exception) {
             HttpStatusCode.InternalServerError
+        }
     }
 }

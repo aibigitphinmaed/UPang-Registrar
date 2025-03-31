@@ -1,5 +1,6 @@
 package com.ite393group5.plugins
 
+import com.ite393group5.db.AnnouncementTable
 import com.ite393group5.db.AppointmentTable
 import com.ite393group5.db.DocumentRecordsTable
 import com.ite393group5.db.DocumentRequirementsImagesTable
@@ -23,7 +24,7 @@ fun Application.configureDatabases() {
 fun Application.connectToPostgres() {
     try{
         val url = environment.config.propertyOrNull("database.url")?.getString()
-            ?: "jdbc:postgresql://docker-database:5432/postgresdb"
+            ?: "jdbc:postgresql://localhost:5432/postgresdb"
         val user = environment.config.propertyOrNull("database.user")?.getString() ?: "postgres"
         val password = environment.config.propertyOrNull("database.password")?.getString() ?: "postgres"
         Database.connect(
@@ -40,7 +41,8 @@ fun Application.connectToPostgres() {
             ImageRecordsTable,
             AppointmentTable,
             DocumentRecordsTable,
-            DocumentRequirementsImagesTable
+            DocumentRequirementsImagesTable,
+            AnnouncementTable
         ) }
 
         log.info("✅ Successfully connected to PostgresSQL and initialized tables.")

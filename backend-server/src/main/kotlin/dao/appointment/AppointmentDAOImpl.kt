@@ -19,10 +19,7 @@ import com.ite393group5.dto.appointment.CreateAppointmentRequest
 import com.ite393group5.dto.appointment.ModifyAppointmentRequest
 import com.ite393group5.dto.appointment.UpdateAppointmentRequest
 import com.ite393group5.models.Appointment
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -31,7 +28,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 
 class AppointmentDAOImpl : AppointmentDAO {

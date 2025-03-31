@@ -24,12 +24,14 @@ import io.ktor.server.routing.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.util.*
 
-fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: AppointmentService) {
+fun Route.studentRoutes(userServiceImpl: UserService, appointmentService: AppointmentService) {
     authenticate("student-auth") {
 
         //region student queue
@@ -229,14 +231,14 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
                 part.dispose()
             }
 
-            if(fileName != null){
+            if (fileName != null) {
                 println("profile image of user $username has been uploaded. file name is $fileName")
-               val savedProfileImage = userServiceImpl.updateProfileImage(fileName, username)
-                if(savedProfileImage){
+                val savedProfileImage = userServiceImpl.updateProfileImage(fileName, username)
+                if (savedProfileImage) {
                     call.respond(HttpStatusCode.OK)
                 }
                 call.respond(HttpStatusCode.BadRequest)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.BadRequest)
             }
             //endregion
@@ -247,7 +249,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             val username = principal.payload.getClaim("username").asString()
 
             val user = userServiceImpl.findByUsername(username)
-            if(user == null){
+            if (user == null) {
                 call.respond(HttpStatusCode.NotFound)
             }
             val userid = user?.id ?: -1
@@ -266,7 +268,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Image record not found"))
                 return@get
             }
-            if(user?.id == null){
+            if (user?.id == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "No User found"))
                 return@get
             }
@@ -290,7 +292,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
         //region appointment-feature-student
 
         //region student-appointment-request
-        post("/student-appointment-request"){
+        post("/student-appointment-request") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -306,21 +308,24 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
 
             val appointmentRequest = Json.decodeFromString<CreateAppointmentRequest>(jObject)
             println(appointmentRequest)
-            if(appointmentRequest == null) {
+            if (appointmentRequest == null) {
                 call.respond(HttpStatusCode.InternalServerError, "Appointment Request body is missing")
                 return@post
             }
 
             val appointmentResponse = appointmentService.createAppointment(appointmentRequest, userid)
-            if(appointmentResponse == null) {
-                call.respond(HttpStatusCode.InternalServerError, "Response from the server is null. Probably Under maintenance.")
+            if (appointmentResponse == null) {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Response from the server is null. Probably Under maintenance."
+                )
                 return@post
             }
-            call.respond(HttpStatusCode.OK,appointmentResponse)
+            call.respond(HttpStatusCode.OK, appointmentResponse)
         }
         //endregion
         //region student-get-appointments
-        get("student-get-appointments"){
+        get("student-get-appointments") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -331,7 +336,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             }
 
             val studentsAppointments = appointmentService.getAllAppointments(userid)
-            if(studentsAppointments == null) {
+            if (studentsAppointments == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "No appointments found for user $username"))
                 return@get
             }
@@ -342,7 +347,7 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
         //endregion
 
         //region student-modify-appoint-request
-        post("student-modify-appointments"){
+        post("student-modify-appointments") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -354,23 +359,30 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
 
             val modifyAppointmentRequest = call.receive<ModifyAppointmentRequest>()
 
-            if(modifyAppointmentRequest == null) {
+            if (modifyAppointmentRequest == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Appointment request body is missing"))
                 return@post
             }
 
-            val modifyAppointmentResponse = appointmentService.modifyAppointmentRequest(modifyAppointmentRequest, userid)
+            val modifyAppointmentResponse =
+                appointmentService.modifyAppointmentRequest(modifyAppointmentRequest, userid)
 
-            if(modifyAppointmentResponse == null) {
-                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Something went wrong with the server. Try again later"))
+            if (modifyAppointmentResponse == null) {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    mapOf("error" to "Something went wrong with the server. Try again later")
+                )
             }
 
-            call.respond(HttpStatusCode.OK, modifyAppointmentResponse ?: mapOf("error" to "No appointments found for user $username"))
+            call.respond(
+                HttpStatusCode.OK,
+                modifyAppointmentResponse ?: mapOf("error" to "No appointments found for user $username")
+            )
 
         }
         //endregion
         //region student-cancel-appointment
-        post("student-cancel-appointment"){
+        post("student-cancel-appointment") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -384,15 +396,15 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             val appointmentId = reqBody["appointmentId"]
 
             val isAppointmentCancelled = appointmentService.cancelAppointment(appointmentId?.toInt() ?: -1, userid)
-            if(isAppointmentCancelled == null) {
+            if (isAppointmentCancelled == null) {
                 call.respond(HttpStatusCode.NoContent, mapOf("error" to "No Appointment cancelled"))
-            }else{
+            } else {
                 call.respond(HttpStatusCode.OK, isAppointmentCancelled)
             }
 
         }
 
-        post("current-appointment-request"){
+        post("current-appointment-request") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -411,14 +423,17 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             }
             val appointment: AppointmentResponse? = appointmentService.getAllAppointments(userid)
                 ?.firstOrNull { it.id == appointmentId }
-            if(appointment == null) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No current appointment found for user $username"))
-            }else{
+            if (appointment == null) {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No current appointment found for user $username")
+                )
+            } else {
                 call.respond(HttpStatusCode.OK, appointment)
             }
         }
 
-        post("current-appointment-status"){
+        post("current-appointment-status") {
             val principal = call.principal<JWTPrincipal>()!!
             val username = principal.payload.getClaim("username").asString()
             val userid = userServiceImpl.findByUsername(username)?.id
@@ -436,9 +451,12 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
             }
             val appointment: AppointmentResponse? = appointmentService.getAllAppointments(userid)
                 ?.firstOrNull { it.id == appointmentId }
-            if(appointment == null) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "No current appointment found for user $username"))
-            }else{
+            if (appointment == null) {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    mapOf("error" to "No current appointment found for user $username")
+                )
+            } else {
                 call.respond(mapOf("status" to appointment.status))
             }
 
@@ -449,10 +467,26 @@ fun Route.studentRoutes(userServiceImpl: UserService,appointmentService: Appoint
         //endregion
 
         //region create document request
-        post("/student-document-request"){
+        post("/student-document-request") {
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
 
+            val bodyText = call.receiveText() // Receive JSON as a string
+
+            // Parse JSON into a Map
+            val jsonElement = Json.parseToJsonElement(bodyText)
+            val jsonObject = jsonElement.jsonObject
+
+            val selectedDocument = jsonObject["selectedDocument"]?.jsonPrimitive?.contentOrNull
+            val requestedDate = jsonObject["requestedDate"]?.jsonPrimitive?.contentOrNull
+            println("selectedDocument: $selectedDocument")
+            println("selectedDate: $requestedDate")
+
+            call.respond(HttpStatusCode.OK, mapOf("documentId" to 2))
         }
-        post("/student-upload-requirements"){
+
+        post("/student-upload-requirements") {
 
         }
         //endregion

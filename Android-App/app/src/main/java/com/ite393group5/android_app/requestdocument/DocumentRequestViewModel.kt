@@ -148,8 +148,7 @@ class DocumentRequestViewModel @Inject constructor(
                 _stateRequestDocumentView.value = _stateRequestDocumentView.value.copy(
                     isDocumentCreatedOnServer = true
                 )
-              val uploadImagesResponse =  userCreateDocumentUseCase.uploadImageRequirements(
-                  context, filesToBeUploaded = _stateRequestDocumentView.value.filesToBeUploaded,
+              val uploadImagesResponse =  userCreateDocumentUseCase.uploadImageRequirements(context, filesToBeUploaded = _stateRequestDocumentView.value.filesToBeUploaded,
                   docId = documentID
               )
                 if(uploadImagesResponse.value == 200){

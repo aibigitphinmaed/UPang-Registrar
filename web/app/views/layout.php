@@ -30,8 +30,8 @@ $user_role = $_SESSION['role'];
             <li><a href="?route=reports">Reports</a></li>
 
         <?php elseif ($user_role === 'staff'): ?>
-            <li><a href="?route=student-appointments">Appointment</a></li>
-            <li><a href="?route=queue">Queue</a></li>
+            <li><a href="?route=student-appointments">Review Documents</a></li>
+            <li><a href="?route=queue">Manage Users</a></li>
             <li><a href="?route=feedback">Feedback</a></li>
         <?php endif; ?>
 

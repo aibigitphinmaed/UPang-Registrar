@@ -18,10 +18,7 @@ data class RequestDocumentState (
     val isDocumentCreatedOnServer: Boolean = false,
     val hasInternet: Boolean = true,
     val showWarning: Boolean = false,
-) {
-
-
-}
+)
 
 
 //selected document

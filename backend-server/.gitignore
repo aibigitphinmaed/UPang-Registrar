@@ -38,3 +38,5 @@ out/
 ###uploadedImages ###
 uploads/
 uploads/*
+
+Android-App/.kotlin/*

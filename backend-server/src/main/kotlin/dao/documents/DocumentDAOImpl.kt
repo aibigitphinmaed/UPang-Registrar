@@ -1,8 +1,11 @@
 package com.ite393group5.dao.documents
 
 import com.ite393group5.db.DocumentRecordsTable
+import com.ite393group5.db.DocumentRequirementsImagesTable
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
 
 class DocumentDAOImpl : DocumentDAO {
     override fun createDocument(
@@ -47,6 +50,17 @@ class DocumentDAOImpl : DocumentDAO {
 
     override fun findDocumentById(id: Int): DocumentRecords? {
         TODO("Not yet implemented")
+    }
+
+    override fun recordRequirementImages(documentId: String, absolutePath: String) {
+        val file = File(absolutePath)
+        transaction {
+            DocumentRequirementsImagesTable.insert {
+               it[this.documentId] = Integer.valueOf(documentId)
+                it[fileName] = file.name
+                it[fileType] = file.extension
+            }
+        }
     }
 
 }

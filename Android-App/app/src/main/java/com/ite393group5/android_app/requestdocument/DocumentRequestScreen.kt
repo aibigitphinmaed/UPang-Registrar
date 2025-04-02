@@ -11,10 +11,15 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +49,7 @@ fun DocumentRequestScreen(
     documentRequestViewModel: DocumentRequestViewModel = hiltViewModel<DocumentRequestViewModel>(),
     popToBackStack: () -> Unit
 ){
+
 
     val configuration = LocalConfiguration.current
     val screenwidth = configuration.screenWidthDp.dp
@@ -180,12 +186,35 @@ fun DocumentRequestScreen(
                         currentListOfFiles = uiState.filesToBeUploaded
                     )
                 }
-                AnimatedVisibility(uiState.isUserReviewingRequirements) {
+                AnimatedVisibility(uiState.isUserReviewingRequirements && !uiState.isUserWaitingForServerResponse) {
                     ReviewDocumentRequest(
                         backClick = {documentRequestViewModel.updateIsUserReviewingRequirements(false)},
-                        confirmClick = {},
+                        confirmClick = {
+                            documentRequestViewModel.startUploadingRequestProcess(context)
+                        },
                         uiState = uiState
                     )
+                }
+
+                AnimatedVisibility(uiState.isUserWaitingForServerResponse && !uiState.isDocumentCreatedOnServer) {
+                    Column {
+                        Text("Uploading Document Request")
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    }
+                }
+                AnimatedVisibility(uiState.isUserWaitingForServerResponse && uiState.isDocumentCreatedOnServer) {
+                    Column {
+                        Text("Uploading Document Requirements")
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    }
                 }
 
 

@@ -1,5 +1,6 @@
 package com.ite393group5.plugins
 
+import com.ite393group5.dao.documents.DocumentDAOImpl
 import com.ite393group5.models.LocationInfo
 import com.ite393group5.models.LoginRequest
 import com.ite393group5.models.PersonalInfo
@@ -30,6 +31,7 @@ import java.time.LocalDate
 fun Application.configureRouting(
     userServiceImpl: UserService,
     appointmentServiceImpl: AppointmentService,
+    documentDAOImpl: DocumentDAOImpl,
     tokenService: JwtTokenService,
     studentTokenConfig: TokenConfig,
     staffTokenConfig: TokenConfig,
@@ -90,7 +92,8 @@ fun Application.configureRouting(
 
         studentRoutes(
             userServiceImpl,
-            appointmentServiceImpl
+            appointmentServiceImpl,
+            documentDAOImpl
         )
         //endregion
 

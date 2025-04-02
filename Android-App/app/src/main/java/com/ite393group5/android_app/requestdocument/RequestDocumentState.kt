@@ -14,10 +14,14 @@ data class RequestDocumentState (
     val isUserReviewingRequirements: Boolean = false,
 
     val isUserSubmitting: Boolean = false,
-
-    val hasInternet: Boolean = false,
+    val isUserWaitingForServerResponse: Boolean = false,
+    val isDocumentCreatedOnServer: Boolean = false,
+    val hasInternet: Boolean = true,
     val showWarning: Boolean = false,
-)
+) {
+
+
+}
 
 
 //selected document

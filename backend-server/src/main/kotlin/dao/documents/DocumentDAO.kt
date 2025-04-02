@@ -6,4 +6,5 @@ interface DocumentDAO {
     fun deleteDocument(documentRecords:DocumentRecords, studentId:Int): Int
     fun findAllDocumentByStudentId(studentId:Int): List<DocumentRecords>?
     fun findDocumentById(id:Int): DocumentRecords?
+    fun recordRequirementImages(documentId: String, absolutePath: String )
 }

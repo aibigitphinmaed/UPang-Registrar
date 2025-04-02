@@ -1,13 +1,12 @@
 package com.ite393group5.routes
 
+import com.ite393group5.dao.documents.DocumentDAOImpl
+import com.ite393group5.dao.documents.DocumentRecords
 import com.ite393group5.dto.appointment.AppointmentResponse
 import com.ite393group5.dto.user.PasswordRequest
-import com.ite393group5.dto.appointment.CancelAppointmentRequest
 import com.ite393group5.dto.appointment.CreateAppointmentRequest
 import com.ite393group5.dto.appointment.ModifyAppointmentRequest
-import com.ite393group5.dto.appointment.UpdateAppointmentRequest
 import com.ite393group5.dto.user.UserProfile
-import com.ite393group5.models.Appointment
 import com.ite393group5.models.User
 import com.ite393group5.plugins.currentQueueList
 import com.ite393group5.services.appointment.AppointmentService
@@ -23,15 +22,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.util.*
 
-fun Route.studentRoutes(userServiceImpl: UserService, appointmentService: AppointmentService) {
+
+fun Route.studentRoutes(userServiceImpl: UserService, appointmentService: AppointmentService, documentDAOImpl: DocumentDAOImpl) {
     authenticate("student-auth") {
 
         //region student queue
@@ -474,19 +474,86 @@ fun Route.studentRoutes(userServiceImpl: UserService, appointmentService: Appoin
 
             val bodyText = call.receiveText() // Receive JSON as a string
 
+            if(userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user id not found"))
+            }
+
+
             // Parse JSON into a Map
             val jsonElement = Json.parseToJsonElement(bodyText)
             val jsonObject = jsonElement.jsonObject
 
             val selectedDocument = jsonObject["selectedDocument"]?.jsonPrimitive?.contentOrNull
             val requestedDate = jsonObject["requestedDate"]?.jsonPrimitive?.contentOrNull
-            println("selectedDocument: $selectedDocument")
-            println("selectedDate: $requestedDate")
 
-            call.respond(HttpStatusCode.OK, mapOf("documentId" to 2))
+
+            val (month, day, year) = requestedDate?.split("/")!!.map { it.toInt() }
+            val parseRequestedDate = LocalDate(year, month, day)
+
+
+
+            val newDocumentRecord = DocumentRecords(
+                studentId = userid?.toInt() ?: 0,
+                documentType = selectedDocument.toString(),
+                requestedDate = parseRequestedDate
+            )
+
+           val isSavedRecords =  documentDAOImpl.createDocument(newDocumentRecord, userid?.toInt() ?: 0)
+
+            if(isSavedRecords?.id == null || isSavedRecords == null) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Internal Server Error: Failed to create document in records"))
+            }
+
+            call.respond(HttpStatusCode.OK, mapOf("documentId" to isSavedRecords!!.id))
         }
 
-        post("/student-upload-requirements") {
+        post("/student-upload-requirement-images") {
+            val principal = call.principal<JWTPrincipal>()!!
+            val username = principal.payload.getClaim("username").asString()
+            val userid = userServiceImpl.findByUsername(username)?.id
+
+            if(userid == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "user not found"))
+            }
+
+            var documentId = ""
+            var description = ""
+            val multipartData = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+
+            // Process each part of the multipart data
+            multipartData.forEachPart { part ->
+                when (part) {
+                    // Process form fields (documentId and description)
+                    is PartData.FormItem -> {
+                        when (part.name) {
+                            "documentId" -> documentId = part.value
+                            "description" -> description = part.value
+                        }
+                    }
+
+                    // Process file fields (documents-uploaded)
+                    is PartData.FileItem -> {
+                        val fileName = part.originalFileName ?: "unknown_file"
+                        val file = File("uploads/documents-student-requirements/$userid/$fileName")
+
+                        // Ensure the uploads directory exists
+                        file.parentFile?.mkdirs()
+
+                        // Save the file content
+                        part.provider().copyAndClose(file.writeChannel())
+
+                        documentDAOImpl.recordRequirementImages(documentId, file.absolutePath)
+                    }
+
+                    else -> {
+                        // Handle any other part types if necessary
+                    }
+                }
+                // Dispose of the part once processed
+                part.dispose()
+            }
+
+            call.respond(HttpStatusCode.OK, mapOf("success" to "uploaded required images"))
 
         }
         //endregion

@@ -89,6 +89,7 @@ object DocumentRequirementsImagesTable : IntIdTable("document_requirement_image"
     val documentId = reference("document_id", DocumentRecordsTable, onDelete = ReferenceOption.CASCADE)
     val fileName = varchar("file_name", 255)
     val fileType = varchar("file_type", 20)
+    val requestedDate = date("requested_date")
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 }

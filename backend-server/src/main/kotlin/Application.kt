@@ -1,5 +1,6 @@
 package com.ite393group5
 
+import com.ite393group5.dao.documents.DocumentDAOImpl
 import com.ite393group5.models.TokenConfig
 import com.ite393group5.plugins.*
 import com.ite393group5.services.appointment.AppointmentServiceImpl
@@ -42,6 +43,8 @@ fun Application.module() {
         realm = environment.config.property("jwt.realm").getString(),
     )
 
+    val documentDAOImpl: DocumentDAOImpl = DocumentDAOImpl()
+
     configureSecurity(studentTokenConfig,staffTokenConfig)
     configureMonitoring()
     configureSerialization()
@@ -53,7 +56,7 @@ fun Application.module() {
     val userService = UserServiceImpl()
     val appointmentService = AppointmentServiceImpl()
     configureSockets(userService)
-    configureRouting(userService, appointmentService,tokenService, studentTokenConfig,staffTokenConfig,adminTokenConfig)
+    configureRouting(userService, appointmentService, documentDAOImpl,tokenService, studentTokenConfig,staffTokenConfig,adminTokenConfig)
     configureRateLimiter()
 
 

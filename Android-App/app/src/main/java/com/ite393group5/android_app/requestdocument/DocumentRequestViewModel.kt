@@ -1,10 +1,13 @@
 package com.ite393group5.android_app.requestdocument
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ite393group5.android_app.requestdocument.domain.UserCreateDocumentUseCase
 import com.ite393group5.android_app.utilities.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DocumentRequestViewModel @Inject constructor(
-    private val networkMonitor: NetworkMonitor
+    private val networkMonitor: NetworkMonitor,
+    private val userCreateDocumentUseCase: UserCreateDocumentUseCase
 ) : ViewModel()  {
 
     fun updateSelectedDocument(documentSelected: String) {
@@ -113,6 +117,9 @@ class DocumentRequestViewModel @Inject constructor(
         )
     }
 
+
+
+
     private val _stateRequestDocumentView  = MutableStateFlow(RequestDocumentState())
     val stateRequestDocumentView: StateFlow<RequestDocumentState> = _stateRequestDocumentView
 
@@ -124,6 +131,30 @@ class DocumentRequestViewModel @Inject constructor(
             networkMonitor.isConnected.collect { isOnline ->
                 // Handle network connectivity changes
                 _stateRequestDocumentView.value = _stateRequestDocumentView.value.copy(hasInternet = isOnline)
+            }
+        }
+    }
+
+    fun startUploadingRequestProcess(context: Context) {
+        viewModelScope.launch{
+            _stateRequestDocumentView.value = _stateRequestDocumentView.value.copy(
+                isUserWaitingForServerResponse = true
+            )
+            val documentID = userCreateDocumentUseCase.executeCreateDocumentRequest(
+                _stateRequestDocumentView.value.selectedDocument,
+                _stateRequestDocumentView.value.selectedDate,
+            )
+            if(documentID != -1 and documentID != null){
+                _stateRequestDocumentView.value = _stateRequestDocumentView.value.copy(
+                    isDocumentCreatedOnServer = true
+                )
+              val uploadImagesResponse =  userCreateDocumentUseCase.uploadImageRequirements(
+                  context, filesToBeUploaded = _stateRequestDocumentView.value.filesToBeUploaded,
+                  docId = documentID
+              )
+                if(uploadImagesResponse.value == 200){
+                    _stateRequestDocumentView.value = RequestDocumentState()
+                }
             }
         }
     }
